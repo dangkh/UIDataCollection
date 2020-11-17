@@ -311,10 +311,32 @@ class Ui_MainWindow(object):
         self.recordingButton.clicked.connect(self.recordingScreen)
 
         # data processes
+        self.listViewBtn = [self.view1, self.view1_2, self.view1_3, self.view1_4, self.view1_5, self.view1_6, self.view1_7, self.view1_8
+        , self.view1_9, self.view1_10]
+        self.listDelBtn = [self.delete1, self.delete1_2, self.delete1_3, self.delete1_4, self.delete1_5, self.delete1_6, self.delete1_7
+        , self.delete1_8, self.delete1_9, self.delete1_10]
         self.jsonFiles = readData()
         self.loadData2Table()
 
-        self.GoPageBtn.clicked.connect(self.goPage)
+
+        # page move 
+        self.GoPageBtn.clicked.connect(lambda: self.goPage(self.spinBox.value()))
+        self.pushButton_6.clicked.connect(lambda: self.goPage(self.current_page-1))
+        self.pushButton_7.clicked.connect(lambda: self.goPage(self.current_page+1))
+
+        # delete btn
+
+        self.delete1.clicked.connect(lambda: self.showChoosePopup("Do you want to delete: ", self.current_page * 10+0))
+        self.delete1_2.clicked.connect(lambda: self.showChoosePopup("Do you want to delete: " , self.current_page * 10+1))
+        self.delete1_3.clicked.connect(lambda: self.showChoosePopup("Do you want to delete: " , self.current_page * 10+2))
+        self.delete1_4.clicked.connect(lambda: self.showChoosePopup("Do you want to delete: " , self.current_page * 10+3))
+        self.delete1_5.clicked.connect(lambda: self.showChoosePopup("Do you want to delete: " , self.current_page * 10+4))
+        self.delete1_6.clicked.connect(lambda: self.showChoosePopup("Do you want to delete: " , self.current_page * 10+5))
+        self.delete1_7.clicked.connect(lambda: self.showChoosePopup("Do you want to delete: " , self.current_page * 10+6))
+        self.delete1_8.clicked.connect(lambda: self.showChoosePopup("Do you want to delete: " , self.current_page * 10+7))
+        self.delete1_9.clicked.connect(lambda: self.showChoosePopup("Do you want to delete: " , self.current_page * 10+8))
+        self.delete1_10.clicked.connect(lambda: self.showChoosePopup("Do you want to delete: " , self.current_page * 10+9))
+
 
 
     def retranslateUi(self, MainWindow):
@@ -385,6 +407,19 @@ class Ui_MainWindow(object):
             self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(data['recPlan'])))
             self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(data['name']))
             self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(data['time']))
+        if len(listShow) < 10:
+            for row in range(len(listShow), 10):
+                self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(str('')))
+                self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(str('')))
+                self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str('')))
+                self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(str('')))
+                self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str('')))
+                self.listViewBtn[row].setEnabled(False)
+                self.listDelBtn[row].setEnabled(False)
+        self.spinBox.setValue(current_page)
+        numberPage = math.ceil(len(self.jsonFiles) / 10)
+        self.spinBox.setMaximum(numberPage-1)
+        self.current_page = current_page
 
 
     def recordingScreen(self):
@@ -398,7 +433,19 @@ class Ui_MainWindow(object):
         msg  = QtWidgets.QMessageBox()
         msg.setText(str(error))
         x = msg.exec_()
+
+    def showChoosePopup(self, error, pos):
+        msg  = QtWidgets.QMessageBox()
+        msg.setText(str(error) + str(self.jsonFiles[pos]))
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+        self.ChoosePopupParam = pos
+        msg.buttonClicked.connect(self.choosedInMsg)
+        x = msg.exec_()
     
+    def choosedInMsg(self, i):
+        if i.text() == "OK":
+            self.delItem(self.ChoosePopupParam)
+
 
     def createData(self):
         name = self.uiForm.lineEdit_2.text()
@@ -443,20 +490,18 @@ class Ui_MainWindow(object):
                 json.dump(js, outfile)
             print('success')
             self.Form.close()
+            self.refreshPage(math.ceil(len(self.jsonFiles) / 10)-1)
         else:
             self.showErrorPopup("Please complete fully the form")
 
-    def goPage(self):
-        current_page = self.spinBox.value()
+    def goPage(self, pos):
+        print(pos)
         numberPage = math.ceil(len(self.jsonFiles) / 10)
-
         print(numberPage)
-        print(current_page)
-
-        if current_page >= numberPage:
-            self.showErrorPopup("Out of number page: " + str(numberPage - 1))
+        if pos >= numberPage or pos < 0:
+            self.showErrorPopup("Out of number page: " + str(pos))
         else:
-            self.refreshPage(current_page)
+            self.refreshPage(pos)
 
     def refreshPage(self, pageNum):
         idxL = pageNum * 10
@@ -473,6 +518,8 @@ class Ui_MainWindow(object):
             self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(data['recPlan'])))
             self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(data['name']))
             self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(data['time']))
+            self.listViewBtn[row].setEnabled(True)
+            self.listDelBtn[row].setEnabled(True)
         if len(listShow) < 10:
             for row in range(len(listShow), 10):
                 self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(str('')))
@@ -480,6 +527,21 @@ class Ui_MainWindow(object):
                 self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str('')))
                 self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(str('')))
                 self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str('')))
+                self.listViewBtn[row].setEnabled(False)
+                self.listDelBtn[row].setEnabled(False)
+        self.spinBox.setValue(pageNum)
+        numberPage = math.ceil(len(self.jsonFiles) / 10)
+        self.spinBox.setMaximum(numberPage-1)
+        self.current_page = pageNum
+
+    def delItem(self, pos):
+        os.remove(self.jsonFiles[pos])
+        del self.jsonFiles[pos]
+        numberPage = math.ceil(len(self.jsonFiles) / 10)
+        futurePage = self.current_page if self.current_page <= numberPage-1 else numberPage-1
+        self.goPage(futurePage)
+
+
 
 def readData(link = "./DataVIN/", prefixName = "Data"):
     if os.path.isdir(link):
@@ -488,7 +550,11 @@ def readData(link = "./DataVIN/", prefixName = "Data"):
         # print(jsonFiles)
     else:
         print("imported link is not exist")
-        return []
+        print("DataVIN folder is created, run again!")
+        os.mkdir(link)
+        onlyfiles = [f for f in os.listdir(link) if os.path.isfile(link+f)]
+        jsonFiles = [link+x for x in onlyfiles if x[-4:] == 'json']
+        # print(jsonFiles)
     return jsonFiles
 
 
