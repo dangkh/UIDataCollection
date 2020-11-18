@@ -337,7 +337,17 @@ class Ui_MainWindow(object):
         self.delete1_9.clicked.connect(lambda: self.showChoosePopup("Do you want to delete: " , self.current_page * 10+8))
         self.delete1_10.clicked.connect(lambda: self.showChoosePopup("Do you want to delete: " , self.current_page * 10+9))
 
-
+        # view btn
+        self.view1.clicked.connect(lambda: self.viewFunction(self.current_page * 10+0))
+        self.view1_2.clicked.connect(lambda: self.viewFunction(self.current_page * 10+1))
+        self.view1_3.clicked.connect(lambda: self.viewFunction(self.current_page * 10+2))
+        self.view1_4.clicked.connect(lambda: self.viewFunction(self.current_page * 10+3))
+        self.view1_5.clicked.connect(lambda: self.viewFunction(self.current_page * 10+4))
+        self.view1_6.clicked.connect(lambda: self.viewFunction(self.current_page * 10+5))
+        self.view1_7.clicked.connect(lambda: self.viewFunction(self.current_page * 10+6))
+        self.view1_8.clicked.connect(lambda: self.viewFunction(self.current_page * 10+7))
+        self.view1_9.clicked.connect(lambda: self.viewFunction(self.current_page * 10+8))
+        self.view1_10.clicked.connect(lambda: self.viewFunction(self.current_page * 10+9))
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -427,7 +437,13 @@ class Ui_MainWindow(object):
         self.uiForm = Ui_Form()
         self.uiForm.setupUi(self.Form)
         self.Form.show()
-        self.uiForm.pushButton_6.clicked.connect(self.createData)
+        self.uiForm.LoadBtn.clicked.connect(self.visualData)
+        self.uiForm.SaveBtn.clicked.connect(self.createData)
+
+    def visualData(self):
+        self.uiForm.extendSize(self.Form)
+        self.uiForm.addGif(self.Form)
+        self.uiForm.LoadBtn.setText("Reload")        
 
     def showErrorPopup(self, error):
         msg  = QtWidgets.QMessageBox()
@@ -448,14 +464,14 @@ class Ui_MainWindow(object):
 
 
     def createData(self):
-        name = self.uiForm.lineEdit_2.text()
-        age = self.uiForm.spinBox.value()
-        genderG = self.uiForm.radioButton.isChecked()
-        genderM = self.uiForm.radioButton_2.isChecked()
-        patientDesc = self.uiForm.textEdit.toPlainText()
-        recorder = self.uiForm.lineEdit_3.text()
-        location = self.uiForm.lineEdit_4.text()
-        recPlan = self.uiForm.spinBox_2.value()
+        name = self.uiForm.NameEdit.text()
+        age = self.uiForm.AgeEdit.value()
+        genderG = self.uiForm.FemaleEdit.isChecked()
+        genderM = self.uiForm.MaleEdit.isChecked()
+        patientDesc = self.uiForm.DiseaseDescEdit.toPlainText()
+        recorder = self.uiForm.RecorderEdit.text()
+        location = self.uiForm.LocateEdit.text()
+        recPlan = self.uiForm.RecPlanEdit.value()
         timeTmp = self.uiForm.dateTimeEdit.dateTime()
         # dt.toString("dd.MM.yyyy hh:mm:ss.zzz"))
         time_string = timeTmp.toString(self.uiForm.dateTimeEdit.displayFormat())
@@ -541,6 +557,53 @@ class Ui_MainWindow(object):
         futurePage = self.current_page if self.current_page <= numberPage-1 else numberPage-1
         self.goPage(futurePage)
 
+    def viewFunction(self, pos):
+        file = self.jsonFiles[pos]
+        with open(file) as json_file:
+            data = json.load(json_file)
+        print(data)
+
+        self.Form = QtWidgets.QWidget()
+        self.uiForm = Ui_Form()
+        self.uiForm.setupUi(self.Form)
+        self.uiForm.extendSize(self.Form)
+
+        self.uiForm.label_2.setEnabled(False)
+        self.uiForm.label_4.setEnabled(False)
+        self.uiForm.label_5.setEnabled(False)
+        self.uiForm.label_6.setEnabled(False)
+        
+        self.uiForm.label_8.setEnabled(False)
+        self.uiForm.label_9.setEnabled(False)
+        self.uiForm.label_10.setEnabled(False)
+        self.uiForm.label_11.setEnabled(False)
+        self.uiForm.label_7.setEnabled(False)
+        self.uiForm.LoadBtn.setEnabled(False)
+        self.uiForm.SaveBtn.setEnabled(False)
+
+        self.uiForm.NameEdit.setText(data['name'])
+        self.uiForm.NameEdit.setEnabled(False)
+        self.uiForm.AgeEdit.setValue(data['age'])
+        self.uiForm.AgeEdit.setEnabled(False)
+        if data['gender'] == 'M':
+            self.uiForm.MaleEdit.setChecked(True)
+        else:
+            self.uiForm.FemaleEdit.setChecked(True)
+        self.uiForm.MaleEdit.setEnabled(False)
+        self.uiForm.FemaleEdit.setEnabled(False)
+        self.uiForm.DiseaseDescEdit.setText(data['patientDesc'])
+        self.uiForm.DiseaseDescEdit.setEnabled(False)
+        self.uiForm.RecorderEdit.setText(data['recorder'])
+        self.uiForm.RecorderEdit.setEnabled(False)
+        self.uiForm.LocateEdit.setText(data['location'])
+        self.uiForm.LocateEdit.setEnabled(False)
+        self.uiForm.RecPlanEdit.setValue(data['recPlan'])
+        self.uiForm.RecPlanEdit.setEnabled(False)
+        dataTime = QtCore.QDateTime.fromString(data['time'], 'd/M/yyyy hh:mm')
+        self.uiForm.dateTimeEdit.setDateTime(dataTime)
+        self.uiForm.dateTimeEdit.setEnabled(False)
+
+        self.Form.show()
 
 
 def readData(link = "./DataVIN/", prefixName = "Data"):
