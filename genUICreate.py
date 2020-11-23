@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(568, 560)
+        Form.resize(579, 560)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("redbtn.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         icon.addPixmap(QtGui.QPixmap("greenbt2.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
@@ -124,12 +124,18 @@ class Ui_Form(object):
         self.LoadBtn.setGeometry(QtCore.QRect(300, 470, 75, 23))
         self.LoadBtn.setObjectName("LoadBtn")
         self.SaveBtn = QtWidgets.QPushButton(Form)
-        self.SaveBtn.setGeometry(QtCore.QRect(720, 470, 75, 23))
+        self.SaveBtn.setGeometry(QtCore.QRect(830, 470, 75, 23))
         self.SaveBtn.setObjectName("SaveBtn")
         self.ET_Gif = QtWidgets.QLabel(Form)
-        self.ET_Gif.setGeometry(QtCore.QRect(620, 110, 201, 141))
+        self.ET_Gif.setGeometry(QtCore.QRect(620, 110, 221, 141))
+        self.ET_Gif.setStyleSheet("background-color: rgb(203, 0, 0);")
         self.ET_Gif.setText("")
         self.ET_Gif.setObjectName("ET_Gif")
+        self.EEG_Gif = QtWidgets.QLabel(Form)
+        self.EEG_Gif.setGeometry(QtCore.QRect(860, 110, 221, 141))
+        self.EEG_Gif.setStyleSheet("background-color: rgb(0, 117, 234);")
+        self.EEG_Gif.setText("")
+        self.EEG_Gif.setObjectName("EEG_Gif")
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
@@ -158,12 +164,20 @@ class Ui_Form(object):
         self.SaveBtn.setText(_translate("Form", "Lưu"))
 
     def extendSize(self, Form):
-            Form.resize(1000, 560)
+            Form.resize(1200, 560)
 
     def addGif(self, Form):
-        self.movie = QtGui.QMovie("test.gif")
-        self.ET_Gif.setMovie(self.movie)
+        self.ETmovie = QtGui.QMovie("test.gif")
+        self.ET_Gif.setMovie(self.ETmovie)
         rect = self.ET_Gif.geometry()
-        size = QtCore.QSize(min(rect.width(), rect.height()), min(rect.width(), rect.height()))
-        self.movie.setScaledSize(size)
-        self.movie.start()
+        size = QtCore.QSize(max(rect.width(), rect.height()), min(rect.width(), rect.height()))
+        self.ETmovie.setScaledSize(size)
+        self.ETmovie.start()
+
+        self.EEGmovie = QtGui.QMovie("testgif_2.gif")
+        self.EEG_Gif.setMovie(self.EEGmovie)
+        rect = self.EEG_Gif.geometry()
+        size = QtCore.QSize(max(rect.width(), rect.height()), min(rect.width(), rect.height()))
+        self.EEGmovie.setScaledSize(size)
+        self.EEGmovie.start()
+
