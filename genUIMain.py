@@ -14,7 +14,7 @@ import json
 import random
 import os 
 import math
-
+from utility import *
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -442,6 +442,15 @@ class Ui_MainWindow(object):
 
     def visualData(self):
         self.uiForm.extendSize(self.Form)
+        # **********************************Mr_HOA*******************************
+        # load Data
+        # **********************************Mr_HOA*******************************
+
+        # create Gif
+        EEGData = readFile("./exampleEEG")
+        EEGData = EEGData.astype(float)
+        EEGData = EEGData[3:17,:].T
+        
         self.uiForm.addGif(self.Form)
         self.uiForm.LoadBtn.setText("Reload")        
 
@@ -602,7 +611,7 @@ class Ui_MainWindow(object):
         dataTime = QtCore.QDateTime.fromString(data['time'], 'd/M/yyyy hh:mm')
         self.uiForm.dateTimeEdit.setDateTime(dataTime)
         self.uiForm.dateTimeEdit.setEnabled(False)
-
+        # load gif
         self.Form.show()
 
 
