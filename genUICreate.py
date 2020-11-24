@@ -10,11 +10,16 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationToolbar2QT as NavigationToolbar
+from matplotlib.figure import Figure
+import sys
+import matplotlib
+import matplotlib.pyplot as plt
 
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(542, 560)
+        Form.resize(551, 560)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("redbtn.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         icon.addPixmap(QtGui.QPixmap("greenbt2.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
@@ -138,9 +143,16 @@ class Ui_Form(object):
         self.EEG_Gif.setStyleSheet("background-color: rgb(0, 117, 234);")
         self.EEG_Gif.setText("")
         self.EEG_Gif.setObjectName("EEG_Gif")
+        self.verticalLayoutWidget = QtWidgets.QWidget(Form)
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(620, 260, 251, 171))
+        self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
+        self.ET2 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
+        self.ET2.setContentsMargins(0, 0, 0, 0)
+        self.ET2.setObjectName("ET2")
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
+        self.canvas = None
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
@@ -165,6 +177,8 @@ class Ui_Form(object):
         self.LoadBtn.setText(_translate("Form", "Load"))
         self.SaveBtn.setText(_translate("Form", "Lưu"))
 
+
+
     def extendSize(self, Form):
             Form.resize(1200, 560)
 
@@ -183,8 +197,54 @@ class Ui_Form(object):
         self.EEGmovie.setScaledSize(size)
         self.EEGmovie.start()
 
+
+        self.fig = Figure(figsize=(5, 4), dpi=100)
+        if self.canvas is None:
+            self.canvas = FigureCanvasQTAgg(self.fig)
+        else:
+            self.canvas.setParent(None)
+            self.canvas = FigureCanvasQTAgg(self.fig)
+        self.ET2.addWidget(self.canvas)
+        self.numChanel = 3
+        self.currentCounter = 0
+        self.listAx  = [self.fig.add_subplot(self.numChanel,1, x+1) for x in range(self.numChanel)]
+        xdata = (range(300))
+        for ch, ax in enumerate(self.listAx):
+            # ax.plot(xdata, self.EEG[ch,:self.currentCounter * 10 + 300], 'r', lw=1)
+            ax.axes.xaxis.set_visible(False)
+            ax.axes.yaxis.set_visible(False)
+
+        self.drawStatus = False
+        self.referAx = []
+        self.updatePlot()
+
+
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(100)
+        self.timer.timeout.connect(self.updatePlot)
+        self.timer.start()
+
     def centerUI(self, Form):        
         frameGm = Form.frameGeometry()
         centerP = QtWidgets.QDesktopWidget().availableGeometry().topLeft()
         frameGm.moveCenter(centerP)
         Form.move(frameGm.center())
+
+    def loadData(self, EEG):
+        self.EEG = EEG
+
+    def updatePlot(self):
+        currentData = self.EEG[0:self.numChanel,self.currentCounter * 10 :self.currentCounter * 10 + 300]
+        xdata = (range(300))
+        self.currentCounter += 1
+        if self.drawStatus == False:
+            for ch, ax in enumerate(self.listAx):
+                line, = ax.plot(xdata, currentData[ch,:], 'r', lw=1)
+                self.referAx.append(line)
+            self.drawStatus = True
+        else:
+            for ch, ax in enumerate(self.listAx):
+                currentAx = self.referAx[ch]
+                currentAx.set_ydata(currentData[ch,:])
+        self.canvas.draw()
+

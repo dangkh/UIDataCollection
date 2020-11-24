@@ -474,8 +474,8 @@ class Ui_MainWindow(object):
         # create Gif
         EEGData = readFile("./exampleEEG")
         EEGData = EEGData.astype(float)
-        EEGData = EEGData[3:17,:].T
-        
+        EEGData = EEGData[3:17,:]
+        self.uiForm.loadData(EEGData)
         self.uiForm.addGif(self.Form)
         self.uiForm.LoadBtn.setText("Reload")        
 
