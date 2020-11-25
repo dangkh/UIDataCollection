@@ -426,7 +426,7 @@ class Ui_MainWindow(object):
 
 
     def loadData2Table(self):
-        current_page = self.spinBox.value()
+        current_page = 0
         idxL = current_page * 10
         listShow = self.jsonFiles[idxL:idxL+10]
         # readJson
@@ -450,10 +450,10 @@ class Ui_MainWindow(object):
                 self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str('')))
                 self.listViewBtn[row].setEnabled(False)
                 self.listDelBtn[row].setEnabled(False)
-        self.spinBox.setValue(max(current_page,0))
+        self.spinBox.setValue(0)
         numberPage = math.ceil(len(self.jsonFiles) / 10)
         self.spinBox.setMaximum(max(numberPage-1,0))
-        self.current_page = current_page
+        self.current_page = 0
 
 
     def recordingScreen(self):
@@ -545,17 +545,23 @@ class Ui_MainWindow(object):
             self.showErrorPopup("Please complete fully the form")
 
     def goPage(self, pos, noWarning = False):
+        print(pos)
+        print(self.current_page)
+
         numberPage = math.ceil(len(self.jsonFiles) / 10)
+        print(numberPage)
         if not noWarning:
+            print("not warning")
             if pos >= numberPage or pos < 0:
-                self.showErrorPopup("Out of number page: " + str(numberPage))
+                self.showErrorPopup("Out of number page: " + str(pos))
                 self.refreshPage(self.current_page)
             else:
-                self.refreshPage(self.current_page)
-                self.current_page = max(pos, 0)
+                self.refreshPage(pos)
         else:
-            self.refreshPage(self.current_page)
-            self.current_page = max(pos, 0)
+            if pos >= numberPage or pos < 0:
+                self.refreshPage(self.current_page)
+            else:
+                self.refreshPage(pos)
 
     def refreshPage(self, pageNumInput):
         pageNum = max(pageNumInput, 0)
@@ -595,7 +601,8 @@ class Ui_MainWindow(object):
         numberPage = math.ceil(len(self.jsonFiles) / 10)
         futurePage = self.current_page if self.current_page <= numberPage-1 else numberPage-1
         futurePage = max(futurePage, 0)
-        self.goPage(futurePage)
+        self.current_page = futurePage
+        self.goPage(self.current_page)
 
     def viewFunction(self, pos):
         file = self.jsonFiles[pos]
