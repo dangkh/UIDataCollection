@@ -15,6 +15,7 @@ import random
 import os 
 import math
 from utility import *
+from datetime import datetime
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -518,6 +519,9 @@ class Ui_MainWindow(object):
         self.Form.show()
         self.uiForm.LoadBtn.clicked.connect(self.visualData)
         self.uiForm.SaveBtn.clicked.connect(self.createData)
+        self.uiForm.pushButton.clicked.connect(self.reloadInfo)
+        self.uiForm.pushButton_2.clicked.connect(self.setData2Form)
+        self.uiForm.pushButton_3.clicked.connect(self.setTime)
 
     def visualData(self):
         self.uiForm.extendSize(self.Form)
@@ -699,7 +703,7 @@ class Ui_MainWindow(object):
             with open(fileName, 'w') as outfile:
                 json.dump(js, outfile)
             self.Form.close()
-            self.refreshPage(math.ceil(len(self.jsonFiles) / 10)-1)
+            self.refreshPage(self.current_page)
         else:
             self.showErrorPopup("Please complete fully the form")
 
@@ -742,27 +746,66 @@ class Ui_MainWindow(object):
         dataTime = QtCore.QDateTime.fromString(data['time'], 'd/M/yyyy hh:mm')
         self.uiForm.dateTimeEdit.setDateTime(dataTime)
         listEditatble = [self.uiForm.NameEdit, self.uiForm.AgeEdit, self.uiForm.MaleEdit, self.uiForm.FemaleEdit, self.uiForm.DiseaseDescEdit, 
-            self.uiForm.RecorderEdit, self.uiForm.LocateEdit, self.uiForm.RecPlanEdit, self.uiForm.dateTimeEdit]
+            self.uiForm.RecorderEdit, self.uiForm.LocateEdit, self.uiForm.RecPlanEdit, self.uiForm.dateTimeEdit, self.uiForm.pushButton, 
+            self.uiForm.pushButton_2, self.uiForm.pushButton_3]
         for x in listEditatble:
             x.setEnabled(False)
 
         self.currentUpdate = False
         self.uiForm.LoadBtn.clicked.connect(lambda: self.enableEdit(listEditatble, pos))
+        self.uiForm.pushButton.clicked.connect(self.reloadInfo)
+        self.uiForm.pushButton_2.clicked.connect(lambda: self.setData2Form(None))
+        self.uiForm.pushButton_3.clicked.connect(self.setTime)
         # load gif
         self.Form.show()
+
+    def setData2Form(self, setData):
+        if not setData:
+            self.uiForm.NameEdit.setText("")
+            self.uiForm.AgeEdit.setValue(0)
+            self.uiForm.MaleEdit.setChecked(True)
+            self.uiForm.FemaleEdit.setChecked(False)
+            self.uiForm.DiseaseDescEdit.setText("")
+            self.uiForm.RecorderEdit.setText("")
+            self.uiForm.LocateEdit.setText("")
+            self.uiForm.RecPlanEdit.setValue(0)
+        else:
+            self.uiForm.NameEdit.setText(setData['name'])
+            self.uiForm.AgeEdit.setValue(setData['age'])
+            if setData['gender'] == 'M':
+                self.uiForm.MaleEdit.setChecked(True)
+            else:
+                self.uiForm.FemaleEdit.setChecked(True)
+            self.uiForm.DiseaseDescEdit.setText(setData['patientDesc'])
+            self.uiForm.RecorderEdit.setText(setData['recorder'])
+            self.uiForm.LocateEdit.setText(setData['location'])
+            self.uiForm.RecPlanEdit.setValue(setData['recPlan'])
+            dataTime = QtCore.QDateTime.fromString(setData['time'], 'd/M/yyyy hh:mm')
+            self.uiForm.dateTimeEdit.setDateTime(dataTime)
+
+    def reloadInfo(self):
+        file = self.jsonFiles[-1]
+        with open(file) as json_file:
+            data = json.load(json_file)
+        self.setData2Form(data)
+
+    def setTime(self):
+        # dataTime = QtCore.QDateTime.fromString(, 'd/M/yyyy hh:mm')
+        self.uiForm.dateTimeEdit.setDateTime(QtCore.QDateTime.currentDateTime())
+        
 
     def enableEdit(self, listEdit, pos):
         if not self.currentUpdate:
             for x in listEdit:
                 x.setEnabled(True)
-            self.uiForm.LoadBtn.setText("Sửa ?")
+            self.uiForm.LoadBtn.setText("Cập nhật ?")
         else:
             for x in listEdit:
                 x.setEnabled(False)
-            self.uiForm.LoadBtn.setText("Cập nhật ?")
+            self.uiForm.LoadBtn.setText("Sửa ?")
             self.showChooseUpdate("Do you want to update: ", pos)
-
         self.currentUpdate = not self.currentUpdate
+
 
     def turnOnSignal(self):
         self.Signal1.setChecked(False)
