@@ -10,10 +10,13 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from genUICreate import Ui_Form
+from pikachu import Pikachu
 import json
 import random
 import os 
 import math
+import _thread
+import time
 from utility import *
 from datetime import datetime
 
@@ -581,7 +584,9 @@ class Ui_MainWindow(object):
         EEGData = EEGData[3:17,:]
         self.uiForm.loadData(EEGData)
         self.uiForm.addGif(self.Form)
-        self.uiForm.LoadBtn.setText("Reload")        
+        self.uiForm.LoadBtn.setText("Reload")
+        rabbit_connection = Pikachu()
+        _thread.start_new_thread(rabbit_connection.consume, ("hello", consumeMethod))
 
     def showErrorPopup(self, error):
         msg  = QtWidgets.QMessageBox()
@@ -911,7 +916,8 @@ def readData(link = "./DataVIN/", prefixName = "Data"):
         # print(jsonFiles)
     return jsonFiles
 
-
+def consumeMethod(ch, method, properties, body):
+    print(" [x] Received %r" % body)
 
 if __name__ == "__main__":
     import sys
@@ -919,5 +925,8 @@ if __name__ == "__main__":
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
+
     MainWindow.show()
     sys.exit(app.exec_())
+    
+    
