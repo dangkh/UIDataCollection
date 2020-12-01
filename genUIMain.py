@@ -428,6 +428,12 @@ class Ui_MainWindow(object):
         self.view1_9.clicked.connect(lambda: self.viewFunction(self.current_page * 10+8))
         self.view1_10.clicked.connect(lambda: self.viewFunction(self.current_page * 10+9))
 
+
+        self.updateSignal()
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(200)
+        self.timer.timeout.connect(self.updateSignal)
+        self.timer.start()
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -517,11 +523,52 @@ class Ui_MainWindow(object):
         self.uiForm.setupUi(self.Form)
         self.uiForm.centerUI(self.Form)
         self.Form.show()
+        self.updateSignal("rcdForm")
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(200)
+        self.timer.timeout.connect(lambda: self.updateSignal("rcdForm"))
+        self.timer.start()
+        listConnect = self.checkAvailbleConnect()
+        listCheckBox = [self.uiForm.checkBoxET, self.uiForm.checkBoxEEG, self.uiForm.checkBoxCAM1, self.uiForm.checkBoxCAM2]
+        listChanel = [self.uiForm.checkBoxET, self.uiForm.checkBoxEEG, self.uiForm.checkBoxCAM1, self.uiForm.checkBoxCAM2]
+        for idx, value in enumerate(listConnect):
+            if idx > 0:
+                if  listConnect[value]:
+                    listCheckBox[idx-1].setEnabled(False)
+                    listCheckBox[idx-1].setChecked(False)
+                else:
+                    listCheckBox[idx-1].setChecked(True)
+
         self.uiForm.LoadBtn.clicked.connect(self.visualData)
         self.uiForm.SaveBtn.clicked.connect(self.createData)
-        self.uiForm.pushButton.clicked.connect(self.reloadInfo)
-        self.uiForm.pushButton_2.clicked.connect(self.setData2Form)
-        self.uiForm.pushButton_3.clicked.connect(self.setTime)
+        self.uiForm.fetchInfoBtn.clicked.connect(self.reloadInfo)
+        self.uiForm.resetFormBtn.clicked.connect(lambda: self.setData2Form(None))
+        self.uiForm.getCurrentTime.clicked.connect(self.setTime)
+        listCheckBox[0].stateChanged.connect(lambda: self.reloadVisual(listCheckBox, 0))
+        listCheckBox[1].stateChanged.connect(lambda: self.reloadVisual(listCheckBox, 1))
+        listCheckBox[2].stateChanged.connect(lambda: self.reloadVisual(listCheckBox, 2))
+        listCheckBox[3].stateChanged.connect(lambda: self.reloadVisual(listCheckBox, 3))
+        self.uiForm.stopLoadingBtn.clicked.connect(self.stopLoadingFunc)
+
+
+    def updateSignal(self, msg = None):
+        listConnect = self.checkAvailbleConnect()
+        self.turnOnSignal(listConnect, msg)
+
+    def reloadVisual(self, listCheckBox, idcB):
+        if idcB != 0: return
+        if listCheckBox[idcB].isChecked():
+            if self.uiForm.canvas is not None:
+                self.uiForm.canvas.setParent(None)    
+                self.uiForm.addEEG_Visual()
+            else:
+                self.uiForm.addEEG_Visual()
+        else: 
+            if self.uiForm.canvas is not None:
+                self.uiForm.canvas.setParent(None)    
+
+    def stopLoadingFunc(self):
+        print("FINISHHHHHHHHHHHHHHHHHHHHHHHHH FUNCTIONNNNNNNNNNNNNNNNNNNNN PLSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
 
     def visualData(self):
         self.uiForm.extendSize(self.Form)
@@ -529,7 +576,6 @@ class Ui_MainWindow(object):
         # load Data
         # **********************************Mr_HOA*******************************
 
-        # create Gif
         EEGData = readFile("./exampleEEG")
         EEGData = EEGData.astype(float)
         EEGData = EEGData[3:17,:]
@@ -746,17 +792,26 @@ class Ui_MainWindow(object):
         dataTime = QtCore.QDateTime.fromString(data['time'], 'd/M/yyyy hh:mm')
         self.uiForm.dateTimeEdit.setDateTime(dataTime)
         listEditatble = [self.uiForm.NameEdit, self.uiForm.AgeEdit, self.uiForm.MaleEdit, self.uiForm.FemaleEdit, self.uiForm.DiseaseDescEdit, 
-            self.uiForm.RecorderEdit, self.uiForm.LocateEdit, self.uiForm.RecPlanEdit, self.uiForm.dateTimeEdit, self.uiForm.pushButton, 
-            self.uiForm.pushButton_2, self.uiForm.pushButton_3]
+            self.uiForm.RecorderEdit, self.uiForm.LocateEdit, self.uiForm.RecPlanEdit, self.uiForm.dateTimeEdit, self.uiForm.fetchInfoBtn, 
+            self.uiForm.resetFormBtn, self.uiForm.getCurrentTime]
+        self.uiForm.stopLoadingBtn.hide()
         for x in listEditatble:
             x.setEnabled(False)
 
         self.currentUpdate = False
         self.uiForm.LoadBtn.clicked.connect(lambda: self.enableEdit(listEditatble, pos))
-        self.uiForm.pushButton.clicked.connect(self.reloadInfo)
-        self.uiForm.pushButton_2.clicked.connect(lambda: self.setData2Form(None))
-        self.uiForm.pushButton_3.clicked.connect(self.setTime)
-        # load gif
+        self.uiForm.fetchInfoBtn.clicked.connect(self.reloadInfo)
+        self.uiForm.resetFormBtn.clicked.connect(lambda: self.setData2Form(None))
+        self.uiForm.getCurrentTime.clicked.connect(self.setTime)
+        listConnect = self.checkAvailbleData()
+        listCheckBox = [self.uiForm.checkBoxET, self.uiForm.checkBoxEEG, self.uiForm.checkBoxCAM1, self.uiForm.checkBoxCAM2]
+        for idx, value in enumerate(listConnect):
+            if not listConnect[value]:
+                listCheckBox[idx].setEnabled(False)
+                listCheckBox[idx].setChecked(False)
+            else:
+                listCheckBox[idx].setChecked(True)
+
         self.Form.show()
 
     def setData2Form(self, setData):
@@ -790,7 +845,6 @@ class Ui_MainWindow(object):
         self.setData2Form(data)
 
     def setTime(self):
-        # dataTime = QtCore.QDateTime.fromString(, 'd/M/yyyy hh:mm')
         self.uiForm.dateTimeEdit.setDateTime(QtCore.QDateTime.currentDateTime())
         
 
@@ -807,15 +861,41 @@ class Ui_MainWindow(object):
         self.currentUpdate = not self.currentUpdate
 
 
-    def turnOnSignal(self):
-        self.Signal1.setChecked(False)
-        # TODO #######################################################################
-
     def center(self):        
         frameGm = self.abc.frameGeometry()
         centerP = QtWidgets.QDesktopWidget().availableGeometry().center()
         frameGm.moveCenter(centerP)
         self.abc.move(frameGm.topLeft())
+
+
+    def turnOnSignal(self, listConnect, inputForm = None):
+        if inputForm is None:
+            listSignal = [self.Signal1, self.Signal2, self.Signal3, self.Signal4, self.Signal5]
+        else:
+            listSignal = [self.uiForm.Signal1, self.uiForm.Signal2, self.uiForm.Signal3, self.uiForm.Signal4, self.uiForm.Signal5]
+        # Note that, False is green and True is red
+        for idx, value in enumerate(listConnect):
+            listSignal[idx].setChecked(not listConnect[value])
+        # TODO #######################################################################
+
+    def checkAvailbleConnect(self):
+        listConnect = {
+            'MayThu': False,
+            'ET' : False, 
+            'EEG' : False, 
+            'CAM1': False, 
+            'CAM2': False, 
+            }
+        return listConnect
+
+    def checkAvailbleData(self):
+        listConnect = {
+            'ET' : False, 
+            'EEG' : False, 
+            'CAM1': False, 
+            'CAM2': False, 
+            }
+        return listConnect
 
 def readData(link = "./DataVIN/", prefixName = "Data"):
     if os.path.isdir(link):
