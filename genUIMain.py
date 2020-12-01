@@ -17,60 +17,20 @@ import os
 import math
 import _thread
 import time
+from utility import *
+from datetime import datetime
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(744, 571)
+        MainWindow.setEnabled(True)
+        MainWindow.resize(728, 563)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("my-beautiful-life-logo-3.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        MainWindow.setWindowIcon(icon)
+        MainWindow.setAutoFillBackground(True)
         self.abc = QtWidgets.QWidget(MainWindow)
         self.abc.setObjectName("abc")
-        self.horizontalLayoutWidget = QtWidgets.QWidget(self.abc)
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(10, 0, 711, 51))
-        self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
-        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-        self.pushButton_5 = QtWidgets.QPushButton(self.horizontalLayoutWidget)
-        self.pushButton_5.setObjectName("pushButton_5")
-        self.horizontalLayout.addWidget(self.pushButton_5)
-        self.pushButton_4 = QtWidgets.QPushButton(self.horizontalLayoutWidget)
-        self.pushButton_4.setObjectName("pushButton_4")
-        self.horizontalLayout.addWidget(self.pushButton_4)
-        self.pushButton_2 = QtWidgets.QPushButton(self.horizontalLayoutWidget)
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.horizontalLayout.addWidget(self.pushButton_2)
-        self.pushButton_3 = QtWidgets.QPushButton(self.horizontalLayoutWidget)
-        self.pushButton_3.setObjectName("pushButton_3")
-        self.horizontalLayout.addWidget(self.pushButton_3)
-        self.pushButton = QtWidgets.QPushButton(self.horizontalLayoutWidget)
-        self.pushButton.setObjectName("pushButton")
-        self.horizontalLayout.addWidget(self.pushButton)
-        self.horizontalLayoutWidget_2 = QtWidgets.QWidget(self.abc)
-        self.horizontalLayoutWidget_2.setGeometry(QtCore.QRect(10, 50, 711, 26))
-        self.horizontalLayoutWidget_2.setObjectName("horizontalLayoutWidget_2")
-        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget_2)
-        self.horizontalLayout_2.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.radioButton_4 = QtWidgets.QRadioButton(self.horizontalLayoutWidget_2)
-        self.radioButton_4.setText("")
-        self.radioButton_4.setObjectName("radioButton_4")
-        self.horizontalLayout_2.addWidget(self.radioButton_4, 0, QtCore.Qt.AlignHCenter)
-        self.radioButton_5 = QtWidgets.QRadioButton(self.horizontalLayoutWidget_2)
-        self.radioButton_5.setText("")
-        self.radioButton_5.setObjectName("radioButton_5")
-        self.horizontalLayout_2.addWidget(self.radioButton_5, 0, QtCore.Qt.AlignHCenter)
-        self.radioButton_3 = QtWidgets.QRadioButton(self.horizontalLayoutWidget_2)
-        self.radioButton_3.setText("")
-        self.radioButton_3.setObjectName("radioButton_3")
-        self.horizontalLayout_2.addWidget(self.radioButton_3, 0, QtCore.Qt.AlignHCenter)
-        self.radioButton_2 = QtWidgets.QRadioButton(self.horizontalLayoutWidget_2)
-        self.radioButton_2.setText("")
-        self.radioButton_2.setObjectName("radioButton_2")
-        self.horizontalLayout_2.addWidget(self.radioButton_2, 0, QtCore.Qt.AlignHCenter)
-        self.radioButton = QtWidgets.QRadioButton(self.horizontalLayoutWidget_2)
-        self.radioButton.setText("")
-        self.radioButton.setObjectName("radioButton")
-        self.horizontalLayout_2.addWidget(self.radioButton, 0, QtCore.Qt.AlignHCenter)
         self.label = QtWidgets.QLabel(self.abc)
         self.label.setGeometry(QtCore.QRect(20, 80, 161, 21))
         font = QtGui.QFont()
@@ -79,31 +39,13 @@ class Ui_MainWindow(object):
         font.setWeight(75)
         self.label.setFont(font)
         self.label.setObjectName("label")
-        self.recordingButton = QtWidgets.QCommandLinkButton(self.abc)
-        self.recordingButton.setGeometry(QtCore.QRect(610, 70, 111, 41))
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("playIcon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.recordingButton.setIcon(icon)
-        self.recordingButton.setObjectName("recordingButton")
         self.tableWidget = QtWidgets.QTableWidget(self.abc)
         self.tableWidget.setEnabled(True)
-        self.tableWidget.setGeometry(QtCore.QRect(10, 110, 711, 361))
+        self.tableWidget.setGeometry(QtCore.QRect(10, 110, 701, 361))
         self.tableWidget.setFrameShape(QtWidgets.QFrame.NoFrame)
         self.tableWidget.setFrameShadow(QtWidgets.QFrame.Plain)
         self.tableWidget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustIgnored)
         self.tableWidget.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-
-
-        self.tableWidget.setRowCount(10)
-        self.tableWidget.setColumnCount(7)
-        self.tableWidget.setColumnWidth(0, 20)
-        self.tableWidget.setColumnWidth(1, 100)
-        self.tableWidget.setColumnWidth(2, 100)
-        self.tableWidget.setColumnWidth(3, 150)
-        self.tableWidget.setColumnWidth(4, 108)
-        self.tableWidget.setColumnWidth(5, 102)
-        self.tableWidget.setColumnWidth(6, 102)
-
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.setColumnCount(7)
         self.tableWidget.setRowCount(10)
@@ -172,6 +114,7 @@ class Ui_MainWindow(object):
         self.view1.setIcon(icon1)
         self.view1.setObjectName("view1")
         self.view1_2 = QtWidgets.QPushButton(self.abc)
+        self.view1_2.setEnabled(True)
         self.view1_2.setGeometry(QtCore.QRect(508, 162, 102, 31))
         self.view1_2.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.view1_2.setText("")
@@ -292,9 +235,144 @@ class Ui_MainWindow(object):
         self.delete1_11.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.delete1_11.setIcon(icon2)
         self.delete1_11.setObjectName("delete1_11")
+        self.gridLayoutWidget = QtWidgets.QWidget(self.abc)
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 0, 701, 56))
+        self.gridLayoutWidget.setObjectName("gridLayoutWidget")
+        self.gridLayout_2 = QtWidgets.QGridLayout(self.gridLayoutWidget)
+        self.gridLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout_2.setObjectName("gridLayout_2")
+        self.Signal1 = QtWidgets.QToolButton(self.gridLayoutWidget)
+        self.Signal1.setEnabled(False)
+        self.Signal1.setStyleSheet("background-color: rgba(255,255,255,0);border: 0px;")
+        self.Signal1.setText("")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap("redBtn.jpg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon3.addPixmap(QtGui.QPixmap("greenbt2.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon3.addPixmap(QtGui.QPixmap("greenbt2.png"), QtGui.QIcon.Disabled, QtGui.QIcon.Off)
+        icon3.addPixmap(QtGui.QPixmap("redBtn.jpg"), QtGui.QIcon.Disabled, QtGui.QIcon.On)
+        icon3.addPixmap(QtGui.QPixmap("redBtn.jpg"), QtGui.QIcon.Selected, QtGui.QIcon.Off)
+        self.Signal1.setIcon(icon3)
+        self.Signal1.setCheckable(True)
+        self.Signal1.setChecked(True)
+        self.Signal1.setObjectName("Signal1")
+        self.gridLayout_2.addWidget(self.Signal1, 1, 0, 1, 1, QtCore.Qt.AlignHCenter)
+        self.label_5 = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_5.setFont(font)
+        self.label_5.setObjectName("label_5")
+        self.gridLayout_2.addWidget(self.label_5, 0, 3, 1, 1, QtCore.Qt.AlignHCenter)
+        self.Signal4 = QtWidgets.QToolButton(self.gridLayoutWidget)
+        self.Signal4.setEnabled(False)
+        self.Signal4.setStyleSheet("background-color: rgba(255,255,255,0);border: 0px;")
+        self.Signal4.setText("")
+        self.Signal4.setIcon(icon3)
+        self.Signal4.setCheckable(True)
+        self.Signal4.setChecked(True)
+        self.Signal4.setObjectName("Signal4")
+        self.gridLayout_2.addWidget(self.Signal4, 1, 3, 1, 1, QtCore.Qt.AlignHCenter)
+        self.Signal2 = QtWidgets.QToolButton(self.gridLayoutWidget)
+        self.Signal2.setEnabled(False)
+        self.Signal2.setStyleSheet("background-color: rgba(255,255,255,0);border: 0px;")
+        self.Signal2.setText("")
+        self.Signal2.setIcon(icon3)
+        self.Signal2.setCheckable(True)
+        self.Signal2.setChecked(True)
+        self.Signal2.setObjectName("Signal2")
+        self.gridLayout_2.addWidget(self.Signal2, 1, 1, 1, 1, QtCore.Qt.AlignHCenter)
+        self.Signal3 = QtWidgets.QToolButton(self.gridLayoutWidget)
+        self.Signal3.setEnabled(False)
+        self.Signal3.setStyleSheet("background-color: rgba(255,255,255,0);border: 0px;")
+        self.Signal3.setText("")
+        self.Signal3.setIcon(icon3)
+        self.Signal3.setCheckable(True)
+        self.Signal3.setChecked(True)
+        self.Signal3.setObjectName("Signal3")
+        self.gridLayout_2.addWidget(self.Signal3, 1, 2, 1, 1, QtCore.Qt.AlignHCenter)
+        self.label_2 = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_2.setFont(font)
+        self.label_2.setObjectName("label_2")
+        self.gridLayout_2.addWidget(self.label_2, 0, 0, 1, 1, QtCore.Qt.AlignHCenter)
+        self.label_3 = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_3.setFont(font)
+        self.label_3.setObjectName("label_3")
+        self.gridLayout_2.addWidget(self.label_3, 0, 1, 1, 1, QtCore.Qt.AlignHCenter)
+        self.label_6 = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_6.setFont(font)
+        self.label_6.setObjectName("label_6")
+        self.gridLayout_2.addWidget(self.label_6, 0, 4, 1, 1, QtCore.Qt.AlignHCenter)
+        self.label_4 = QtWidgets.QLabel(self.gridLayoutWidget)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_4.setFont(font)
+        self.label_4.setObjectName("label_4")
+        self.gridLayout_2.addWidget(self.label_4, 0, 2, 1, 1, QtCore.Qt.AlignHCenter)
+        self.Signal5 = QtWidgets.QToolButton(self.gridLayoutWidget)
+        self.Signal5.setEnabled(False)
+        self.Signal5.setStyleSheet("background-color: rgba(255,255,255,0);border: 0px;")
+        self.Signal5.setText("")
+        self.Signal5.setIcon(icon3)
+        self.Signal5.setCheckable(True)
+        self.Signal5.setChecked(True)
+        self.Signal5.setObjectName("Signal5")
+        self.gridLayout_2.addWidget(self.Signal5, 1, 4, 1, 1, QtCore.Qt.AlignHCenter)
+        self.RecordingBtn = QtWidgets.QPushButton(self.abc)
+        self.RecordingBtn.setGeometry(QtCore.QRect(590, 60, 121, 41))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.RecordingBtn.setFont(font)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap("addIcn.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.RecordingBtn.setIcon(icon4)
+        self.RecordingBtn.setIconSize(QtCore.QSize(24, 24))
+        self.RecordingBtn.setObjectName("RecordingBtn")
+        self.frame = QtWidgets.QFrame(self.abc)
+        self.frame.setGeometry(QtCore.QRect(10, 0, 701, 31))
+        self.frame.setStyleSheet("background-color: rgb(176, 176, 176);")
+        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame.setObjectName("frame")
+        self.frame.raise_()
+        self.label.raise_()
+        self.tableWidget.raise_()
+        self.horizontalLayoutWidget_3.raise_()
+        self.view1.raise_()
+        self.view1_2.raise_()
+        self.view1_3.raise_()
+        self.view1_4.raise_()
+        self.view1_5.raise_()
+        self.view1_6.raise_()
+        self.view1_7.raise_()
+        self.view1_8.raise_()
+        self.view1_9.raise_()
+        self.view1_10.raise_()
+        self.delete1.raise_()
+        self.delete1_2.raise_()
+        self.delete1_3.raise_()
+        self.delete1_4.raise_()
+        self.delete1_5.raise_()
+        self.delete1_6.raise_()
+        self.delete1_7.raise_()
+        self.delete1_8.raise_()
+        self.delete1_9.raise_()
+        self.delete1_10.raise_()
+        self.delete1_11.raise_()
+        self.gridLayoutWidget.raise_()
+        self.RecordingBtn.raise_()
         MainWindow.setCentralWidget(self.abc)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 744, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 728, 21))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -310,7 +388,9 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-        self.recordingButton.clicked.connect(self.recordingScreen)
+
+
+        self.RecordingBtn.clicked.connect(self.recordingScreen)
 
         # data processes
         self.listViewBtn = [self.view1, self.view1_2, self.view1_3, self.view1_4, self.view1_5, self.view1_6, self.view1_7, self.view1_8
@@ -351,16 +431,16 @@ class Ui_MainWindow(object):
         self.view1_9.clicked.connect(lambda: self.viewFunction(self.current_page * 10+8))
         self.view1_10.clicked.connect(lambda: self.viewFunction(self.current_page * 10+9))
 
+
+        self.updateSignal()
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(200)
+        self.timer.timeout.connect(self.updateSignal)
+        self.timer.start()
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.pushButton_5.setText(_translate("MainWindow", "Máy thu tín hiệu"))
-        self.pushButton_4.setText(_translate("MainWindow", "ET"))
-        self.pushButton_2.setText(_translate("MainWindow", "EEG"))
-        self.pushButton_3.setText(_translate("MainWindow", "CAM1"))
-        self.pushButton.setText(_translate("MainWindow", "CAM2"))
         self.label.setText(_translate("MainWindow", "Danh sách bản ghi"))
-        self.recordingButton.setText(_translate("MainWindow", "Recording "))
         item = self.tableWidget.verticalHeaderItem(0)
         item.setText(_translate("MainWindow", "1"))
         item = self.tableWidget.verticalHeaderItem(1)
@@ -399,12 +479,18 @@ class Ui_MainWindow(object):
         self.pushButton_7.setText(_translate("MainWindow", "next page"))
         self.GoPageBtn.setText(_translate("MainWindow", "Go"))
         self.delete1_11.setText(_translate("MainWindow", "Xóa toàn bộ ?"))
+        self.label_5.setText(_translate("MainWindow", "CAM1"))
+        self.label_2.setText(_translate("MainWindow", "Máy thu tín hiệu"))
+        self.label_3.setText(_translate("MainWindow", "ET"))
+        self.label_6.setText(_translate("MainWindow", "CAM1"))
+        self.label_4.setText(_translate("MainWindow", "EEG"))
+        self.RecordingBtn.setText(_translate("MainWindow", "Recording"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionClose.setText(_translate("MainWindow", "Close"))
 
 
     def loadData2Table(self):
-        current_page = self.spinBox.value()
+        current_page = 0
         idxL = current_page * 10
         listShow = self.jsonFiles[idxL:idxL+10]
         # readJson
@@ -428,22 +514,75 @@ class Ui_MainWindow(object):
                 self.tableWidget.setItem(row, 4, QtWidgets.QTableWidgetItem(str('')))
                 self.listViewBtn[row].setEnabled(False)
                 self.listDelBtn[row].setEnabled(False)
-        self.spinBox.setValue(current_page)
+        self.spinBox.setValue(0)
         numberPage = math.ceil(len(self.jsonFiles) / 10)
-        self.spinBox.setMaximum(numberPage-1)
-        self.current_page = current_page
+        self.spinBox.setMaximum(max(numberPage-1,0))
+        self.current_page = 0
 
 
     def recordingScreen(self):
         self.Form = QtWidgets.QWidget()
         self.uiForm = Ui_Form()
         self.uiForm.setupUi(self.Form)
+        self.uiForm.centerUI(self.Form)
         self.Form.show()
+        self.updateSignal("rcdForm")
+        self.timer = QtCore.QTimer()
+        self.timer.setInterval(200)
+        self.timer.timeout.connect(lambda: self.updateSignal("rcdForm"))
+        self.timer.start()
+        listConnect = self.checkAvailbleConnect()
+        listCheckBox = [self.uiForm.checkBoxET, self.uiForm.checkBoxEEG, self.uiForm.checkBoxCAM1, self.uiForm.checkBoxCAM2]
+        listChanel = [self.uiForm.checkBoxET, self.uiForm.checkBoxEEG, self.uiForm.checkBoxCAM1, self.uiForm.checkBoxCAM2]
+        for idx, value in enumerate(listConnect):
+            if idx > 0:
+                if  listConnect[value]:
+                    listCheckBox[idx-1].setEnabled(False)
+                    listCheckBox[idx-1].setChecked(False)
+                else:
+                    listCheckBox[idx-1].setChecked(True)
+
         self.uiForm.LoadBtn.clicked.connect(self.visualData)
         self.uiForm.SaveBtn.clicked.connect(self.createData)
+        self.uiForm.fetchInfoBtn.clicked.connect(self.reloadInfo)
+        self.uiForm.resetFormBtn.clicked.connect(lambda: self.setData2Form(None))
+        self.uiForm.getCurrentTime.clicked.connect(self.setTime)
+        listCheckBox[0].stateChanged.connect(lambda: self.reloadVisual(listCheckBox, 0))
+        listCheckBox[1].stateChanged.connect(lambda: self.reloadVisual(listCheckBox, 1))
+        listCheckBox[2].stateChanged.connect(lambda: self.reloadVisual(listCheckBox, 2))
+        listCheckBox[3].stateChanged.connect(lambda: self.reloadVisual(listCheckBox, 3))
+        self.uiForm.stopLoadingBtn.clicked.connect(self.stopLoadingFunc)
+
+
+    def updateSignal(self, msg = None):
+        listConnect = self.checkAvailbleConnect()
+        self.turnOnSignal(listConnect, msg)
+
+    def reloadVisual(self, listCheckBox, idcB):
+        if idcB != 0: return
+        if listCheckBox[idcB].isChecked():
+            if self.uiForm.canvas is not None:
+                self.uiForm.canvas.setParent(None)    
+                self.uiForm.addEEG_Visual()
+            else:
+                self.uiForm.addEEG_Visual()
+        else: 
+            if self.uiForm.canvas is not None:
+                self.uiForm.canvas.setParent(None)    
+
+    def stopLoadingFunc(self):
+        print("FINISHHHHHHHHHHHHHHHHHHHHHHHHH FUNCTIONNNNNNNNNNNNNNNNNNNNN PLSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
 
     def visualData(self):
         self.uiForm.extendSize(self.Form)
+        # **********************************Mr_HOA*******************************
+        # load Data
+        # **********************************Mr_HOA*******************************
+
+        EEGData = readFile("./exampleEEG")
+        EEGData = EEGData.astype(float)
+        EEGData = EEGData[3:17,:]
+        self.uiForm.loadData(EEGData)
         self.uiForm.addGif(self.Form)
         self.uiForm.LoadBtn.setText("Reload")
         rabbit_connection = Pikachu()
@@ -459,10 +598,10 @@ class Ui_MainWindow(object):
         msg.setText(str(error) + str(self.jsonFiles[pos]))
         msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
         self.ChoosePopupParam = pos
-        msg.buttonClicked.connect(self.choosedInMsg)
+        msg.buttonClicked.connect(self.choosedInMsgDelete)
         x = msg.exec_()
     
-    def choosedInMsg(self, i):
+    def choosedInMsgDelete(self, i):
         if i.text() == "OK":
             self.delItem(self.ChoosePopupParam)
 
@@ -508,22 +647,33 @@ class Ui_MainWindow(object):
             self.jsonFiles.append(fileName)
             with open(fileName, 'w') as outfile:
                 json.dump(js, outfile)
-            print('success')
+            # print('success')
             self.Form.close()
             self.refreshPage(math.ceil(len(self.jsonFiles) / 10)-1)
         else:
             self.showErrorPopup("Please complete fully the form")
 
-    def goPage(self, pos):
-        print(pos)
-        numberPage = math.ceil(len(self.jsonFiles) / 10)
-        print(numberPage)
-        if pos >= numberPage or pos < 0:
-            self.showErrorPopup("Out of number page: " + str(pos))
-        else:
-            self.refreshPage(pos)
+    def goPage(self, pos, noWarning = False):
+        # print(pos)
+        # print(self.current_page)
 
-    def refreshPage(self, pageNum):
+        numberPage = math.ceil(len(self.jsonFiles) / 10)
+        # print(numberPage)
+        if not noWarning:
+            # print("not warning")
+            if pos >= numberPage or pos < 0:
+                self.showErrorPopup("Out of number page: " + str(pos))
+                self.refreshPage(self.current_page)
+            else:
+                self.refreshPage(pos)
+        else:
+            if pos >= numberPage or pos < 0:
+                self.refreshPage(self.current_page)
+            else:
+                self.refreshPage(pos)
+
+    def refreshPage(self, pageNumInput):
+        pageNum = max(pageNumInput, 0)
         idxL = pageNum * 10
         listShow = self.jsonFiles[idxL:idxL+10]
         # readJson
@@ -551,64 +701,206 @@ class Ui_MainWindow(object):
                 self.listDelBtn[row].setEnabled(False)
         self.spinBox.setValue(pageNum)
         numberPage = math.ceil(len(self.jsonFiles) / 10)
-        self.spinBox.setMaximum(numberPage-1)
-        self.current_page = pageNum
+        self.spinBox.setMaximum(max(numberPage-1,0))
+        self.current_page = max(pageNum,0)
 
     def delItem(self, pos):
         os.remove(self.jsonFiles[pos])
         del self.jsonFiles[pos]
         numberPage = math.ceil(len(self.jsonFiles) / 10)
         futurePage = self.current_page if self.current_page <= numberPage-1 else numberPage-1
-        self.goPage(futurePage)
+        futurePage = max(futurePage, 0)
+        self.current_page = futurePage
+        self.goPage(self.current_page)
+
+
+    def UpdateItem(self):
+        name = self.uiForm.NameEdit.text()
+        age = self.uiForm.AgeEdit.value()
+        genderG = self.uiForm.FemaleEdit.isChecked()
+        genderM = self.uiForm.MaleEdit.isChecked()
+        patientDesc = self.uiForm.DiseaseDescEdit.toPlainText()
+        recorder = self.uiForm.RecorderEdit.text()
+        location = self.uiForm.LocateEdit.text()
+        recPlan = self.uiForm.RecPlanEdit.value()
+        timeTmp = self.uiForm.dateTimeEdit.dateTime()
+        time_string = timeTmp.toString(self.uiForm.dateTimeEdit.displayFormat())
+        # check avalibale
+        missingValue = False
+        if name == '' or patientDesc == '' or recorder == '' or location == '':
+            missingValue = True
+        elif not genderG and not genderM : 
+            missingValue = True
+        elif age == 0 or recPlan == 0:
+            missingValue = True
+        if not missingValue:
+            gender = "M"
+            if genderG:
+                gender = "Fm"
+            # get ID 
+            recordID = self.viewData['id']
+            js = {
+            'id': recordID,
+            'name' : name, 
+            'age' : age, 
+            'gender': gender, 
+            'patientDesc': patientDesc, 
+            'recorder' : recorder, 
+            'location' : location, 
+            'recPlan' : recPlan, 
+            'time' : time_string
+            }
+            fileName = './dataVIN/data' + str(recordID) + '.json'
+            with open(fileName, 'w') as outfile:
+                json.dump(js, outfile)
+            self.Form.close()
+            self.refreshPage(self.current_page)
+        else:
+            self.showErrorPopup("Please complete fully the form")
+
+    def choosedInMsgUpdate(self, i):
+        if i.text() == "OK":
+            self.UpdateItem()
+
+    
+    def showChooseUpdate(self, error, pos):
+        msg  = QtWidgets.QMessageBox()
+        msg.setText(str(error) + str(self.jsonFiles[pos]))
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+        msg.buttonClicked.connect(self.choosedInMsgUpdate)
+        x = msg.exec_()
+
 
     def viewFunction(self, pos):
         file = self.jsonFiles[pos]
         with open(file) as json_file:
             data = json.load(json_file)
-        print(data)
-
+        self.viewData = data
         self.Form = QtWidgets.QWidget()
         self.uiForm = Ui_Form()
         self.uiForm.setupUi(self.Form)
         self.uiForm.extendSize(self.Form)
 
-        self.uiForm.label_2.setEnabled(False)
-        self.uiForm.label_4.setEnabled(False)
-        self.uiForm.label_5.setEnabled(False)
-        self.uiForm.label_6.setEnabled(False)
-        
-        self.uiForm.label_8.setEnabled(False)
-        self.uiForm.label_9.setEnabled(False)
-        self.uiForm.label_10.setEnabled(False)
-        self.uiForm.label_11.setEnabled(False)
-        self.uiForm.label_7.setEnabled(False)
-        self.uiForm.LoadBtn.setEnabled(False)
-        self.uiForm.SaveBtn.setEnabled(False)
+        self.uiForm.LoadBtn.setText("Sửa ?")
+        self.uiForm.SaveBtn.hide()
 
         self.uiForm.NameEdit.setText(data['name'])
-        self.uiForm.NameEdit.setEnabled(False)
         self.uiForm.AgeEdit.setValue(data['age'])
-        self.uiForm.AgeEdit.setEnabled(False)
         if data['gender'] == 'M':
             self.uiForm.MaleEdit.setChecked(True)
         else:
             self.uiForm.FemaleEdit.setChecked(True)
-        self.uiForm.MaleEdit.setEnabled(False)
-        self.uiForm.FemaleEdit.setEnabled(False)
         self.uiForm.DiseaseDescEdit.setText(data['patientDesc'])
-        self.uiForm.DiseaseDescEdit.setEnabled(False)
         self.uiForm.RecorderEdit.setText(data['recorder'])
-        self.uiForm.RecorderEdit.setEnabled(False)
         self.uiForm.LocateEdit.setText(data['location'])
-        self.uiForm.LocateEdit.setEnabled(False)
         self.uiForm.RecPlanEdit.setValue(data['recPlan'])
-        self.uiForm.RecPlanEdit.setEnabled(False)
         dataTime = QtCore.QDateTime.fromString(data['time'], 'd/M/yyyy hh:mm')
         self.uiForm.dateTimeEdit.setDateTime(dataTime)
-        self.uiForm.dateTimeEdit.setEnabled(False)
+        listEditatble = [self.uiForm.NameEdit, self.uiForm.AgeEdit, self.uiForm.MaleEdit, self.uiForm.FemaleEdit, self.uiForm.DiseaseDescEdit, 
+            self.uiForm.RecorderEdit, self.uiForm.LocateEdit, self.uiForm.RecPlanEdit, self.uiForm.dateTimeEdit, self.uiForm.fetchInfoBtn, 
+            self.uiForm.resetFormBtn, self.uiForm.getCurrentTime]
+        self.uiForm.stopLoadingBtn.hide()
+        for x in listEditatble:
+            x.setEnabled(False)
+
+        self.currentUpdate = False
+        self.uiForm.LoadBtn.clicked.connect(lambda: self.enableEdit(listEditatble, pos))
+        self.uiForm.fetchInfoBtn.clicked.connect(self.reloadInfo)
+        self.uiForm.resetFormBtn.clicked.connect(lambda: self.setData2Form(None))
+        self.uiForm.getCurrentTime.clicked.connect(self.setTime)
+        listConnect = self.checkAvailbleData()
+        listCheckBox = [self.uiForm.checkBoxET, self.uiForm.checkBoxEEG, self.uiForm.checkBoxCAM1, self.uiForm.checkBoxCAM2]
+        for idx, value in enumerate(listConnect):
+            if not listConnect[value]:
+                listCheckBox[idx].setEnabled(False)
+                listCheckBox[idx].setChecked(False)
+            else:
+                listCheckBox[idx].setChecked(True)
 
         self.Form.show()
 
+    def setData2Form(self, setData):
+        if not setData:
+            self.uiForm.NameEdit.setText("")
+            self.uiForm.AgeEdit.setValue(0)
+            self.uiForm.MaleEdit.setChecked(True)
+            self.uiForm.FemaleEdit.setChecked(False)
+            self.uiForm.DiseaseDescEdit.setText("")
+            self.uiForm.RecorderEdit.setText("")
+            self.uiForm.LocateEdit.setText("")
+            self.uiForm.RecPlanEdit.setValue(0)
+        else:
+            self.uiForm.NameEdit.setText(setData['name'])
+            self.uiForm.AgeEdit.setValue(setData['age'])
+            if setData['gender'] == 'M':
+                self.uiForm.MaleEdit.setChecked(True)
+            else:
+                self.uiForm.FemaleEdit.setChecked(True)
+            self.uiForm.DiseaseDescEdit.setText(setData['patientDesc'])
+            self.uiForm.RecorderEdit.setText(setData['recorder'])
+            self.uiForm.LocateEdit.setText(setData['location'])
+            self.uiForm.RecPlanEdit.setValue(setData['recPlan'])
+            dataTime = QtCore.QDateTime.fromString(setData['time'], 'd/M/yyyy hh:mm')
+            self.uiForm.dateTimeEdit.setDateTime(dataTime)
+
+    def reloadInfo(self):
+        file = self.jsonFiles[-1]
+        with open(file) as json_file:
+            data = json.load(json_file)
+        self.setData2Form(data)
+
+    def setTime(self):
+        self.uiForm.dateTimeEdit.setDateTime(QtCore.QDateTime.currentDateTime())
+        
+
+    def enableEdit(self, listEdit, pos):
+        if not self.currentUpdate:
+            for x in listEdit:
+                x.setEnabled(True)
+            self.uiForm.LoadBtn.setText("Cập nhật ?")
+        else:
+            for x in listEdit:
+                x.setEnabled(False)
+            self.uiForm.LoadBtn.setText("Sửa ?")
+            self.showChooseUpdate("Do you want to update: ", pos)
+        self.currentUpdate = not self.currentUpdate
+
+
+    def center(self):        
+        frameGm = self.abc.frameGeometry()
+        centerP = QtWidgets.QDesktopWidget().availableGeometry().center()
+        frameGm.moveCenter(centerP)
+        self.abc.move(frameGm.topLeft())
+
+
+    def turnOnSignal(self, listConnect, inputForm = None):
+        if inputForm is None:
+            listSignal = [self.Signal1, self.Signal2, self.Signal3, self.Signal4, self.Signal5]
+        else:
+            listSignal = [self.uiForm.Signal1, self.uiForm.Signal2, self.uiForm.Signal3, self.uiForm.Signal4, self.uiForm.Signal5]
+        # Note that, False is green and True is red
+        for idx, value in enumerate(listConnect):
+            listSignal[idx].setChecked(not listConnect[value])
+        # TODO #######################################################################
+
+    def checkAvailbleConnect(self):
+        listConnect = {
+            'MayThu': False,
+            'ET' : False, 
+            'EEG' : False, 
+            'CAM1': False, 
+            'CAM2': False, 
+            }
+        return listConnect
+
+    def checkAvailbleData(self):
+        listConnect = {
+            'ET' : False, 
+            'EEG' : False, 
+            'CAM1': False, 
+            'CAM2': False, 
+            }
+        return listConnect
 
 def readData(link = "./DataVIN/", prefixName = "Data"):
     if os.path.isdir(link):

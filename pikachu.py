@@ -1,19 +1,19 @@
 import pika
 
 class Pikachu:
-    hostname = "localhost"
+    hostname = "192.168.1.190"
     port = 5672
     username = 'guest'
     password = 'guest'
     
-    def __init__(self, hostname="localhost", port=5672, username="full_access", password="sc3r3t"):
+    def __init__(self, hostname="192.168.1.190", port=5672, username="full_access", password="sc3r3t"):
         self.hostname   = hostname
         self.port       = port
         self.username   = username
         self.password   = password
         
     def send(self, queue, message):
-        credentials = pika.PlainCredentials('guest', 'guest')
+        credentials = pika.PlainCredentials('hmi', 'cntt307e3')
         parameters = pika.ConnectionParameters(self.hostname, self.port, '/', credentials)
         connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
@@ -21,9 +21,9 @@ class Pikachu:
         channel.basic_publish(exchange='', routing_key='hello', body=message)
         connection.close()
 
-    def consume(self, queue, on_message_callback, auto_ack=True):
+    def consume(self, queue, on_message_callback = exampleCallback, auto_ack=True):
         print("AAAAAAAAAAAAAAAA")
-        credentials = pika.PlainCredentials('guest', 'guest')
+        credentials = pika.PlainCredentials('hmi', 'cntt307e3')
         parameters = pika.ConnectionParameters(self.hostname, self.port, '/', credentials)
         connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
