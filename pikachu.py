@@ -21,14 +21,14 @@ class Pikachu:
         channel.basic_publish(exchange='', routing_key='hello', body=message)
         connection.close()
 
-    def consume(self, queue, on_message_callback = exampleCallback, auto_ack=True):
+    def consume(self, queue, on_message_callback = 'exampleCallback', auto_ack=True):
         print("AAAAAAAAAAAAAAAA")
         credentials = pika.PlainCredentials('hmi', 'cntt307e3')
         parameters = pika.ConnectionParameters(self.hostname, self.port, '/', credentials)
         connection = pika.BlockingConnection(parameters)
         channel = connection.channel()
         channel.queue_declare(queue)
-        channel.basic_consume(queue, on_message_callback, auto_ack)
+        channel.basic_consume(queue, on_message_callback=self.exampleCallback, auto_ack=True)
         channel.start_consuming()
         
     def exampleCallback(ch, method, properties, body):
