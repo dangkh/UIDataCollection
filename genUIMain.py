@@ -573,10 +573,22 @@ class Ui_MainWindow(object):
     def stopLoadingFunc(self):
         print("FINISHHHHHHHHHHHHHHHHHHHHHHHHH FUNCTIONNNNNNNNNNNNNNNNNNNNN PLSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
 
+    rabbit_connection_ET = Pikachu()
+    
     def visualData(self):
         self.uiForm.extendSize(self.Form)
+        
         # **********************************Mr_HOA*******************************
         # load Data
+        # ready to receieve data
+        _thread.start_new_thread(self.rabbit_connection_ET.consume, ("ETData", consumeMethodET))
+        
+        # send a signal to start recording
+        rabbit_connection = Pikachu()
+        rabbit_connection.exchange = 'direct_controls'
+        rabbit_connection.exchange_type = 'direct'
+        rabbit_connection.routing_key = 'control'
+        rabbit_connection.send(message="BeginSendingData", queue='control')
         # **********************************Mr_HOA*******************************
 
         EEGData = readFile("./exampleEEG")
@@ -585,8 +597,6 @@ class Ui_MainWindow(object):
         self.uiForm.loadData(EEGData)
         self.uiForm.addGif(self.Form)
         self.uiForm.LoadBtn.setText("Reload")
-        rabbit_connection = Pikachu()
-        _thread.start_new_thread(rabbit_connection.consume, ("hello", consumeMethod))
 
     def showErrorPopup(self, error):
         msg  = QtWidgets.QMessageBox()
@@ -607,6 +617,16 @@ class Ui_MainWindow(object):
 
 
     def createData(self):
+        # **********************************Mr_HOA*******************************
+        # Stop receieve Data
+        # send a signal to stop recording
+        rabbit_connection = Pikachu()
+        rabbit_connection.exchange = 'direct_controls'
+        rabbit_connection.exchange_type = 'direct'
+        rabbit_connection.routing_key = 'control'
+        rabbit_connection.send(message="StopSendingData", queue='control')
+        # **********************************Mr_HOA*******************************
+        
         name = self.uiForm.NameEdit.text()
         age = self.uiForm.AgeEdit.value()
         genderG = self.uiForm.FemaleEdit.isChecked()
@@ -915,10 +935,10 @@ def readData(link = "./DataVIN/", prefixName = "Data"):
         jsonFiles = [link+x for x in onlyfiles if x[-4:] == 'json']
         # print(jsonFiles)
     return jsonFiles
-
-def consumeMethod(ch, method, properties, body):
-    print(" [x] Received %r" % body)
-
+    
+def consumeMethodET(ch, method, properties, body):
+    print(" [x] Received ET position: %r" % body)
+    
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
