@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(518, 560)
+        Form.resize(514, 560)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("my-beautiful-life-logo-3.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Form.setWindowIcon(icon)
@@ -144,9 +144,9 @@ class Ui_Form(object):
         self.verticalLayoutWidget = QtWidgets.QWidget(Form)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(580, 260, 221, 171))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
-        self.ET2 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
-        self.ET2.setContentsMargins(0, 0, 0, 0)
-        self.ET2.setObjectName("ET2")
+        self.EEG = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
+        self.EEG.setContentsMargins(0, 0, 0, 0)
+        self.EEG.setObjectName("EEG")
         self.gridLayoutWidget = QtWidgets.QWidget(Form)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 40, 481, 56))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
@@ -246,11 +246,16 @@ class Ui_Form(object):
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
         self.verticalLayoutWidget_2 = QtWidgets.QWidget(Form)
-        self.verticalLayoutWidget_2.setGeometry(QtCore.QRect(820, 260, 221, 171))
+        self.verticalLayoutWidget_2.setGeometry(QtCore.QRect(820, 260, 221, 173))
         self.verticalLayoutWidget_2.setObjectName("verticalLayoutWidget_2")
-        self.ET2_2 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_2)
-        self.ET2_2.setContentsMargins(0, 0, 0, 0)
-        self.ET2_2.setObjectName("ET2_2")
+        self.ET = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_2)
+        self.ET.setContentsMargins(0, 0, 0, 0)
+        self.ET.setObjectName("ET")
+        self.groupBox_3 = QtWidgets.QGroupBox(self.verticalLayoutWidget_2)
+        self.groupBox_3.setStyleSheet("background-color: rgb(255, 243, 249);")
+        self.groupBox_3.setTitle("")
+        self.groupBox_3.setObjectName("groupBox_3")
+        self.ET.addWidget(self.groupBox_3)
         self.groupBox_2 = QtWidgets.QGroupBox(Form)
         self.groupBox_2.setGeometry(QtCore.QRect(564, 40, 491, 461))
         self.groupBox_2.setStyleSheet("background-color: rgb(177, 171, 165);")
@@ -312,6 +317,42 @@ class Ui_Form(object):
         icon3.addPixmap(QtGui.QPixmap("pauseIcon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.stopLoadingBtn.setIcon(icon3)
         self.stopLoadingBtn.setObjectName("stopLoadingBtn")
+        self.gridLayoutWidget_3 = QtWidgets.QWidget(Form)
+        self.gridLayoutWidget_3.setGeometry(QtCore.QRect(820, 260, 221, 171))
+        self.gridLayoutWidget_3.setObjectName("gridLayoutWidget_3")
+        self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget_3)
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout.setObjectName("gridLayout")
+        self.label_22 = QtWidgets.QLabel(self.gridLayoutWidget_3)
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_22.setFont(font)
+        self.label_22.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_22.setWordWrap(False)
+        self.label_22.setIndent(20)
+        self.label_22.setOpenExternalLinks(False)
+        self.label_22.setObjectName("label_22")
+        self.gridLayout.addWidget(self.label_22, 1, 0, 1, 1)
+        self.label_19 = QtWidgets.QLabel(self.gridLayoutWidget_3)
+        font = QtGui.QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_19.setFont(font)
+        self.label_19.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_19.setIndent(20)
+        self.label_19.setObjectName("label_19")
+        self.gridLayout.addWidget(self.label_19, 0, 0, 1, 1)
+        self.locateLabel = QtWidgets.QLabel(self.gridLayoutWidget_3)
+        self.locateLabel.setText("")
+        self.locateLabel.setObjectName("locateLabel")
+        self.gridLayout.addWidget(self.locateLabel, 0, 1, 1, 1)
+        self.characterLabel = QtWidgets.QLabel(self.gridLayoutWidget_3)
+        self.characterLabel.setText("")
+        self.characterLabel.setObjectName("characterLabel")
+        self.gridLayout.addWidget(self.characterLabel, 1, 1, 1, 1)
         self.groupBox_2.raise_()
         self.frame.raise_()
         self.label.raise_()
@@ -323,11 +364,13 @@ class Ui_Form(object):
         self.verticalLayoutWidget.raise_()
         self.gridLayoutWidget.raise_()
         self.verticalLayoutWidget_2.raise_()
+        self.gridLayoutWidget_3.raise_()
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
         self.canvas = None
+        self.ETData = []
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
@@ -339,7 +382,7 @@ class Ui_Form(object):
         self.label_6.setText(_translate("Form", "Giới tính"))
         self.MaleEdit.setText(_translate("Form", "Nam"))
         self.FemaleEdit.setText(_translate("Form", "Nữ"))
-        self.label_8.setText(_translate("Form", "Người thực hiện thu"))
+        self.label_8.setText(_translate("Form", "Kỹ thuật viên"))
         self.label_9.setText(_translate("Form", "Địa điểm"))
         self.label_10.setText(_translate("Form", "Kịch bản"))
         self.label_11.setText(_translate("Form", "Thời gian"))
@@ -357,8 +400,10 @@ class Ui_Form(object):
         self.label_16.setText(_translate("Form", "CAM1"))
         self.label_20.setText(_translate("Form", "ET"))
         self.label_17.setText(_translate("Form", "EEG"))
-        self.label_18.setText(_translate("Form", "CAM1"))
+        self.label_18.setText(_translate("Form", "CAM2"))
         self.stopLoadingBtn.setText(_translate("Form", "Dừng load"))
+        self.label_22.setText(_translate("Form", "Chữ Cái"))
+        self.label_19.setText(_translate("Form", "Tọa Độ"))
 
 
 
@@ -380,6 +425,24 @@ class Ui_Form(object):
         self.EEGmovie.setScaledSize(size)
         self.EEGmovie.start()
 
+    def updatePlotET(self):
+        self.locateLabel.setText(str(self.ETData[-1][0]))
+        self.characterLabel.setText(str(self.ETData[-1][1]))
+
+    def addET_Visual(self, turnOff = False):
+        if turnOff:
+            self.locateLabel.setText("")
+            self.characterLabel.setText("")
+            if self.timerET:
+                self.timerET.stop()
+                self.timerET.deleteLater()
+            return
+        self.timerET = QtCore.QTimer()
+        self.timerET.setInterval(100)
+        self.timerET.timeout.connect(self.updatePlotET)
+        self.timerET.start()
+        
+
     def addEEG_Visual(self):
 
         self.fig = Figure(figsize=(5, 4), dpi=100)
@@ -388,7 +451,7 @@ class Ui_Form(object):
         else:
             self.canvas.setParent(None)
             self.canvas = FigureCanvasQTAgg(self.fig)
-        self.ET2.addWidget(self.canvas)
+        self.EEG.addWidget(self.canvas)
         self.numChanel = 3
         self.currentCounter = 0
         self.listAx  = [self.fig.add_subplot(self.numChanel,1, x+1) for x in range(self.numChanel)]
@@ -414,11 +477,14 @@ class Ui_Form(object):
         frameGm.moveCenter(centerP)
         Form.move(frameGm.center())
 
-    def loadData(self, EEG):
-        self.EEG = EEG
+    def loadDataEEG(self, EEG):
+        self.EEGData = EEG
+
+    def loadDataET(self, body):
+        self.ETData.append(body)
 
     def updatePlot(self):
-        currentData = self.EEG[0:self.numChanel,self.currentCounter * 10 :self.currentCounter * 10 + 300]
+        currentData = self.EEGData[0:self.numChanel,self.currentCounter * 10 :self.currentCounter * 10 + 300]
         xdata = (range(300))
         self.currentCounter += 1
         if self.drawStatus == False:
