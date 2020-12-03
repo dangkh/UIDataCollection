@@ -24,7 +24,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(728, 563)
+        MainWindow.resize(728, 557)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("my-beautiful-life-logo-3.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
@@ -230,11 +230,6 @@ class Ui_MainWindow(object):
         self.delete1_10.setText("")
         self.delete1_10.setIcon(icon2)
         self.delete1_10.setObjectName("delete1_10")
-        self.delete1_11 = QtWidgets.QPushButton(self.abc)
-        self.delete1_11.setGeometry(QtCore.QRect(510, 440, 201, 31))
-        self.delete1_11.setStyleSheet("background-color: rgb(255, 255, 255);")
-        self.delete1_11.setIcon(icon2)
-        self.delete1_11.setObjectName("delete1_11")
         self.gridLayoutWidget = QtWidgets.QWidget(self.abc)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 0, 701, 56))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
@@ -327,16 +322,16 @@ class Ui_MainWindow(object):
         self.Signal5.setChecked(True)
         self.Signal5.setObjectName("Signal5")
         self.gridLayout_2.addWidget(self.Signal5, 1, 4, 1, 1, QtCore.Qt.AlignHCenter)
-        self.RecordingBtn = QtWidgets.QPushButton(self.abc)
-        self.RecordingBtn.setGeometry(QtCore.QRect(590, 60, 121, 41))
+        self.recordingBtn = QtWidgets.QPushButton(self.abc)
+        self.recordingBtn.setGeometry(QtCore.QRect(590, 60, 121, 41))
         font = QtGui.QFont()
         font.setPointSize(12)
-        self.RecordingBtn.setFont(font)
+        self.recordingBtn.setFont(font)
         icon4 = QtGui.QIcon()
         icon4.addPixmap(QtGui.QPixmap("addIcn.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.RecordingBtn.setIcon(icon4)
-        self.RecordingBtn.setIconSize(QtCore.QSize(24, 24))
-        self.RecordingBtn.setObjectName("RecordingBtn")
+        self.recordingBtn.setIcon(icon4)
+        self.recordingBtn.setIconSize(QtCore.QSize(24, 24))
+        self.recordingBtn.setObjectName("recordingBtn")
         self.frame = QtWidgets.QFrame(self.abc)
         self.frame.setGeometry(QtCore.QRect(10, 0, 701, 31))
         self.frame.setStyleSheet("background-color: rgb(176, 176, 176);")
@@ -367,9 +362,8 @@ class Ui_MainWindow(object):
         self.delete1_8.raise_()
         self.delete1_9.raise_()
         self.delete1_10.raise_()
-        self.delete1_11.raise_()
         self.gridLayoutWidget.raise_()
-        self.RecordingBtn.raise_()
+        self.recordingBtn.raise_()
         MainWindow.setCentralWidget(self.abc)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 728, 21))
@@ -389,8 +383,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
 
-
-        self.RecordingBtn.clicked.connect(self.recordingScreen)
+        self.recordingBtn.clicked.connect(self.recordingScreen)
 
         # data processes
         self.listViewBtn = [self.view1, self.view1_2, self.view1_3, self.view1_4, self.view1_5, self.view1_6, self.view1_7, self.view1_8
@@ -437,6 +430,8 @@ class Ui_MainWindow(object):
         self.timer.setInterval(200)
         self.timer.timeout.connect(self.updateSignal)
         self.timer.start()
+
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -478,13 +473,12 @@ class Ui_MainWindow(object):
         self.pushButton_6.setText(_translate("MainWindow", "previous page"))
         self.pushButton_7.setText(_translate("MainWindow", "next page"))
         self.GoPageBtn.setText(_translate("MainWindow", "Go"))
-        self.delete1_11.setText(_translate("MainWindow", "Xóa toàn bộ ?"))
         self.label_5.setText(_translate("MainWindow", "CAM1"))
         self.label_2.setText(_translate("MainWindow", "Máy thu tín hiệu"))
         self.label_3.setText(_translate("MainWindow", "ET"))
-        self.label_6.setText(_translate("MainWindow", "CAM1"))
+        self.label_6.setText(_translate("MainWindow", "CAM2"))
         self.label_4.setText(_translate("MainWindow", "EEG"))
-        self.RecordingBtn.setText(_translate("MainWindow", "Recording"))
+        self.recordingBtn.setText(_translate("MainWindow", "Recording"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.actionClose.setText(_translate("MainWindow", "Close"))
 
@@ -536,7 +530,7 @@ class Ui_MainWindow(object):
         listChanel = [self.uiForm.checkBoxET, self.uiForm.checkBoxEEG, self.uiForm.checkBoxCAM1, self.uiForm.checkBoxCAM2]
         for idx, value in enumerate(listConnect):
             if idx > 0:
-                if  listConnect[value]:
+                if not listConnect[value]:
                     listCheckBox[idx-1].setEnabled(False)
                     listCheckBox[idx-1].setChecked(False)
                 else:
@@ -559,19 +553,34 @@ class Ui_MainWindow(object):
         self.turnOnSignal(listConnect, msg)
 
     def reloadVisual(self, listCheckBox, idcB):
-        if idcB != 0: return
-        if listCheckBox[idcB].isChecked():
-            if self.uiForm.canvas is not None:
-                self.uiForm.canvas.setParent(None)    
-                self.uiForm.addEEG_Visual()
-            else:
-                self.uiForm.addEEG_Visual()
-        else: 
-            if self.uiForm.canvas is not None:
-                self.uiForm.canvas.setParent(None)    
+        if idcB == 2 or idcB == 3: return
+        if idcB == 1:
+            if listCheckBox[1].isChecked():
+                if self.uiForm.canvas is not None:
+                    self.uiForm.canvas.setParent(None)    
+                    self.uiForm.addEEG_Visual()
+                else:
+                    self.uiForm.addEEG_Visual()
+            else: 
+                if self.uiForm.canvas is not None:
+                    self.uiForm.canvas.setParent(None)
+        else:
+            if listCheckBox[0].isChecked():
+                self.uiForm.addET_Visual()
+            else: 
+                self.uiForm.addET_Visual(True)
 
     def stopLoadingFunc(self):
-        print("FINISHHHHHHHHHHHHHHHHHHHHHHHHH FUNCTIONNNNNNNNNNNNNNNNNNNNN PLSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS")
+        # **********************************Mr_HOA*******************************
+        # Stop receieve Data
+        # send a signal to stop recording
+        rabbit_connection = Pikachu()
+        rabbit_connection.exchange = 'direct_controls'
+        rabbit_connection.exchange_type = 'direct'
+        rabbit_connection.routing_key = 'control'
+        rabbit_connection.send(message="StopSendingData", queue='control')
+        # **********************************Mr_HOA*******************************
+        self.uiForm.stopLoadingBtn.hide()
 
     rabbit_connection_ET = Pikachu()
     
@@ -581,7 +590,7 @@ class Ui_MainWindow(object):
         # **********************************Mr_HOA*******************************
         # load Data
         # ready to receieve data
-        _thread.start_new_thread(self.rabbit_connection_ET.consume, ("ETData", consumeMethodET))
+        _thread.start_new_thread(self.rabbit_connection_ET.consume, ("ETData", self.consumeMethodET))
         
         # send a signal to start recording
         rabbit_connection = Pikachu()
@@ -594,8 +603,19 @@ class Ui_MainWindow(object):
         EEGData = readFile("./exampleEEG")
         EEGData = EEGData.astype(float)
         EEGData = EEGData[3:17,:]
-        self.uiForm.loadData(EEGData)
+        self.uiForm.loadDataEEG(EEGData)
         self.uiForm.addGif(self.Form)
+
+        if self.uiForm.checkBoxET.isChecked():
+            if self.uiForm.canvas is not None:
+                self.uiForm.canvas.setParent(None)    
+                self.uiForm.addEEG_Visual()
+            else:
+                self.uiForm.addEEG_Visual()
+
+        if self.uiForm.checkBoxET.isChecked():
+            self.uiForm.addET_Visual()
+
         self.uiForm.LoadBtn.setText("Reload")
 
     def showErrorPopup(self, error):
@@ -617,15 +637,6 @@ class Ui_MainWindow(object):
 
 
     def createData(self):
-        # **********************************Mr_HOA*******************************
-        # Stop receieve Data
-        # send a signal to stop recording
-        rabbit_connection = Pikachu()
-        rabbit_connection.exchange = 'direct_controls'
-        rabbit_connection.exchange_type = 'direct'
-        rabbit_connection.routing_key = 'control'
-        rabbit_connection.send(message="StopSendingData", queue='control')
-        # **********************************Mr_HOA*******************************
         
         name = self.uiForm.NameEdit.text()
         age = self.uiForm.AgeEdit.value()
@@ -906,8 +917,8 @@ class Ui_MainWindow(object):
     def checkAvailbleConnect(self):
         listConnect = {
             'MayThu': False,
-            'ET' : False, 
-            'EEG' : False, 
+            'ET' : True, 
+            'EEG' : True, 
             'CAM1': False, 
             'CAM2': False, 
             }
@@ -921,6 +932,11 @@ class Ui_MainWindow(object):
             'CAM2': False, 
             }
         return listConnect
+
+    def consumeMethodET(self, ch, method, properties, body):
+        bb = str(body)[-2]
+        aa = str(body).split(')')[0].split('(')[1]
+        self.uiForm.loadDataET([aa, bb])
 
 def readData(link = "./DataVIN/", prefixName = "Data"):
     if os.path.isdir(link):
@@ -936,8 +952,7 @@ def readData(link = "./DataVIN/", prefixName = "Data"):
         # print(jsonFiles)
     return jsonFiles
     
-def consumeMethodET(ch, method, properties, body):
-    print(" [x] Received ET position: %r" % body)
+
     
 if __name__ == "__main__":
     import sys
