@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(514, 560)
+        Form.resize(516, 560)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("my-beautiful-life-logo-3.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Form.setWindowIcon(icon)
@@ -346,11 +346,17 @@ class Ui_Form(object):
         self.label_19.setObjectName("label_19")
         self.gridLayout.addWidget(self.label_19, 0, 0, 1, 1)
         self.locateLabel = QtWidgets.QLabel(self.gridLayoutWidget_3)
-        self.locateLabel.setText("")
+        font = QtGui.QFont()
+        font.setFamily("System")
+        font.setBold(True)
+        font.setWeight(75)
+        self.locateLabel.setFont(font)
         self.locateLabel.setObjectName("locateLabel")
         self.gridLayout.addWidget(self.locateLabel, 0, 1, 1, 1)
         self.characterLabel = QtWidgets.QLabel(self.gridLayoutWidget_3)
-        self.characterLabel.setText("")
+        font = QtGui.QFont()
+        font.setPointSize(16)
+        self.characterLabel.setFont(font)
         self.characterLabel.setObjectName("characterLabel")
         self.gridLayout.addWidget(self.characterLabel, 1, 1, 1, 1)
         self.groupBox_2.raise_()
@@ -404,6 +410,8 @@ class Ui_Form(object):
         self.stopLoadingBtn.setText(_translate("Form", "Dừng load"))
         self.label_22.setText(_translate("Form", "Chữ Cái"))
         self.label_19.setText(_translate("Form", "Tọa Độ"))
+        self.locateLabel.setText(_translate("Form", "NONE"))
+        self.characterLabel.setText(_translate("Form", "NONE"))
 
 
 
@@ -480,13 +488,18 @@ class Ui_Form(object):
     def loadDataEEG(self, EEG):
         self.EEGData = EEG
 
-    def loadDataET(self, body):
+    def loadDataET(self, ET):
+        self.ETData = ET
+
+    def uploadDataET(self, body):
         self.ETData.append(body)
 
     def updatePlot(self):
         currentData = self.EEGData[0:self.numChanel,self.currentCounter * 10 :self.currentCounter * 10 + 300]
         xdata = (range(300))
         self.currentCounter += 1
+        if self.currentCounter * 10 + 300 > self.EEGData.shape[1]:
+            self.currentCounter = 0
         if self.drawStatus == False:
             for ch, ax in enumerate(self.listAx):
                 line, = ax.plot(xdata, currentData[ch,:], 'r', lw=1)
@@ -498,3 +511,4 @@ class Ui_Form(object):
                 currentAx.set_ydata(currentData[ch,:])
         self.canvas.draw()
 
+        
