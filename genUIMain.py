@@ -521,10 +521,10 @@ class Ui_MainWindow(object):
         self.uiForm.centerUI(self.Form)
         self.Form.show()
         self.updateSignal("rcdForm")
-        self.timer = QtCore.QTimer()
-        self.timer.setInterval(200)
-        self.timer.timeout.connect(lambda: self.updateSignal("rcdForm"))
-        self.timer.start()
+        self.timerRcd = QtCore.QTimer()
+        self.timerRcd.setInterval(200)
+        self.timerRcd.timeout.connect(lambda: self.updateSignal("rcdForm"))
+        self.timerRcd.start()
         listConnect = self.checkAvailbleConnect()
         listCheckBox = [self.uiForm.checkBoxET, self.uiForm.checkBoxEEG, self.uiForm.checkBoxCAM1, self.uiForm.checkBoxCAM2]
         listChanel = [self.uiForm.checkBoxET, self.uiForm.checkBoxEEG, self.uiForm.checkBoxCAM1, self.uiForm.checkBoxCAM2]
@@ -602,11 +602,11 @@ class Ui_MainWindow(object):
 
         EEGData = readFile("./exampleEEG")
         EEGData = EEGData.astype(float)
-        EEGData = EEGData[3:17,:]
+        EEGData = EEGData[3:17,:500]
         self.uiForm.loadDataEEG(EEGData)
         self.uiForm.addGif(self.Form)
 
-        if self.uiForm.checkBoxET.isChecked():
+        if self.uiForm.checkBoxEEG.isChecked():
             if self.uiForm.canvas is not None:
                 self.uiForm.canvas.setParent(None)    
                 self.uiForm.addEEG_Visual()
@@ -649,7 +649,20 @@ class Ui_MainWindow(object):
         timeTmp = self.uiForm.dateTimeEdit.dateTime()
         # dt.toString("dd.MM.yyyy hh:mm:ss.zzz"))
         time_string = timeTmp.toString(self.uiForm.dateTimeEdit.displayFormat())
-        # check avalibale
+        ETData = self.uiForm.ETData
+        EEGData = self.uiForm.EEGData.tolist()
+        CAM1 = None
+        CAM2 = None
+
+        if not self.uiForm.checkBoxET.isChecked():
+            ETData = None
+        if not self.uiForm.checkBoxEEG.isChecked():
+            EEGData = None
+        if not self.uiForm.checkBoxCAM1.isChecked():
+            CAM1 = None
+        if not self.uiForm.checkBoxCAM2.isChecked():
+            CAM2 = None
+        
         missingValue = False
         if name == '' or patientDesc == '' or recorder == '' or location == '':
             missingValue = True
@@ -672,7 +685,11 @@ class Ui_MainWindow(object):
             'recorder' : recorder, 
             'location' : location, 
             'recPlan' : recPlan, 
-            'time' : time_string
+            'time' : time_string,
+            'ET' : ETData,
+            'EEG': EEGData,
+            'CAM1': None,
+            'CAM2': None
             }
             fileName = './dataVIN/data' + str(recordID) + '.json'
             self.jsonFiles.append(fileName)
@@ -806,6 +823,8 @@ class Ui_MainWindow(object):
         file = self.jsonFiles[pos]
         with open(file) as json_file:
             data = json.load(json_file)
+
+
         self.viewData = data
         self.Form = QtWidgets.QWidget()
         self.uiForm = Ui_Form()
@@ -834,19 +853,42 @@ class Ui_MainWindow(object):
         for x in listEditatble:
             x.setEnabled(False)
 
+        self.updateSignal("rvForm")
+        self.timerRv = QtCore.QTimer()
+        self.timerRv.setInterval(200)
+        self.timerRv.timeout.connect(lambda: self.updateSignal("rvForm"))
+        self.timerRv.start()
+
         self.currentUpdate = False
         self.uiForm.LoadBtn.clicked.connect(lambda: self.enableEdit(listEditatble, pos))
         self.uiForm.fetchInfoBtn.clicked.connect(self.reloadInfo)
         self.uiForm.resetFormBtn.clicked.connect(lambda: self.setData2Form(None))
         self.uiForm.getCurrentTime.clicked.connect(self.setTime)
-        listConnect = self.checkAvailbleData()
+        listConnect = self.checkAvailbleData(data)
         listCheckBox = [self.uiForm.checkBoxET, self.uiForm.checkBoxEEG, self.uiForm.checkBoxCAM1, self.uiForm.checkBoxCAM2]
         for idx, value in enumerate(listConnect):
+            listCheckBox[idx].setEnabled(False)
             if not listConnect[value]:
-                listCheckBox[idx].setEnabled(False)
                 listCheckBox[idx].setChecked(False)
             else:
                 listCheckBox[idx].setChecked(True)
+
+        # EEGData = readFile("./exampleEEG")
+        # EEGData = EEGData.astype(float)
+        # EEGData = EEGData[3:17,:]
+        self.uiForm.loadDataEEG(np.asarray(data['EEG']))
+        self.uiForm.loadDataET(data['ET'])
+        if listConnect['EEG']:
+            if self.uiForm.canvas is not None:
+                self.uiForm.canvas.setParent(None)    
+                self.uiForm.addEEG_Visual()
+            else:
+                self.uiForm.addEEG_Visual()
+
+        if listConnect['ET']:
+            self.uiForm.addET_Visual()
+
+        self.uiForm.LoadBtn.setText("Reload")
 
         self.Form.show()
 
@@ -924,19 +966,28 @@ class Ui_MainWindow(object):
             }
         return listConnect
 
-    def checkAvailbleData(self):
+    def checkAvailbleData(self, data):
+        ETData = False
+        EEGData = False
+        CAM1 = False
+        CAM2 = False
+        if data['ET'] is not None:
+            ETData = True
+        if data['EEG'] is not None:
+            EEGData = True
+        
         listConnect = {
-            'ET' : False, 
-            'EEG' : False, 
-            'CAM1': False, 
-            'CAM2': False, 
+            'ET' : ETData, 
+            'EEG' : EEGData, 
+            'CAM1': CAM1, 
+            'CAM2': CAM2, 
             }
         return listConnect
 
     def consumeMethodET(self, ch, method, properties, body):
         bb = str(body)[-2]
         aa = str(body).split(')')[0].split('(')[1]
-        self.uiForm.loadDataET([aa, bb])
+        self.uiForm.uploadDataET([aa, bb])
 
 def readData(link = "./DataVIN/", prefixName = "Data"):
     if os.path.isdir(link):
