@@ -590,6 +590,7 @@ class Ui_MainWindow(object):
         # **********************************Mr_HOA*******************************
         # load Data
         # ready to receieve data
+        _thread.start_new_thread(self.rabbit_connection_ET.consume, ("EEGData", self.consumeMethodEEG))
         _thread.start_new_thread(self.rabbit_connection_ET.consume, ("ETData", self.consumeMethodET))
         
         # send a signal to start recording
@@ -937,6 +938,9 @@ class Ui_MainWindow(object):
         bb = str(body)[-2]
         aa = str(body).split(')')[0].split('(')[1]
         self.uiForm.loadDataET([aa, bb])
+    
+    def consumeMethodEEG(self, ch, method, properties, body):
+        print(" [x] Received EEG %r" % body)
 
 def readData(link = "./DataVIN/", prefixName = "Data"):
     if os.path.isdir(link):
