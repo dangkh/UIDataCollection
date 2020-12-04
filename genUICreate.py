@@ -15,6 +15,7 @@ from matplotlib.figure import Figure
 import sys
 import matplotlib
 import matplotlib.pyplot as plt
+import numpy as np
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -377,6 +378,8 @@ class Ui_Form(object):
 
         self.canvas = None
         self.ETData = []
+        self.EEGData = []
+        self.intitialState = True
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
@@ -434,8 +437,13 @@ class Ui_Form(object):
         self.EEGmovie.start()
 
     def updatePlotET(self):
-        self.locateLabel.setText(str(self.ETData[-1][0]))
-        self.characterLabel.setText(str(self.ETData[-1][1]))
+        print(self.currentCounterET, len(self.ETData))
+        if self.currentCounterET >= len(self.ETData)-1:
+            print("enter")
+            self.currentCounterET = 0
+        self.locateLabel.setText(str(self.ETData[self.currentCounterET][0]))
+        self.characterLabel.setText(str(self.ETData[self.currentCounterET][1]))
+        self.currentCounterET += 10
 
     def addET_Visual(self, turnOff = False):
         if turnOff:
@@ -445,6 +453,7 @@ class Ui_Form(object):
                 self.timerET.stop()
                 self.timerET.deleteLater()
             return
+        self.currentCounterET = 0
         self.timerET = QtCore.QTimer()
         self.timerET.setInterval(100)
         self.timerET.timeout.connect(self.updatePlotET)
@@ -461,23 +470,23 @@ class Ui_Form(object):
             self.canvas = FigureCanvasQTAgg(self.fig)
         self.EEG.addWidget(self.canvas)
         self.numChanel = 3
-        self.currentCounter = 0
+        self.currentCounterEEG = 0
         self.listAx  = [self.fig.add_subplot(self.numChanel,1, x+1) for x in range(self.numChanel)]
         xdata = (range(300))
         for ch, ax in enumerate(self.listAx):
-            # ax.plot(xdata, self.EEG[ch,:self.currentCounter * 10 + 300], 'r', lw=1)
             ax.axes.xaxis.set_visible(False)
             ax.axes.yaxis.set_visible(False)
+            ax.set_ylim(4050, 4250)
 
         self.drawStatus = False
         self.referAx = []
         self.updatePlot()
 
 
-        self.timer = QtCore.QTimer()
-        self.timer.setInterval(100)
-        self.timer.timeout.connect(self.updatePlot)
-        self.timer.start()
+        self.timerEEG = QtCore.QTimer()
+        self.timerEEG.setInterval(100)
+        self.timerEEG.timeout.connect(self.updatePlot)
+        self.timerEEG.start()
 
     def centerUI(self, Form):        
         frameGm = Form.frameGeometry()
@@ -494,21 +503,41 @@ class Ui_Form(object):
     def uploadDataET(self, body):
         self.ETData.append(body)
 
+    def uploadDataEEG(self, body):
+        self.EEGData.append(body)
+
     def updatePlot(self):
-        currentData = self.EEGData[0:self.numChanel,self.currentCounter * 10 :self.currentCounter * 10 + 300]
+        EEGData = np.asarray(self.EEGData).T
+        if self.currentCounterEEG * 10 + 10 > EEGData.shape[1]:
+            self.currentCounterEEG = min(EEGData.shape[1], 300) // 10
+
+        maxLen = EEGData.shape[1]
+
+        rf = min(self.currentCounterEEG * 10 + 10, maxLen)
+        # print(self.numChanel, rf)
+        currentData = EEGData[0:self.numChanel, max(0, rf - 300) : rf]
+        #  do dai cua 1 frame la 300 nen neu ko du thi chen so 0 len truoc
+        if currentData.shape[1] < 300:
+            w = currentData.shape[0]
+            h = 300 - currentData.shape[1]
+            tmp = np.ones((w,h))
+            for wi in range(w):
+                tmp[wi,:] = tmp[wi,:] * currentData[wi,0]
+            plotData = np.hstack([tmp, currentData])
+        else:
+            plotData = currentData
         xdata = (range(300))
-        self.currentCounter += 1
-        if self.currentCounter * 10 + 300 > self.EEGData.shape[1]:
-            self.currentCounter = 0
+        self.currentCounterEEG += 1
+        
         if self.drawStatus == False:
             for ch, ax in enumerate(self.listAx):
-                line, = ax.plot(xdata, currentData[ch,:], 'r', lw=1)
+                line, = ax.plot(xdata, plotData[ch,:], 'r', lw=1)
                 self.referAx.append(line)
             self.drawStatus = True
         else:
             for ch, ax in enumerate(self.listAx):
                 currentAx = self.referAx[ch]
-                currentAx.set_ydata(currentData[ch,:])
+                currentAx.set_ydata(plotData[ch,:])
         self.canvas.draw()
 
         
