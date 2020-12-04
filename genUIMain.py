@@ -581,6 +581,13 @@ class Ui_MainWindow(object):
         rabbit_connection.send(message="StopSendingData", queue='control')
         # **********************************Mr_HOA*******************************
         self.uiForm.stopLoadingBtn.hide()
+        self.uiForm.intitialState = False
+        if self.uiForm.timerET:
+            self.uiForm.timerET.stop()
+            self.uiForm.timerET.deleteLater()
+        if self.uiForm.timerEEG:
+            self.uiForm.timerEEG.stop()
+            self.uiForm.timerEEG.deleteLater()
 
     rabbit_connection_ET = Pikachu()
     
@@ -601,10 +608,11 @@ class Ui_MainWindow(object):
         rabbit_connection.send(message="BeginSendingData", queue='control')
         # **********************************Mr_HOA*******************************
 
-        EEGData = readFile("./exampleEEG")
-        EEGData = EEGData.astype(float)
-        EEGData = EEGData[3:17,:]
-        self.uiForm.loadDataEEG(EEGData)
+        # EEGData = readFile("./exampleEEG")
+        # EEGData = EEGData.astype(float)
+        # EEGData = EEGData[3:17,:]
+        # self.uiForm.loadDataEEG(EEGData)
+        self.uiForm.intitialState = True
         self.uiForm.addGif(self.Form)
 
         if self.uiForm.checkBoxET.isChecked():
@@ -652,7 +660,7 @@ class Ui_MainWindow(object):
         time_string = timeTmp.toString(self.uiForm.dateTimeEdit.displayFormat())
         # check avalibale
         ETData = self.uiForm.ETData
-        EEGData = self.uiForm.EEGData.tolist()
+        EEGData = self.uiForm.EEGData
         CAM1 = None
         CAM2 = None
 
@@ -874,9 +882,6 @@ class Ui_MainWindow(object):
             else:
                 listCheckBox[idx].setChecked(True)
 
-        # EEGData = readFile("./exampleEEG")
-        # EEGData = EEGData.astype(float)
-        # EEGData = EEGData[3:17,:]
         self.uiForm.loadDataEEG(np.asarray(data['EEG']))
         self.uiForm.loadDataET(data['ET'])
         if listConnect['EEG']:
@@ -996,7 +1001,10 @@ class Ui_MainWindow(object):
         self.uiForm.uploadDataET([aa, bb])
     
     def consumeMethodEEG(self, ch, method, properties, body):
-        print(" [x] Received EEG %r" % body)
+        # print(body)
+        elements = str(body)[2:-2].split(',')
+        aa = list(map(float, elements))
+        self.uiForm.uploadDataEEG(aa)
 
 def readData(link = "./DataVIN/", prefixName = "Data"):
     if os.path.isdir(link):
