@@ -587,9 +587,12 @@ class Ui_MainWindow(object):
         if self.uiForm.timerET:
             self.uiForm.timerET.stop()
             self.uiForm.timerET.deleteLater()
+            self.uiForm.timerET = None
         if self.uiForm.timerEEG:
             self.uiForm.timerEEG.stop()
             self.uiForm.timerEEG.deleteLater()
+            self.uiForm.timerEEG = None
+        self.loadingStt = False
 
     rabbit_connection_ET = Pikachu()
     
@@ -627,7 +630,8 @@ class Ui_MainWindow(object):
         if self.uiForm.checkBoxET.isChecked():
             self.uiForm.addET_Visual()
 
-        self.uiForm.LoadBtn.setText("Reload")
+        self.uiForm.LoadBtn.hide()
+        self.loadingStt = True
 
     def showErrorPopup(self, error):
         msg  = QtWidgets.QMessageBox()
@@ -657,6 +661,7 @@ class Ui_MainWindow(object):
         recorder = self.uiForm.RecorderEdit.text()
         location = self.uiForm.LocateEdit.text()
         recPlan = self.uiForm.RecPlanEdit.value()
+        sentenceID = self.uiForm.sentenceIdEdit.value()
         timeTmp = self.uiForm.dateTimeEdit.dateTime()
         # dt.toString("dd.MM.yyyy hh:mm:ss.zzz"))
         time_string = timeTmp.toString(self.uiForm.dateTimeEdit.displayFormat())
@@ -690,8 +695,6 @@ class Ui_MainWindow(object):
             # id = last json number files
             # recordID = random.randint(1, 100)
             recordID = len(self.jsonFiles) + 1
-            print(len(self.jsonFiles))
-            print(recordID)
             js = {
             'id': recordID,
             'name' : name, 
@@ -701,6 +704,7 @@ class Ui_MainWindow(object):
             'recorder' : recorder, 
             'location' : location, 
             'recPlan' : recPlan, 
+            'sentenceID' : sentenceID,
             'time' : time_string,
             'ET' : ETData,
             'EEG': EEGData,
@@ -713,6 +717,8 @@ class Ui_MainWindow(object):
                 json.dump(js, outfile)
             self.Form.close()
             self.refreshPage(math.ceil(len(self.jsonFiles) / 10)-1)
+            if self.loadingStt:
+                self.stopLoadingFunc()
         else:
             self.showErrorPopup("Please complete fully the form")
 
@@ -851,10 +857,11 @@ class Ui_MainWindow(object):
         self.uiForm.RecorderEdit.setText(data['recorder'])
         self.uiForm.LocateEdit.setText(data['location'])
         self.uiForm.RecPlanEdit.setValue(data['recPlan'])
+        self.uiForm.sentenceIdEdit.setValue(data['sentenceID'])
         dataTime = QtCore.QDateTime.fromString(data['time'], 'd/M/yyyy hh:mm')
         self.uiForm.dateTimeEdit.setDateTime(dataTime)
         listEditatble = [self.uiForm.NameEdit, self.uiForm.AgeEdit, self.uiForm.MaleEdit, self.uiForm.FemaleEdit, self.uiForm.DiseaseDescEdit, 
-            self.uiForm.RecorderEdit, self.uiForm.LocateEdit, self.uiForm.RecPlanEdit, self.uiForm.dateTimeEdit, self.uiForm.fetchInfoBtn, 
+            self.uiForm.RecorderEdit, self.uiForm.LocateEdit, self.uiForm.RecPlanEdit, self.uiForm.sentenceIdEdit, self.uiForm.dateTimeEdit, self.uiForm.fetchInfoBtn, 
             self.uiForm.resetFormBtn, self.uiForm.getCurrentTime]
         self.uiForm.stopLoadingBtn.hide()
         for x in listEditatble:
@@ -908,6 +915,7 @@ class Ui_MainWindow(object):
             self.uiForm.RecorderEdit.setText("")
             self.uiForm.LocateEdit.setText("")
             self.uiForm.RecPlanEdit.setValue(0)
+            self.uiForm.sentenceIdEdit.setValue(0)
         else:
             self.uiForm.NameEdit.setText(setData['name'])
             self.uiForm.AgeEdit.setValue(setData['age'])
@@ -919,6 +927,7 @@ class Ui_MainWindow(object):
             self.uiForm.RecorderEdit.setText(setData['recorder'])
             self.uiForm.LocateEdit.setText(setData['location'])
             self.uiForm.RecPlanEdit.setValue(setData['recPlan'])
+            self.uiForm.sentenceIdEdit.setValue(setData['sentenceID'])
             dataTime = QtCore.QDateTime.fromString(setData['time'], 'd/M/yyyy hh:mm')
             self.uiForm.dateTimeEdit.setDateTime(dataTime)
 
