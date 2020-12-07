@@ -382,7 +382,9 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+        self.createEvent()
 
+    def createEvent(self):
         self.recordingBtn.clicked.connect(self.recordingScreen)
 
         # data processes
@@ -685,7 +687,11 @@ class Ui_MainWindow(object):
             if genderG:
                 gender = "Fm"
             # get ID 
-            recordID = random.randint(1, 100)
+            # id = last json number files
+            # recordID = random.randint(1, 100)
+            recordID = len(self.jsonFiles) + 1
+            print(len(self.jsonFiles))
+            print(recordID)
             js = {
             'id': recordID,
             'name' : name, 
@@ -705,20 +711,14 @@ class Ui_MainWindow(object):
             self.jsonFiles.append(fileName)
             with open(fileName, 'w') as outfile:
                 json.dump(js, outfile)
-            # print('success')
             self.Form.close()
             self.refreshPage(math.ceil(len(self.jsonFiles) / 10)-1)
         else:
             self.showErrorPopup("Please complete fully the form")
 
     def goPage(self, pos, noWarning = False):
-        # print(pos)
-        # print(self.current_page)
-
         numberPage = math.ceil(len(self.jsonFiles) / 10)
-        # print(numberPage)
         if not noWarning:
-            # print("not warning")
             if pos >= numberPage or pos < 0:
                 self.showErrorPopup("Out of number page: " + str(pos))
                 self.refreshPage(self.current_page)
@@ -740,7 +740,6 @@ class Ui_MainWindow(object):
             with open(file) as json_file:
                 data = json.load(json_file)
                 self.listData.append(data)
-            # print(data)
             self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(str(row + idxL)))
             self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(str(data['id'])))
             self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(data['recPlan'])))
@@ -996,12 +995,11 @@ class Ui_MainWindow(object):
         return listConnect
 
     def consumeMethodET(self, ch, method, properties, body):
-        bb = str(body)[-2]
         aa = str(body).split(')')[0].split('(')[1]
+        bb = body.decode('utf8').split(':')[1]
         self.uiForm.uploadDataET([aa, bb])
     
     def consumeMethodEEG(self, ch, method, properties, body):
-        # print(body)
         elements = str(body)[2:-2].split(',')
         aa = list(map(float, elements))
         self.uiForm.uploadDataEEG(aa)
@@ -1010,14 +1008,13 @@ def readData(link = "./DataVIN/", prefixName = "Data"):
     if os.path.isdir(link):
         onlyfiles = [f for f in os.listdir(link) if os.path.isfile(link+f)]
         jsonFiles = [link+x for x in onlyfiles if x[-4:] == 'json']
-        # print(jsonFiles)
     else:
         print("imported link is not exist")
         print("DataVIN folder is created, run again!")
         os.mkdir(link)
         onlyfiles = [f for f in os.listdir(link) if os.path.isfile(link+f)]
         jsonFiles = [link+x for x in onlyfiles if x[-4:] == 'json']
-        # print(jsonFiles)
+    jsonFiles.sort(key=os.path.getctime)
     return jsonFiles
     
 
