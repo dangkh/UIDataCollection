@@ -106,9 +106,9 @@ class Ui_Form(object):
         self.label_7 = QtWidgets.QLabel(self.formLayoutWidget)
         self.label_7.setObjectName("label_7")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_7)
-        self.spinBox = QtWidgets.QSpinBox(self.formLayoutWidget)
-        self.spinBox.setObjectName("spinBox")
-        self.formLayout.setWidget(8, QtWidgets.QFormLayout.FieldRole, self.spinBox)
+        self.sentenceIdEdit = QtWidgets.QSpinBox(self.formLayoutWidget)
+        self.sentenceIdEdit.setObjectName("sentenceIdEdit")
+        self.formLayout.setWidget(8, QtWidgets.QFormLayout.FieldRole, self.sentenceIdEdit)
         self.label_21 = QtWidgets.QLabel(self.formLayoutWidget)
         self.label_21.setObjectName("label_21")
         self.formLayout.setWidget(8, QtWidgets.QFormLayout.LabelRole, self.label_21)
@@ -390,7 +390,10 @@ class Ui_Form(object):
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
+        self.createEvent()
 
+
+    def createEvent(self):
         self.canvas = None
         self.ETData = []
         self.EEGData = []
@@ -463,7 +466,8 @@ class Ui_Form(object):
         if turnOff:
             self.locateLabel.setText("")
             self.characterLabel.setText("")
-            if self.timerET:
+            print(self.timerET)
+            if self.timerET :
                 self.timerET.stop()
                 self.timerET.deleteLater()
             return
