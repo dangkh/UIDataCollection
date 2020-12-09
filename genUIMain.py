@@ -381,7 +381,8 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
+        self.receievePing()
+        self.initPing()
         self.createEvent()
 
     def createEvent(self):
@@ -432,7 +433,6 @@ class Ui_MainWindow(object):
         self.timer.setInterval(200)
         self.timer.timeout.connect(self.updateSignal)
         self.timer.start()
-
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -515,7 +515,7 @@ class Ui_MainWindow(object):
         self.spinBox.setMaximum(max(numberPage-1,0))
         self.current_page = 0
 
-
+    delayPing = 999
     def recordingScreen(self):
         self.Form = QtWidgets.QWidget()
         self.uiForm = Ui_Form()
@@ -551,6 +551,8 @@ class Ui_MainWindow(object):
 
 
     def updateSignal(self, msg = None):
+        print("Ping: " + str(self.delayPing))
+        self.delayPing += 200
         listConnect = self.checkAvailbleConnect()
         self.turnOnSignal(listConnect, msg)
 
@@ -594,7 +596,8 @@ class Ui_MainWindow(object):
             self.uiForm.timerEEG = None
         self.loadingStt = False
 
-    rabbit_connection_ET = Pikachu()
+    rabbit_connection_Data = Pikachu()
+    rabbit_connection_Ping = Pikachu()
     
     def visualData(self):
         self.uiForm.extendSize(self.Form)
@@ -602,8 +605,8 @@ class Ui_MainWindow(object):
         # **********************************Mr_HOA*******************************
         # load Data
         # ready to receieve data
-        _thread.start_new_thread(self.rabbit_connection_ET.consume, ("EEGData", self.consumeMethodEEG))
-        _thread.start_new_thread(self.rabbit_connection_ET.consume, ("ETData", self.consumeMethodET))
+        _thread.start_new_thread(self.rabbit_connection_Data.consume, ("EEGData", self.consumeMethodEEG))
+        _thread.start_new_thread(self.rabbit_connection_Data.consume, ("ETData", self.consumeMethodET))
         
         # send a signal to start recording
         rabbit_connection = Pikachu()
@@ -972,13 +975,24 @@ class Ui_MainWindow(object):
         # TODO #######################################################################
 
     def checkAvailbleConnect(self):
-        listConnect = {
-            'MayThu': False,
-            'ET' : True, 
-            'EEG' : True, 
-            'CAM1': False, 
-            'CAM2': False, 
-            }
+        if self.delayPing > 1000:
+            self.initPing()
+            listConnect = {
+                'MayThu': False,
+                'ET' : False, 
+                'EEG' : False, 
+                'CAM1': False, 
+                'CAM2': False, 
+                }
+        else:
+            listConnect = {
+                'MayThu': True,
+                'ET' : False, 
+                'EEG' : False, 
+                'CAM1': False, 
+                'CAM2': False, 
+                }
+
         return listConnect
 
     def checkAvailbleData(self, data):
@@ -1012,6 +1026,25 @@ class Ui_MainWindow(object):
         elements = str(body)[2:-2].split(',')
         aa = list(map(float, elements))
         self.uiForm.uploadDataEEG(aa)
+
+    def initPing(self):
+        # send a timestamp to initilize delay calculation
+        current_milli_time = int(round(time.time() * 1000))
+        rabbit_connection = Pikachu()
+        rabbit_connection.exchange = 'direct_controls'
+        rabbit_connection.exchange_type = 'direct'
+        rabbit_connection.routing_key = 'pingFromControl'
+        rabbit_connection.send(message=str(current_milli_time), queue='pingFromControl')
+
+    def receievePing(self):
+        _thread.start_new_thread(self.rabbit_connection_Ping.consume, ("pingFromClient", self.receievePingFunction))
+
+    def receievePingFunction(self, ch, method, properties, body):
+        body = body.decode('utf8').replace("b'", "")
+        firstTime = int(str(body).split(',')[0])
+        secondTime = int(round(time.time() * 1000))
+        self.delayPing = (secondTime - firstTime) / 2
+        self.initPing()
 
 def readData(link = "./DataVIN/", prefixName = "Data"):
     if os.path.isdir(link):

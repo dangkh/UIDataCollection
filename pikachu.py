@@ -1,4 +1,5 @@
 import pika
+import time
 
 class Pikachu:
     hostname = "192.168.1.190"
@@ -11,7 +12,7 @@ class Pikachu:
     connectionSend = pika.BlockingConnection()
     connectionReceieve = pika.BlockingConnection()
     
-    def __init__(self, hostname="192.168.1.190", port=5672, username="full_access", password="sc3r3t"):
+    def __init__(self, hostname="192.168.1.190", port=5672, username="hmi", password="cntt307e3"):
         self.hostname   = hostname
         self.port       = port
         self.username   = username
@@ -24,12 +25,12 @@ class Pikachu:
         channel = self.connectionSend.channel()
         channel.queue_declare(queue)
         channel.exchange_declare(exchange=self.exchange, exchange_type=self.exchange_type)
+        channel.queue_bind(exchange=self.exchange, queue=queue, routing_key=self.routing_key)
         channel.basic_publish(exchange=self.exchange, routing_key=self.routing_key, body=message)
         self.connectionSend.close()
-        print(" [x] Send %r" % message)
+        # print(" [x] Send %r" % message)
 
     def consume(self, queue, callback, autoAck=True):
-        print("AAAAAAAAAAAAAAAA")
         credentials = pika.PlainCredentials('hmi', 'cntt307e3')
         parameters = pika.ConnectionParameters(self.hostname, self.port, '/', credentials)
         self.connectionReceieve = pika.BlockingConnection(parameters)
