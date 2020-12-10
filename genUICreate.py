@@ -398,6 +398,9 @@ class Ui_Form(object):
         self.ETData = []
         self.EEGData = []
         self.intitialState = True
+        self.timerET = QtCore.QTimer()
+        self.timerEEG = QtCore.QTimer()
+        
 
     def retranslateUi(self, Form):
         _translate = QtCore.QCoreApplication.translate
@@ -472,7 +475,6 @@ class Ui_Form(object):
                 self.timerET.deleteLater()
             return
         self.currentCounterET = 0
-        self.timerET = QtCore.QTimer()
         self.timerET.setInterval(100)
         self.timerET.timeout.connect(self.updatePlotET)
         self.timerET.start()
@@ -501,7 +503,6 @@ class Ui_Form(object):
         self.updatePlot()
 
 
-        self.timerEEG = QtCore.QTimer()
         self.timerEEG.setInterval(100)
         self.timerEEG.timeout.connect(self.updatePlot)
         self.timerEEG.start()

@@ -605,8 +605,11 @@ class Ui_MainWindow(object):
         # **********************************Mr_HOA*******************************
         # load Data
         # ready to receieve data
-        _thread.start_new_thread(self.rabbit_connection_Data.consume, ("EEGData", self.consumeMethodEEG))
-        _thread.start_new_thread(self.rabbit_connection_Data.consume, ("ETData", self.consumeMethodET))
+        listConnect = self.checkAvailbleConnect()
+        if listConnect['ET']:
+            _thread.start_new_thread(self.rabbit_connection_Data.consume, ("EEGData", self.consumeMethodEEG))
+        if listConnect['EEG']:
+            _thread.start_new_thread(self.rabbit_connection_Data.consume, ("ETData", self.consumeMethodET))
         
         # send a signal to start recording
         rabbit_connection = Pikachu()
@@ -987,8 +990,8 @@ class Ui_MainWindow(object):
         else:
             listConnect = {
                 'MayThu': True,
-                'ET' : False, 
-                'EEG' : False, 
+                'ET' : True, 
+                'EEG' : True, 
                 'CAM1': False, 
                 'CAM2': False, 
                 }
