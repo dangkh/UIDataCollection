@@ -551,7 +551,7 @@ class Ui_MainWindow(object):
 
 
     def updateSignal(self, msg = None):
-        print("Ping: " + str(self.delayPing))
+        # print("Ping: " + str(self.delayPing))
         self.delayPing += 200
         listConnect = self.checkAvailbleConnect()
         self.turnOnSignal(listConnect, msg)
@@ -976,7 +976,6 @@ class Ui_MainWindow(object):
 
     def checkAvailbleConnect(self):
         if self.delayPing > 1000:
-            self.initPing()
             listConnect = {
                 'MayThu': False,
                 'ET' : False, 
@@ -1018,6 +1017,7 @@ class Ui_MainWindow(object):
         return listConnect
 
     def consumeMethodET(self, ch, method, properties, body):
+        print(" [x] Received %r" % body)
         aa = str(body).split(')')[0].split('(')[1]
         bb = body.decode('utf8').split(':')[1]
         self.uiForm.uploadDataET([aa, bb])
@@ -1041,10 +1041,15 @@ class Ui_MainWindow(object):
 
     def receievePingFunction(self, ch, method, properties, body):
         body = body.decode('utf8').replace("b'", "")
-        firstTime = int(str(body).split(',')[0])
-        secondTime = int(round(time.time() * 1000))
-        self.delayPing = (secondTime - firstTime) / 2
-        self.initPing()
+        #print("AppStarted: " + body)
+        if body == "AppStarted":
+            print("AppStarted vao roi ne ")
+            self.initPing()
+        else:
+            firstTime = int(str(body).split(',')[0])
+            secondTime = int(round(time.time() * 1000))
+            self.delayPing = (secondTime - firstTime) / 2
+            self.initPing()
 
 def readData(link = "./DataVIN/", prefixName = "Data"):
     if os.path.isdir(link):
