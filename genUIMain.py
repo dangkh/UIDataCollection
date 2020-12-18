@@ -434,6 +434,8 @@ class Ui_MainWindow(object):
         self.timer.start()
 
 
+
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
@@ -585,12 +587,20 @@ class Ui_MainWindow(object):
         self.uiForm.stopLoadingBtn.hide()
         self.uiForm.intitialState = False
         if self.uiForm.timerET:
-            self.uiForm.timerET.stop()
-            self.uiForm.timerET.deleteLater()
+            try:
+                self.uiForm.timerET.stop()
+                self.uiForm.timerET.deleteLater()
+            except Exception as e:
+                print("timerET already deleted")
+                
             self.uiForm.timerET = None
         if self.uiForm.timerEEG:
-            self.uiForm.timerEEG.stop()
-            self.uiForm.timerEEG.deleteLater()
+            try:
+                self.uiForm.timerEEG.stop()
+                self.uiForm.timerEEG.deleteLater()
+            except Exception as e:
+                print("timerEEG already deleted")
+            
             self.uiForm.timerEEG = None
         self.loadingStt = False
 
@@ -618,7 +628,7 @@ class Ui_MainWindow(object):
         # EEGData = EEGData[3:17,:]
         # self.uiForm.loadDataEEG(EEGData)
         self.uiForm.intitialState = True
-        self.uiForm.addGif(self.Form)
+        # self.uiForm.addGif(self.Form)
 
         if self.uiForm.checkBoxET.isChecked():
             if self.uiForm.canvas is not None:
@@ -973,7 +983,7 @@ class Ui_MainWindow(object):
 
     def checkAvailbleConnect(self):
         listConnect = {
-            'MayThu': False,
+            'MayThu': True,
             'ET' : True, 
             'EEG' : True, 
             'CAM1': False, 
@@ -1004,9 +1014,14 @@ class Ui_MainWindow(object):
         return listConnect
 
     def consumeMethodET(self, ch, method, properties, body):
-        aa = str(body).split(')')[0].split('(')[1]
-        bb = body.decode('utf8').split(':')[1]
-        self.uiForm.uploadDataET([aa, bb])
+        # print(body)
+        endingCheck = body.decode('utf8')
+        if endingCheck != "SENTENCE_ENDING":
+            aa = str(body).split(')')[0].split('(')[1]
+            bb = body.decode('utf8').split(':')[1]
+            cc = body.decode('utf8').split(':')[2]
+            # print(aa, bb, cc)
+            self.uiForm.uploadDataET([aa, bb, cc])
     
     def consumeMethodEEG(self, ch, method, properties, body):
         elements = str(body)[2:-2].split(',')
@@ -1037,5 +1052,5 @@ if __name__ == "__main__":
 
     MainWindow.show()
     sys.exit(app.exec_())
-    
+
     
