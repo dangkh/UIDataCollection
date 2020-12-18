@@ -992,8 +992,8 @@ class Ui_MainWindow(object):
         else:
             listConnect = {
                 'MayThu': True,
-                'ET' : False, 
-                'EEG' : False, 
+                'ET' : True, 
+                'EEG' : True, 
                 'CAM1': False, 
                 'CAM2': False, 
                 }

@@ -471,7 +471,7 @@ class Ui_Form(object):
             return
         self.locateLabel.setText(str(self.ETData[self.currentCounterET][0]))
         self.characterLabel.setText(str(self.ETData[self.currentCounterET][1]))
-        self.pressedText.setText(str(self.ETData[self.currentCounterET][2]))
+        self.pressedText.setText(str(self.ETData[self.currentCounterET][-1]))
         self.currentCounterET += 10
 
     def addET_Visual(self, turnOff = False):
