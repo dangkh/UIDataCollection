@@ -20,7 +20,7 @@ import numpy as np
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(503, 627)
+        Form.resize(506, 627)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("my-beautiful-life-logo-3.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Form.setWindowIcon(icon)
@@ -318,6 +318,14 @@ class Ui_Form(object):
         self.groupBox_4.setStyleSheet("background-color: rgb(28, 45, 62);")
         self.groupBox_4.setTitle("")
         self.groupBox_4.setObjectName("groupBox_4")
+        self.pressedText = QtWidgets.QLabel(self.groupBox_4)
+        self.pressedText.setGeometry(QtCore.QRect(0, 0, 461, 81))
+        font = QtGui.QFont()
+        font.setPointSize(16)
+        self.pressedText.setFont(font)
+        self.pressedText.setStyleSheet("color: rgb(255, 255, 255);")
+        self.pressedText.setWordWrap(False)
+        self.pressedText.setObjectName("pressedText")
         self.groupBox_3 = QtWidgets.QGroupBox(self.groupBox_2)
         self.groupBox_3.setGeometry(QtCore.QRect(257, 220, 219, 171))
         self.groupBox_3.setStyleSheet("background-color: rgb(255, 243, 249);")
@@ -340,6 +348,14 @@ class Ui_Form(object):
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget_3)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
+        self.locateLabel = QtWidgets.QLabel(self.gridLayoutWidget_3)
+        font = QtGui.QFont()
+        font.setFamily("System")
+        font.setBold(True)
+        font.setWeight(75)
+        self.locateLabel.setFont(font)
+        self.locateLabel.setObjectName("locateLabel")
+        self.gridLayout.addWidget(self.locateLabel, 0, 1, 1, 1)
         self.label_22 = QtWidgets.QLabel(self.gridLayoutWidget_3)
         font = QtGui.QFont()
         font.setPointSize(11)
@@ -362,14 +378,6 @@ class Ui_Form(object):
         self.label_19.setIndent(20)
         self.label_19.setObjectName("label_19")
         self.gridLayout.addWidget(self.label_19, 0, 0, 1, 1)
-        self.locateLabel = QtWidgets.QLabel(self.gridLayoutWidget_3)
-        font = QtGui.QFont()
-        font.setFamily("System")
-        font.setBold(True)
-        font.setWeight(75)
-        self.locateLabel.setFont(font)
-        self.locateLabel.setObjectName("locateLabel")
-        self.gridLayout.addWidget(self.locateLabel, 0, 1, 1, 1)
         self.characterLabel = QtWidgets.QLabel(self.gridLayoutWidget_3)
         font = QtGui.QFont()
         font.setPointSize(16)
@@ -430,9 +438,10 @@ class Ui_Form(object):
         self.label_17.setText(_translate("Form", "EEG"))
         self.label_18.setText(_translate("Form", "CAM2"))
         self.stopLoadingBtn.setText(_translate("Form", "Dừng load"))
+        self.pressedText.setText(_translate("Form", "NONE"))
+        self.locateLabel.setText(_translate("Form", "NONE"))
         self.label_22.setText(_translate("Form", "Chữ Cái"))
         self.label_19.setText(_translate("Form", "Tọa Độ"))
-        self.locateLabel.setText(_translate("Form", "NONE"))
         self.characterLabel.setText(_translate("Form", "NONE"))
 
 
@@ -458,15 +467,17 @@ class Ui_Form(object):
     def updatePlotET(self):
         if self.currentCounterET >= len(self.ETData)-1:
             self.currentCounterET = 0
+        if len(self.ETData) == 0:
+            return
         self.locateLabel.setText(str(self.ETData[self.currentCounterET][0]))
         self.characterLabel.setText(str(self.ETData[self.currentCounterET][1]))
+        self.pressedText.setText(str(self.ETData[self.currentCounterET][2]))
         self.currentCounterET += 10
 
     def addET_Visual(self, turnOff = False):
         if turnOff:
             self.locateLabel.setText("")
             self.characterLabel.setText("")
-            print(self.timerET)
             if self.timerET :
                 self.timerET.stop()
                 self.timerET.deleteLater()
@@ -526,6 +537,8 @@ class Ui_Form(object):
 
     def updatePlot(self):
         EEGData = np.asarray(self.EEGData).T
+        if EEGData.shape[0] == 0:
+            return
         if self.currentCounterEEG * 10 + 10 > EEGData.shape[1]:
             self.currentCounterEEG = min(EEGData.shape[1], 300) // 10
 
@@ -557,4 +570,3 @@ class Ui_Form(object):
                 currentAx.set_ydata(plotData[ch,:])
         self.canvas.draw()
 
-        
