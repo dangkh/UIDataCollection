@@ -13,23 +13,7 @@ import sys
 from PyQt5 import *
 from PyQt5.QtWidgets import *
 import json
-import numpy
-
-
-class textSpinBox(QSpinBox):
-    def __init__(self, parent=None):
-        super(textSpinBox, self).__init__(parent)
-        self.set_list_string()
-
-    def set_list_string(self, strings=None):
-        if strings is not None:
-            self.list_text = strings
-        else:
-            self.list_text = ["EEG", "ET"]
-        self.setRange(0, len(self.list_text) - 1)
-
-    def textFromValue(self, value):
-        return self.list_text[value]
+from dialogData import Ui_Dialog
 
 
 class Ui_MainWindow(object):
@@ -37,8 +21,7 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1195, 711)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("my-beautiful-life-logo-3.png"),
-                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("my-beautiful-life-logo-3.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -48,40 +31,45 @@ class Ui_MainWindow(object):
         self.groupBox.setTitle("")
         self.groupBox.setObjectName("groupBox")
         self.formLayoutWidget_2 = QtWidgets.QWidget(self.groupBox)
-        self.formLayoutWidget_2.setGeometry(QtCore.QRect(0, 460, 431, 121))
+        self.formLayoutWidget_2.setGeometry(QtCore.QRect(0, 460, 431, 129))
         self.formLayoutWidget_2.setObjectName("formLayoutWidget_2")
         self.formLayout_2 = QtWidgets.QFormLayout(self.formLayoutWidget_2)
         self.formLayout_2.setContentsMargins(0, 0, 0, 0)
         self.formLayout_2.setObjectName("formLayout_2")
-        self.label_5 = QtWidgets.QLabel(self.formLayoutWidget_2)
-        self.label_5.setObjectName("label_5")
-        self.formLayout_2.setWidget(
-            1, QtWidgets.QFormLayout.LabelRole, self.label_5)
-        self.spinBox_2 = textSpinBox(self.formLayoutWidget_2)
-        self.spinBox_2.setInputMethodHints(QtCore.Qt.ImhLowercaseOnly)
-        self.spinBox_2.setObjectName("spinBox_2")
-        self.formLayout_2.setWidget(
-            1, QtWidgets.QFormLayout.FieldRole, self.spinBox_2)
-        self.label_6 = QtWidgets.QLabel(self.formLayoutWidget_2)
-        self.label_6.setObjectName("label_6")
-        self.formLayout_2.setWidget(
-            2, QtWidgets.QFormLayout.LabelRole, self.label_6)
         self.doubleSpinBox = QtWidgets.QDoubleSpinBox(self.formLayoutWidget_2)
         self.doubleSpinBox.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         self.doubleSpinBox.setInputMethodHints(QtCore.Qt.ImhDigitsOnly)
         self.doubleSpinBox.setObjectName("doubleSpinBox")
-        self.formLayout_2.setWidget(
-            2, QtWidgets.QFormLayout.FieldRole, self.doubleSpinBox)
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.doubleSpinBox)
+        self.spinBox_2 = textSpinBox(self.formLayoutWidget_2)
+        self.spinBox_2.setInputMethodHints(QtCore.Qt.ImhLowercaseOnly)
+        self.spinBox_2.setObjectName("spinBox_2")
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.spinBox_2)
+        self.label_6 = QtWidgets.QLabel(self.formLayoutWidget_2)
+        self.label_6.setObjectName("label_6")
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_6)
+        self.label_5 = QtWidgets.QLabel(self.formLayoutWidget_2)
+        self.label_5.setObjectName("label_5")
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_5)
         self.label_2 = QtWidgets.QLabel(self.formLayoutWidget_2)
         self.label_2.setObjectName("label_2")
-        self.formLayout_2.setWidget(
-            0, QtWidgets.QFormLayout.LabelRole, self.label_2)
-        self.spinBox = textSpinBox(self.formLayoutWidget_2)
-        self.spinBox.setObjectName("spinBox")
-        self.formLayout_2.setWidget(
-            0, QtWidgets.QFormLayout.FieldRole, self.spinBox)
+        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_2)
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.spinBoxData = textSpinBox(self.formLayoutWidget_2)
+        self.spinBoxData.setObjectName("spinBoxData")
+        self.horizontalLayout_3.addWidget(self.spinBoxData)
+        self.defaultData = QtWidgets.QPushButton(self.formLayoutWidget_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(20)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.defaultData.sizePolicy().hasHeightForWidth())
+        self.defaultData.setSizePolicy(sizePolicy)
+        self.defaultData.setObjectName("defaultData")
+        self.horizontalLayout_3.addWidget(self.defaultData)
+        self.formLayout_2.setLayout(0, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_3)
         self.pushButton = QtWidgets.QPushButton(self.groupBox)
-        self.pushButton.setGeometry(QtCore.QRect(118, 584, 211, 41))
+        self.pushButton.setGeometry(QtCore.QRect(118, 590, 211, 41))
         self.pushButton.setWhatsThis("")
         self.pushButton.setStyleSheet("QPushButton#pushButton {\n"
                                       "    background-color: rgb(167, 192, 220);\n"
@@ -107,20 +95,16 @@ class Ui_MainWindow(object):
         self.formLayout_3.setObjectName("formLayout_3")
         self.NameEdit = QtWidgets.QLineEdit(self.formLayoutWidget_3)
         self.NameEdit.setObjectName("NameEdit")
-        self.formLayout_3.setWidget(
-            0, QtWidgets.QFormLayout.FieldRole, self.NameEdit)
+        self.formLayout_3.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.NameEdit)
         self.label_8 = QtWidgets.QLabel(self.formLayoutWidget_3)
         self.label_8.setObjectName("label_8")
-        self.formLayout_3.setWidget(
-            1, QtWidgets.QFormLayout.LabelRole, self.label_8)
+        self.formLayout_3.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_8)
         self.AgeEdit = QtWidgets.QSpinBox(self.formLayoutWidget_3)
         self.AgeEdit.setObjectName("AgeEdit")
-        self.formLayout_3.setWidget(
-            1, QtWidgets.QFormLayout.FieldRole, self.AgeEdit)
+        self.formLayout_3.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.AgeEdit)
         self.label_9 = QtWidgets.QLabel(self.formLayoutWidget_3)
         self.label_9.setObjectName("label_9")
-        self.formLayout_3.setWidget(
-            2, QtWidgets.QFormLayout.LabelRole, self.label_9)
+        self.formLayout_3.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_9)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.MaleEdit = QtWidgets.QRadioButton(self.formLayoutWidget_3)
@@ -129,64 +113,48 @@ class Ui_MainWindow(object):
         self.FemaleEdit = QtWidgets.QRadioButton(self.formLayoutWidget_3)
         self.FemaleEdit.setObjectName("FemaleEdit")
         self.horizontalLayout_2.addWidget(self.FemaleEdit)
-        self.formLayout_3.setLayout(
-            2, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_2)
+        self.formLayout_3.setLayout(2, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_2)
         self.label_14 = QtWidgets.QLabel(self.formLayoutWidget_3)
         self.label_14.setObjectName("label_14")
-        self.formLayout_3.setWidget(
-            3, QtWidgets.QFormLayout.LabelRole, self.label_14)
+        self.formLayout_3.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_14)
         self.DiseaseDescEdit = QtWidgets.QTextEdit(self.formLayoutWidget_3)
-        self.DiseaseDescEdit.setObjectName("DiseaseDescEdit_2")
-        self.formLayout_3.setWidget(
-            3, QtWidgets.QFormLayout.FieldRole, self.DiseaseDescEdit)
-        spacerItem = QtWidgets.QSpacerItem(
-            20, 89, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.formLayout_3.setItem(
-            4, QtWidgets.QFormLayout.FieldRole, spacerItem)
+        self.DiseaseDescEdit.setObjectName("DiseaseDescEdit")
+        self.formLayout_3.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.DiseaseDescEdit)
+        spacerItem = QtWidgets.QSpacerItem(20, 89, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.formLayout_3.setItem(4, QtWidgets.QFormLayout.FieldRole, spacerItem)
         self.label_10 = QtWidgets.QLabel(self.formLayoutWidget_3)
         self.label_10.setObjectName("label_10")
-        self.formLayout_3.setWidget(
-            5, QtWidgets.QFormLayout.LabelRole, self.label_10)
+        self.formLayout_3.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.label_10)
         self.RecorderEdit = QtWidgets.QLineEdit(self.formLayoutWidget_3)
         self.RecorderEdit.setObjectName("RecorderEdit")
-        self.formLayout_3.setWidget(
-            5, QtWidgets.QFormLayout.FieldRole, self.RecorderEdit)
+        self.formLayout_3.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.RecorderEdit)
         self.label_11 = QtWidgets.QLabel(self.formLayoutWidget_3)
         self.label_11.setObjectName("label_11")
-        self.formLayout_3.setWidget(
-            6, QtWidgets.QFormLayout.LabelRole, self.label_11)
+        self.formLayout_3.setWidget(6, QtWidgets.QFormLayout.LabelRole, self.label_11)
         self.LocateEdit = QtWidgets.QLineEdit(self.formLayoutWidget_3)
         self.LocateEdit.setObjectName("LocateEdit")
-        self.formLayout_3.setWidget(
-            6, QtWidgets.QFormLayout.FieldRole, self.LocateEdit)
+        self.formLayout_3.setWidget(6, QtWidgets.QFormLayout.FieldRole, self.LocateEdit)
         self.label_12 = QtWidgets.QLabel(self.formLayoutWidget_3)
         self.label_12.setObjectName("label_12")
-        self.formLayout_3.setWidget(
-            7, QtWidgets.QFormLayout.LabelRole, self.label_12)
+        self.formLayout_3.setWidget(7, QtWidgets.QFormLayout.LabelRole, self.label_12)
         self.RecPlanEdit = QtWidgets.QSpinBox(self.formLayoutWidget_3)
         self.RecPlanEdit.setObjectName("RecPlanEdit")
-        self.formLayout_3.setWidget(
-            7, QtWidgets.QFormLayout.FieldRole, self.RecPlanEdit)
+        self.formLayout_3.setWidget(7, QtWidgets.QFormLayout.FieldRole, self.RecPlanEdit)
         self.label_21 = QtWidgets.QLabel(self.formLayoutWidget_3)
         self.label_21.setObjectName("label_21")
-        self.formLayout_3.setWidget(
-            8, QtWidgets.QFormLayout.LabelRole, self.label_21)
+        self.formLayout_3.setWidget(8, QtWidgets.QFormLayout.LabelRole, self.label_21)
         self.sentenceIdEdit = QtWidgets.QSpinBox(self.formLayoutWidget_3)
         self.sentenceIdEdit.setObjectName("sentenceIdEdit")
-        self.formLayout_3.setWidget(
-            8, QtWidgets.QFormLayout.FieldRole, self.sentenceIdEdit)
+        self.formLayout_3.setWidget(8, QtWidgets.QFormLayout.FieldRole, self.sentenceIdEdit)
         self.label_13 = QtWidgets.QLabel(self.formLayoutWidget_3)
         self.label_13.setObjectName("label_13")
-        self.formLayout_3.setWidget(
-            9, QtWidgets.QFormLayout.LabelRole, self.label_13)
+        self.formLayout_3.setWidget(9, QtWidgets.QFormLayout.LabelRole, self.label_13)
         self.dateTimeEdit = QtWidgets.QDateTimeEdit(self.formLayoutWidget_3)
         self.dateTimeEdit.setObjectName("dateTimeEdit")
-        self.formLayout_3.setWidget(
-            9, QtWidgets.QFormLayout.FieldRole, self.dateTimeEdit)
+        self.formLayout_3.setWidget(9, QtWidgets.QFormLayout.FieldRole, self.dateTimeEdit)
         self.label_7 = QtWidgets.QLabel(self.formLayoutWidget_3)
         self.label_7.setObjectName("label_7")
-        self.formLayout_3.setWidget(
-            0, QtWidgets.QFormLayout.LabelRole, self.label_7)
+        self.formLayout_3.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_7)
         self.label = QtWidgets.QLabel(self.groupBox)
         self.label.setGeometry(QtCore.QRect(180, 10, 101, 21))
         font = QtGui.QFont()
@@ -197,6 +165,11 @@ class Ui_MainWindow(object):
         self.label.setObjectName("label")
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_2.setGeometry(QtCore.QRect(450, 10, 731, 631))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(5)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.groupBox_2.sizePolicy().hasHeightForWidth())
+        self.groupBox_2.setSizePolicy(sizePolicy)
         self.groupBox_2.setStyleSheet("background-color: rgb(255, 170, 0);")
         self.groupBox_2.setTitle("")
         self.groupBox_2.setObjectName("groupBox_2")
@@ -231,9 +204,10 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label_5.setText(_translate("MainWindow", "Chọn Phương pháp"))
         self.label_6.setText(_translate("MainWindow", "Tham số 01"))
+        self.label_5.setText(_translate("MainWindow", "Chọn Phương pháp"))
         self.label_2.setText(_translate("MainWindow", "Chọn loại dữ liệu"))
+        self.defaultData.setText(_translate("MainWindow", "Default"))
         self.pushButton.setText(_translate("MainWindow", "Áp dụng"))
         self.label_8.setText(_translate("MainWindow", "Tuổi"))
         self.label_9.setText(_translate("MainWindow", "Giới tính"))
@@ -260,10 +234,22 @@ class Ui_MainWindow(object):
         self.actionOpen_file.setStatusTip('Open file browser')
         self.actionOpen_file.triggered.connect(self.openFilePath)
         self.createTextSpinBox()
-
+        self.defaultData.clicked.connect(self.openDialog)
         # create maximum chanels can be reviewed
 
         self.maxChanel = 8
+
+    def openDialog(self):
+        # self.Form = QtWidgets.QWidget()
+        # self.uiForm = Ui_Form()
+        # self.uiForm.setupUi(self.Form)
+        # self.uiForm.centerUI(self.Form)
+        # self.Form.show()
+
+        self.Dialog = QtWidgets.QDialog()
+        self.Ui_Dialog = Ui_Dialog()
+        self.Ui_Dialog.setupUi(self.Dialog)
+        self.Dialog.show()
 
     def createTextSpinBox(self):
         self.spinBox_2.set_list_string(["ICA", "Threshold", "Auto"])
@@ -299,6 +285,22 @@ class Ui_MainWindow(object):
 
     def closeApp(self):
         sys.exit()
+
+
+class textSpinBox(QSpinBox):
+    def __init__(self, parent=None):
+        super(textSpinBox, self).__init__(parent)
+        self.set_list_string()
+
+    def set_list_string(self, strings=None):
+        if strings is not None:
+            self.list_text = strings
+        else:
+            self.list_text = ["EEG", "ET"]
+        self.setRange(0, len(self.list_text) - 1)
+
+    def textFromValue(self, value):
+        return self.list_text[value]
 
 
 if __name__ == "__main__":
