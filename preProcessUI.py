@@ -57,7 +57,7 @@ class Ui_MainWindow(object):
         self.label_5.setObjectName("label_5")
         self.formLayout_2.setWidget(
             1, QtWidgets.QFormLayout.LabelRole, self.label_5)
-        self.spinBox_2 = QtWidgets.QSpinBox(self.formLayoutWidget_2)
+        self.spinBox_2 = textSpinBox(self.formLayoutWidget_2)
         self.spinBox_2.setInputMethodHints(QtCore.Qt.ImhLowercaseOnly)
         self.spinBox_2.setObjectName("spinBox_2")
         self.formLayout_2.setWidget(
@@ -259,16 +259,23 @@ class Ui_MainWindow(object):
         self.actionOpen_file.setShortcut("Ctrl+O")
         self.actionOpen_file.setStatusTip('Open file browser')
         self.actionOpen_file.triggered.connect(self.openFilePath)
+        self.createTextSpinBox()
+
+        # create maximum chanels can be reviewed
+
+        self.maxChanel = 8
+
+    def createTextSpinBox(self):
+        self.spinBox_2.set_list_string(["ICA", "Threshold", "Auto"])
 
     def openFilePath(self):
         fname = QFileDialog.getOpenFileName(filter="Json (*.json)")
         path = fname[0]
 
-        print(path)
+        if path == "" or path is None:
+            return
         with open(path) as json_file:
             data = json.load(json_file)
-
-        # self.viewData = data
 
         self.NameEdit.setText(data['name'])
         self.AgeEdit.setValue(data['age'])
@@ -287,6 +294,8 @@ class Ui_MainWindow(object):
                          self.RecorderEdit, self.LocateEdit, self.RecPlanEdit, self.sentenceIdEdit, self.dateTimeEdit]
         for x in listEditatble:
             x.setEnabled(False)
+
+        print(type(data['EEG']))
 
     def closeApp(self):
         sys.exit()
