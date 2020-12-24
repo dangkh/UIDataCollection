@@ -272,7 +272,8 @@ class Ui_MainWindow(object):
         fname = QFileDialog.getOpenFileName(filter="Json (*.json)")
         path = fname[0]
 
-        print(path)
+        if path == "" or path is None:
+            return
         with open(path) as json_file:
             data = json.load(json_file)
 
