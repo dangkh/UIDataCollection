@@ -21,7 +21,8 @@ class Ui_MainWindow(object):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(1195, 711)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("my-beautiful-life-logo-3.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("../.designer/backup/my-beautiful-life-logo-3.png"),
+                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -173,6 +174,31 @@ class Ui_MainWindow(object):
         self.groupBox_2.setStyleSheet("background-color: rgb(255, 170, 0);")
         self.groupBox_2.setTitle("")
         self.groupBox_2.setObjectName("groupBox_2")
+        self.verticalLayoutWidget = QtWidgets.QWidget(self.groupBox_2)
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(9, 540, 711, 80))
+        self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.gridLayout = QtWidgets.QGridLayout()
+        self.gridLayout.setObjectName("gridLayout")
+        self.rightIdx = QtWidgets.QLabel(self.verticalLayoutWidget)
+        self.rightIdx.setText("")
+        self.rightIdx.setObjectName("rightIdx")
+        self.gridLayout.addWidget(self.rightIdx, 0, 2, 1, 1, QtCore.Qt.AlignRight)
+        self.leftIdx = QtWidgets.QLabel(self.verticalLayoutWidget)
+        self.leftIdx.setText("")
+        self.leftIdx.setObjectName("leftIdx")
+        self.gridLayout.addWidget(self.leftIdx, 0, 0, 1, 1, QtCore.Qt.AlignLeft)
+        self.currentIdx = QtWidgets.QLabel(self.verticalLayoutWidget)
+        self.currentIdx.setText("")
+        self.currentIdx.setObjectName("currentIdx")
+        self.gridLayout.addWidget(self.currentIdx, 0, 1, 1, 1, QtCore.Qt.AlignHCenter)
+        self.verticalLayout.addLayout(self.gridLayout)
+        self.horizontalSlider = QtWidgets.QSlider(self.verticalLayoutWidget)
+        self.horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
+        self.horizontalSlider.setObjectName("horizontalSlider")
+        self.verticalLayout.addWidget(self.horizontalSlider)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1195, 21))
@@ -234,17 +260,16 @@ class Ui_MainWindow(object):
         self.actionOpen_file.setStatusTip('Open file browser')
         self.actionOpen_file.triggered.connect(self.openFilePath)
         self.createTextSpinBox()
-        self.defaultData.clicked.connect(self.openDialog)
         # create maximum chanels can be reviewed
-
-        self.maxChanel = 8
+        self.defaultData.clicked.connect(self.openDialog)
+        self.channelSpacing = 200
+        self.channelVisualLen = 1000
+        self.defaultChanel = 8
+        self.counter = 0
+        self.horizontalSlider.hide()
+        self.horizontalSlider.valueChanged.connect(self.changeValueSL)
 
     def openDialog(self):
-        # self.Form = QtWidgets.QWidget()
-        # self.uiForm = Ui_Form()
-        # self.uiForm.setupUi(self.Form)
-        # self.uiForm.centerUI(self.Form)
-        # self.Form.show()
 
         self.Dialog = QtWidgets.QDialog()
         self.Ui_Dialog = Ui_Dialog()
@@ -282,6 +307,29 @@ class Ui_MainWindow(object):
             x.setEnabled(False)
 
         print(type(data['EEG']))
+        self.label.setText(str(path).split('/')[-1])
+        dataLen = len(data['EEG'])
+        self.EEG = data['EEG']
+        self.setupSlider(dataLen, dataLen // 2)
+
+    def setupSlider(self, dataLen, point=500):
+        self.horizontalSlider.show()
+        self.currentVisualEEG = point
+        minV = point - dataLen // 2
+        maxV = point + dataLen // 2
+        self.horizontalSlider.setMinimum(minV)
+        self.horizontalSlider.setMaximum(maxV)
+        self.horizontalSlider.setValue(self.currentVisualEEG)
+        self.currentIdx.setText(str(self.currentVisualEEG))
+        self.leftIdx.setText(str(minV))
+        self.rightIdx.setText(str(maxV))
+
+    def changeValueSL(self):
+        value = self.horizontalSlider.value()
+        print(value)
+
+    def displayEEG(self):
+        pass
 
     def closeApp(self):
         sys.exit()
