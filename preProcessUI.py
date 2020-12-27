@@ -14,12 +14,16 @@ from PyQt5 import *
 from PyQt5.QtWidgets import *
 import json
 from dialogData import Ui_Dialog
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+# from matplotlib.figure import Figure
+import matplotlib.pyplot as plt
+from utility import *
 
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1195, 711)
+        MainWindow.resize(1513, 711)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("../.designer/backup/my-beautiful-life-logo-3.png"),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -37,21 +41,6 @@ class Ui_MainWindow(object):
         self.formLayout_2 = QtWidgets.QFormLayout(self.formLayoutWidget_2)
         self.formLayout_2.setContentsMargins(0, 0, 0, 0)
         self.formLayout_2.setObjectName("formLayout_2")
-        self.doubleSpinBox = QtWidgets.QDoubleSpinBox(self.formLayoutWidget_2)
-        self.doubleSpinBox.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
-        self.doubleSpinBox.setInputMethodHints(QtCore.Qt.ImhDigitsOnly)
-        self.doubleSpinBox.setObjectName("doubleSpinBox")
-        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.doubleSpinBox)
-        self.spinBox_2 = textSpinBox(self.formLayoutWidget_2)
-        self.spinBox_2.setInputMethodHints(QtCore.Qt.ImhLowercaseOnly)
-        self.spinBox_2.setObjectName("spinBox_2")
-        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.spinBox_2)
-        self.label_6 = QtWidgets.QLabel(self.formLayoutWidget_2)
-        self.label_6.setObjectName("label_6")
-        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_6)
-        self.label_5 = QtWidgets.QLabel(self.formLayoutWidget_2)
-        self.label_5.setObjectName("label_5")
-        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_5)
         self.label_2 = QtWidgets.QLabel(self.formLayoutWidget_2)
         self.label_2.setObjectName("label_2")
         self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_2)
@@ -69,8 +58,22 @@ class Ui_MainWindow(object):
         self.defaultData.setObjectName("defaultData")
         self.horizontalLayout_3.addWidget(self.defaultData)
         self.formLayout_2.setLayout(0, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_3)
-        self.pushButton = QtWidgets.QPushButton(self.groupBox)
-        self.pushButton.setGeometry(QtCore.QRect(118, 590, 211, 41))
+        self.label_5 = QtWidgets.QLabel(self.formLayoutWidget_2)
+        self.label_5.setObjectName("label_5")
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_5)
+        self.spinBox_2 = textSpinBox(self.formLayoutWidget_2)
+        self.spinBox_2.setInputMethodHints(QtCore.Qt.ImhLowercaseOnly)
+        self.spinBox_2.setObjectName("spinBox_2")
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.spinBox_2)
+        self.label_6 = QtWidgets.QLabel(self.formLayoutWidget_2)
+        self.label_6.setObjectName("label_6")
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_6)
+        self.doubleSpinBox = QtWidgets.QDoubleSpinBox(self.formLayoutWidget_2)
+        self.doubleSpinBox.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        self.doubleSpinBox.setInputMethodHints(QtCore.Qt.ImhDigitsOnly)
+        self.doubleSpinBox.setObjectName("doubleSpinBox")
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.doubleSpinBox)
+        self.pushButton = QtWidgets.QPushButton(self.formLayoutWidget_2)
         self.pushButton.setWhatsThis("")
         self.pushButton.setStyleSheet("QPushButton#pushButton {\n"
                                       "    background-color: rgb(167, 192, 220);\n"
@@ -88,6 +91,7 @@ class Ui_MainWindow(object):
                                       "    border-style: inset;\n"
                                       "}")
         self.pushButton.setObjectName("pushButton")
+        self.formLayout_2.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.pushButton)
         self.formLayoutWidget_3 = QtWidgets.QWidget(self.groupBox)
         self.formLayoutWidget_3.setGeometry(QtCore.QRect(0, 40, 431, 391))
         self.formLayoutWidget_3.setObjectName("formLayoutWidget_3")
@@ -165,7 +169,7 @@ class Ui_MainWindow(object):
         self.label.setFont(font)
         self.label.setObjectName("label")
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox_2.setGeometry(QtCore.QRect(450, 10, 731, 631))
+        self.groupBox_2.setGeometry(QtCore.QRect(450, 10, 1041, 631))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(5)
         sizePolicy.setVerticalStretch(0)
@@ -175,7 +179,7 @@ class Ui_MainWindow(object):
         self.groupBox_2.setTitle("")
         self.groupBox_2.setObjectName("groupBox_2")
         self.verticalLayoutWidget = QtWidgets.QWidget(self.groupBox_2)
-        self.verticalLayoutWidget.setGeometry(QtCore.QRect(9, 540, 711, 80))
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(9, 540, 1021, 80))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
@@ -199,9 +203,15 @@ class Ui_MainWindow(object):
         self.horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider.setObjectName("horizontalSlider")
         self.verticalLayout.addWidget(self.horizontalSlider)
+        self.verticalLayoutWidget_2 = QtWidgets.QWidget(self.groupBox_2)
+        self.verticalLayoutWidget_2.setGeometry(QtCore.QRect(10, 10, 1021, 521))
+        self.verticalLayoutWidget_2.setObjectName("verticalLayoutWidget_2")
+        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.verticalLayoutWidget_2)
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2.setObjectName("verticalLayout_2")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1195, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1513, 21))
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
@@ -230,10 +240,10 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label_6.setText(_translate("MainWindow", "Tham số 01"))
-        self.label_5.setText(_translate("MainWindow", "Chọn Phương pháp"))
         self.label_2.setText(_translate("MainWindow", "Chọn loại dữ liệu"))
         self.defaultData.setText(_translate("MainWindow", "Default"))
+        self.label_5.setText(_translate("MainWindow", "Chọn Phương pháp"))
+        self.label_6.setText(_translate("MainWindow", "Tham số 01"))
         self.pushButton.setText(_translate("MainWindow", "Áp dụng"))
         self.label_8.setText(_translate("MainWindow", "Tuổi"))
         self.label_9.setText(_translate("MainWindow", "Giới tính"))
@@ -268,6 +278,7 @@ class Ui_MainWindow(object):
         self.counter = 0
         self.horizontalSlider.hide()
         self.horizontalSlider.valueChanged.connect(self.changeValueSL)
+        self.displayEEG()
 
     def openDialog(self):
 
@@ -326,10 +337,33 @@ class Ui_MainWindow(object):
 
     def changeValueSL(self):
         value = self.horizontalSlider.value()
-        print(value)
+        self.currentSliderValue = value
+        self.updatePlot()
+        # print(value)
+
+    def updatePlot(self):
+        value = self.currentSliderValue
+        self.l1.set_ydata(self.data[value:1000+value, 10] - self.data[value, 10])
+        self.l2.set_ydata(self.data[value:1000+value, 11] - self.data[value, 11] + 100)
+        self.l3.set_ydata(self.data[value:1000+value, 12] - self.data[value, 12] + 200)
+        self.l4.set_ydata(self.data[value:1000+value, 13] - self.data[value, 13] + 300)
+        self.canvas.draw()
 
     def displayEEG(self):
-        pass
+        import matplotlib._color_data as mcd
+        colors = [name for name in mcd.CSS4_COLORS if "xkcd:" + name in mcd.XKCD_COLORS]
+        print(colors)
+        print(len(colors))
+        fig = plt.figure(figsize=(5, 4), dpi=100)
+        self.canvas = FigureCanvasQTAgg(fig)
+        self.verticalLayout_2.addWidget(self.canvas)
+        self.data = readFile("exampleEEG.csv").T
+        xdata = (range(1000))
+        self.l1, = plt.plot(xdata, self.data[:1000, 10] - self.data[0, 10], 'aqua', lw=1)
+        self.l2, = plt.plot(xdata, self.data[:1000, 11] - self.data[0, 11] + 100, 'g', lw=1)
+        self.l3, = plt.plot(xdata, self.data[:1000, 12] - self.data[0, 12] + 200, 'blue', lw=1)
+        self.l4, = plt.plot(xdata, self.data[:1000, 13] - self.data[0, 13] + 300, 'black', lw=1)
+        self.canvas.draw()
 
     def closeApp(self):
         sys.exit()
