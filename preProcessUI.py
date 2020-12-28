@@ -285,7 +285,18 @@ class Ui_MainWindow(object):
         self.Dialog = QtWidgets.QDialog()
         self.Ui_Dialog = Ui_Dialog()
         self.Ui_Dialog.setupUi(self.Dialog)
+        self.channels = []
+        self.listChannel = []
+        self.defaultChanel = []
+        self.choosedChannel = []
+        self.Ui_Dialog.checkBox.stateChanged.connect(self.changeChannel)
+        self.choosedChannel = self.listChannel
+        if self.Ui_Dialog.checkBox.isChecked():
+            self.choosedChannel = self.defaultChanel
         self.Dialog.show()
+
+    def changeChannel(self):
+        pass
 
     def createTextSpinBox(self):
         self.spinBox_2.set_list_string(["ICA", "Threshold", "Auto"])
@@ -343,10 +354,10 @@ class Ui_MainWindow(object):
 
     def updatePlot(self):
         value = self.currentSliderValue
-        self.l1.set_ydata(self.data[value:1000+value, 10] - self.data[value, 10])
-        self.l2.set_ydata(self.data[value:1000+value, 11] - self.data[value, 11] + 100)
-        self.l3.set_ydata(self.data[value:1000+value, 12] - self.data[value, 12] + 200)
-        self.l4.set_ydata(self.data[value:1000+value, 13] - self.data[value, 13] + 300)
+        self.l1.set_ydata(self.data[value:1000 + value, 10] - self.data[value, 10])
+        self.l2.set_ydata(self.data[value:1000 + value, 11] - self.data[value, 11] + 100)
+        self.l3.set_ydata(self.data[value:1000 + value, 12] - self.data[value, 12] + 200)
+        self.l4.set_ydata(self.data[value:1000 + value, 13] - self.data[value, 13] + 300)
         self.canvas.draw()
 
     def displayEEG(self):
