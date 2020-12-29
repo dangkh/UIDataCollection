@@ -272,7 +272,6 @@ class Ui_MainWindow(object):
         self.actionOpen_file.triggered.connect(self.openFilePath)
         self.createTextSpinBox()
         # create maximum chanels can be reviewed
-        self.defaultData.clicked.connect(self.openDialog)
         self.channelSpacing = 200
         self.channelVisualLen = 1000
         self.defaultChanel = 8
@@ -289,37 +288,38 @@ class Ui_MainWindow(object):
         self.choosedChannel = self.defaultChanel[:self.numDefaultChan]
         self.listChannel = []
         self.currentChannel = self.choosedChannel
-        self.data = readFile("exampleEEG.csv").T
+        self.data = readFile("exampleEEG.csv").T[:, 3:17]
+        preName = "self.Ui_Dialog."
+        self.signalNames = ["A1", "A2", "C3", "C4", "CP3", "CP4",
+                            "CPz", "Cz", "F17", "F18", "F3", "F4",
+                            "F7", "F8", "FC3", "FC4", "FCz", "FP1",
+                            "Fp2", "Fz", "O1", "O2", "Oz", "P3",
+                            "P4", "P7", "P8", "Pz", "T7", "T8",
+                            "TP7", "TP8"]
+        self.list_names = []
+        for x in range(len(self.signalNames)):
+            self.list_names.append(preName + "Signal_" + self.signalNames[x])
+        self.defaultData.clicked.connect(self.openDialog)
+        self.canvas = None
 
     def openDialog(self):
         self.Dialog = QtWidgets.QDialog()
         self.Ui_Dialog = Ui_Dialog()
         self.Ui_Dialog.setupUi(self.Dialog)
         self.Ui_Dialog.checkBox.stateChanged.connect(self.setCheckableSignal)
-        self.Ui_Dialog.saveChoosingBtn.clicked.connect(self.updateChooseBtn)
-        # self.choosedChannel = self.listChannel
-        preName = "self.Ui_Dialog."
-        self.list_names = ["Signal_A1", "Signal_A2", "Signal_C3", "Signal_C4", "Signal_CP3", "Signal_CP4",
-                           "Signal_CPz", "Signal_Cz", "Signal_F17", "Signal_F18", "Signal_F3", "Signal_F4",
-                           "Signal_F7", "Signal_F8", "Signal_FC3", "Signal_FC4", "Signal_FCz", "Signal_FP1",
-                           "Signal_Fp2", "Signal_Fz", "Signal_O1", "Signal_O2", "Signal_Oz", "Signal_P3",
-                           "Signal_P4", "Signal_P7", "Signal_P8", "Signal_Pz", "Signal_T7", "Signal_T8",
-                           "Signal_TP7", "Signal_TP8"]
-        for x in range(len(self.list_names)):
-            self.list_names[x] = preName + self.list_names[x]
         self.list_signals = []
         for x in self.list_names:
             self.list_signals.append(eval(x))
         self.setCheckableSignal()
         for idx in range(len(self.list_signals)):
             self.list_signals[idx].clicked.connect(self.btnConnect)
+        self.Ui_Dialog.saveChoosingBtn.clicked.connect(self.updateChooseBtn)
         self.Dialog.show()
 
     def updateChooseBtn(self):
         self.currentChannel = self.choosedChannel
         plt.cla()
-        self.canvas.draw()
-        stop
+        self.plotData()
 
     def setCheckableSignal(self):
         if self.Ui_Dialog.checkBox.isChecked():
@@ -346,6 +346,7 @@ class Ui_MainWindow(object):
         for x in range(len(self.list_signals)):
             if self.list_signals[x].isChecked():
                 self.listChannel.append(x)
+        self.choosedChannel = self.listChannel
 
     def createTextSpinBox(self):
         self.spinBox_2.set_list_string(["ICA", "Threshold", "Auto"])
@@ -377,7 +378,6 @@ class Ui_MainWindow(object):
         for x in listEditatble:
             x.setEnabled(False)
 
-        print(type(data['EEG']))
         self.label.setText(str(path).split('/')[-1])
         dataLen = len(data['EEG'])
         self.EEG = data['EEG']
@@ -399,37 +399,39 @@ class Ui_MainWindow(object):
     def changeValueSL(self):
         value = self.horizontalSlider.value()
         self.currentSliderValue = value
+        self.currentIdx.setText(str(value))
         self.updatePlot()
-        # print(value)
 
     def updatePlot(self):
         value = self.currentSliderValue
-        self.l1.set_ydata(self.data[value:1000 + value, 10] - self.data[value, 10])
-        self.l2.set_ydata(self.data[value:1000 + value, 11] - self.data[value, 11] + 100)
-        self.l3.set_ydata(self.data[value:1000 + value, 12] - self.data[value, 12] + 200)
-        self.l4.set_ydata(self.data[value:1000 + value, 13] - self.data[value, 13] + 300)
+        for idx, channel in enumerate(self.currentChannel):
+            xc = min(channel, 13)
+            self.listLines[idx].set_ydata(self.data[value:1000 + value, xc] - self.data[value, xc] + idx * 100)
         self.canvas.draw()
 
-    def displayEEG(self):
-        fig = plt.figure(figsize=(5, 4), dpi=100)
-        self.canvas = FigureCanvasQTAgg(fig)
-        self.verticalLayout_2.addWidget(self.canvas)
+    def plotData(self):
         xdata = (range(1000))
         self.listLines = []
-        print(self.currentChannel)
-        self.l1, = plt.plot(xdata, self.data[:1000, 10] - self.data[0, 10], 'aqua', lw=1)
-        self.l2, = plt.plot(xdata, self.data[:1000, 11] - self.data[0, 11] + 100, 'g', lw=1)
-        self.l3, = plt.plot(xdata, self.data[:1000, 12] - self.data[0, 12] + 200, 'blue', lw=1)
-        self.l4, = plt.plot(xdata, self.data[:1000, 13] - self.data[0, 13] + 300, 'black', lw=1)
-        plt.text(0.99, 0.01, 'colored text in axes coords',
-                 verticalalignment='bottom', horizontalalignment='right',
-                 color='green', fontsize=8)
-        # plt.yticks(visible=False)
-        # plt.xticks(visible=False)
+        for idx, channel in enumerate(self.currentChannel):
+            xc = min(channel, 13)
+            line, = plt.plot(xdata, self.data[:1000, xc] - self.data[0, xc] + idx * 100, self.colors[idx], lw=1)
+            self.listLines.append(line)
+            plt.text(-100, idx * 100, self.signalNames[self.currentChannel[idx]],
+                     verticalalignment='bottom', horizontalalignment='right',
+                     color=self.colors[idx], fontsize=10)
         ax = plt.axes()
         ax.axes.xaxis.set_visible(False)
         ax.axes.yaxis.set_visible(False)
         self.canvas.draw()
+
+    def displayEEG(self):
+        fig = plt.figure(figsize=(5, 4), dpi=100)
+        if self.canvas is None:
+            self.canvas = FigureCanvasQTAgg(fig)
+            self.verticalLayout_2.addWidget(self.canvas)
+        else:
+            self.canvas = FigureCanvasQTAgg(fig)
+        self.plotData()
 
     def closeApp(self):
         sys.exit()
