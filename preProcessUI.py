@@ -286,18 +286,18 @@ class Ui_MainWindow(object):
         colors = [name for name in mcd.CSS4_COLORS if "xkcd:" + name in mcd.XKCD_COLORS]
         np.random.shuffle(colors)
         self.colors = colors
+        self.choosedChannel = self.defaultChanel[:self.numDefaultChan]
+        self.listChannel = []
+        self.currentChannel = self.choosedChannel
+        self.data = readFile("exampleEEG.csv").T
 
     def openDialog(self):
-
         self.Dialog = QtWidgets.QDialog()
         self.Ui_Dialog = Ui_Dialog()
         self.Ui_Dialog.setupUi(self.Dialog)
-        self.listChannel = []
-        self.choosedChannel = []
         self.Ui_Dialog.checkBox.stateChanged.connect(self.setCheckableSignal)
-        self.choosedChannel = self.listChannel
-        if self.Ui_Dialog.checkBox.isChecked():
-            self.choosedChannel = self.defaultChanel[:self.numDefaultChan]
+        self.Ui_Dialog.saveChoosingBtn.clicked.connect(self.updateChooseBtn)
+        # self.choosedChannel = self.listChannel
         preName = "self.Ui_Dialog."
         self.list_names = ["Signal_A1", "Signal_A2", "Signal_C3", "Signal_C4", "Signal_CP3", "Signal_CP4",
                            "Signal_CPz", "Signal_Cz", "Signal_F17", "Signal_F18", "Signal_F3", "Signal_F4",
@@ -315,8 +315,15 @@ class Ui_MainWindow(object):
             self.list_signals[idx].clicked.connect(self.btnConnect)
         self.Dialog.show()
 
+    def updateChooseBtn(self):
+        self.currentChannel = self.choosedChannel
+        plt.cla()
+        self.canvas.draw()
+        stop
+
     def setCheckableSignal(self):
         if self.Ui_Dialog.checkBox.isChecked():
+            self.choosedChannel = self.defaultChanel[:self.numDefaultChan]
             for x in self.list_signals:
                 x.setCheckable(True)
                 x.setEnabled(False)
@@ -331,12 +338,14 @@ class Ui_MainWindow(object):
                 x.setCheckable(True)
                 x.setEnabled(True)
                 x.setChecked(True)
+            self.btnConnect()
+            self.choosedChannel = self.listChannel
 
     def btnConnect(self):
         self.listChannel = []
         for x in range(len(self.list_signals)):
             if self.list_signals[x].isChecked():
-                self.listChannel.append(self.list_names[x])
+                self.listChannel.append(x)
 
     def createTextSpinBox(self):
         self.spinBox_2.set_list_string(["ICA", "Threshold", "Auto"])
@@ -405,15 +414,21 @@ class Ui_MainWindow(object):
         fig = plt.figure(figsize=(5, 4), dpi=100)
         self.canvas = FigureCanvasQTAgg(fig)
         self.verticalLayout_2.addWidget(self.canvas)
-        self.data = readFile("exampleEEG.csv").T
         xdata = (range(1000))
+        self.listLines = []
+        print(self.currentChannel)
         self.l1, = plt.plot(xdata, self.data[:1000, 10] - self.data[0, 10], 'aqua', lw=1)
         self.l2, = plt.plot(xdata, self.data[:1000, 11] - self.data[0, 11] + 100, 'g', lw=1)
         self.l3, = plt.plot(xdata, self.data[:1000, 12] - self.data[0, 12] + 200, 'blue', lw=1)
         self.l4, = plt.plot(xdata, self.data[:1000, 13] - self.data[0, 13] + 300, 'black', lw=1)
-        plt.text(0.95, 0.01, 'colored text in axes coords',
+        plt.text(0.99, 0.01, 'colored text in axes coords',
                  verticalalignment='bottom', horizontalalignment='right',
-                 color='green', fontsize=15)
+                 color='green', fontsize=8)
+        # plt.yticks(visible=False)
+        # plt.xticks(visible=False)
+        ax = plt.axes()
+        ax.axes.xaxis.set_visible(False)
+        ax.axes.yaxis.set_visible(False)
         self.canvas.draw()
 
     def closeApp(self):
