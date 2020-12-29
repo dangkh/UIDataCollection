@@ -18,6 +18,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 # from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from utility import *
+import matplotlib._color_data as mcd
 
 
 class Ui_MainWindow(object):
@@ -278,14 +279,64 @@ class Ui_MainWindow(object):
         self.counter = 0
         self.horizontalSlider.hide()
         self.horizontalSlider.valueChanged.connect(self.changeValueSL)
-        self.displayEEG()
+        self.channels = (range(32))
+        self.numDefaultChan = 8
+        self.defaultChanel = np.copy(self.channels)
+        np.random.shuffle(self.defaultChanel)
+        colors = [name for name in mcd.CSS4_COLORS if "xkcd:" + name in mcd.XKCD_COLORS]
+        np.random.shuffle(colors)
+        self.colors = colors
 
     def openDialog(self):
 
         self.Dialog = QtWidgets.QDialog()
         self.Ui_Dialog = Ui_Dialog()
         self.Ui_Dialog.setupUi(self.Dialog)
+        self.listChannel = []
+        self.choosedChannel = []
+        self.Ui_Dialog.checkBox.stateChanged.connect(self.setCheckableSignal)
+        self.choosedChannel = self.listChannel
+        if self.Ui_Dialog.checkBox.isChecked():
+            self.choosedChannel = self.defaultChanel[:self.numDefaultChan]
+        preName = "self.Ui_Dialog."
+        self.list_names = ["Signal_A1", "Signal_A2", "Signal_C3", "Signal_C4", "Signal_CP3", "Signal_CP4",
+                           "Signal_CPz", "Signal_Cz", "Signal_F17", "Signal_F18", "Signal_F3", "Signal_F4",
+                           "Signal_F7", "Signal_F8", "Signal_FC3", "Signal_FC4", "Signal_FCz", "Signal_FP1",
+                           "Signal_Fp2", "Signal_Fz", "Signal_O1", "Signal_O2", "Signal_Oz", "Signal_P3",
+                           "Signal_P4", "Signal_P7", "Signal_P8", "Signal_Pz", "Signal_T7", "Signal_T8",
+                           "Signal_TP7", "Signal_TP8"]
+        for x in range(len(self.list_names)):
+            self.list_names[x] = preName + self.list_names[x]
+        self.list_signals = []
+        for x in self.list_names:
+            self.list_signals.append(eval(x))
+        self.setCheckableSignal()
+        for idx in range(len(self.list_signals)):
+            self.list_signals[idx].clicked.connect(self.btnConnect)
         self.Dialog.show()
+
+    def setCheckableSignal(self):
+        if self.Ui_Dialog.checkBox.isChecked():
+            for x in self.list_signals:
+                x.setCheckable(True)
+                x.setEnabled(False)
+                x.setChecked(True)
+            for idx in self.defaultChanel[:self.numDefaultChan]:
+                x = self.list_signals[idx]
+                x.setCheckable(True)
+                x.setEnabled(False)
+                x.setChecked(False)
+        else:
+            for x in self.list_signals:
+                x.setCheckable(True)
+                x.setEnabled(True)
+                x.setChecked(True)
+
+    def btnConnect(self):
+        self.listChannel = []
+        for x in range(len(self.list_signals)):
+            if self.list_signals[x].isChecked():
+                self.listChannel.append(self.list_names[x])
 
     def createTextSpinBox(self):
         self.spinBox_2.set_list_string(["ICA", "Threshold", "Auto"])
@@ -321,6 +372,7 @@ class Ui_MainWindow(object):
         self.label.setText(str(path).split('/')[-1])
         dataLen = len(data['EEG'])
         self.EEG = data['EEG']
+        self.displayEEG()
         self.setupSlider(dataLen, dataLen // 2)
 
     def setupSlider(self, dataLen, point=500):
@@ -343,17 +395,13 @@ class Ui_MainWindow(object):
 
     def updatePlot(self):
         value = self.currentSliderValue
-        self.l1.set_ydata(self.data[value:1000+value, 10] - self.data[value, 10])
-        self.l2.set_ydata(self.data[value:1000+value, 11] - self.data[value, 11] + 100)
-        self.l3.set_ydata(self.data[value:1000+value, 12] - self.data[value, 12] + 200)
-        self.l4.set_ydata(self.data[value:1000+value, 13] - self.data[value, 13] + 300)
+        self.l1.set_ydata(self.data[value:1000 + value, 10] - self.data[value, 10])
+        self.l2.set_ydata(self.data[value:1000 + value, 11] - self.data[value, 11] + 100)
+        self.l3.set_ydata(self.data[value:1000 + value, 12] - self.data[value, 12] + 200)
+        self.l4.set_ydata(self.data[value:1000 + value, 13] - self.data[value, 13] + 300)
         self.canvas.draw()
 
     def displayEEG(self):
-        import matplotlib._color_data as mcd
-        colors = [name for name in mcd.CSS4_COLORS if "xkcd:" + name in mcd.XKCD_COLORS]
-        print(colors)
-        print(len(colors))
         fig = plt.figure(figsize=(5, 4), dpi=100)
         self.canvas = FigureCanvasQTAgg(fig)
         self.verticalLayout_2.addWidget(self.canvas)
@@ -363,6 +411,9 @@ class Ui_MainWindow(object):
         self.l2, = plt.plot(xdata, self.data[:1000, 11] - self.data[0, 11] + 100, 'g', lw=1)
         self.l3, = plt.plot(xdata, self.data[:1000, 12] - self.data[0, 12] + 200, 'blue', lw=1)
         self.l4, = plt.plot(xdata, self.data[:1000, 13] - self.data[0, 13] + 300, 'black', lw=1)
+        plt.text(0.95, 0.01, 'colored text in axes coords',
+                 verticalalignment='bottom', horizontalalignment='right',
+                 color='green', fontsize=15)
         self.canvas.draw()
 
     def closeApp(self):
