@@ -406,7 +406,7 @@ class Ui_MainWindow(object):
         value = self.currentSliderValue
         for idx, channel in enumerate(self.currentChannel):
             xc = min(channel, 13)
-            self.listLines[idx].set_ydata(self.data[value:1000 + value, xc] - self.data[value, xc] + idx * 100)
+            self.listLines[idx].set_ydata(self.data[value:1000 + value, xc] - 4100 + idx * 100)
         self.canvas.draw()
 
     def plotData(self):
@@ -414,7 +414,7 @@ class Ui_MainWindow(object):
         self.listLines = []
         for idx, channel in enumerate(self.currentChannel):
             xc = min(channel, 13)
-            line, = plt.plot(xdata, self.data[:1000, xc] - self.data[0, xc] + idx * 100, self.colors[idx], lw=1)
+            line, = plt.plot(xdata, self.data[:1000, xc] - 4100 + idx * 100, self.colors[idx], lw=1)
             self.listLines.append(line)
             plt.text(-100, idx * 100, self.signalNames[self.currentChannel[idx]],
                      verticalalignment='bottom', horizontalalignment='right',
@@ -425,12 +425,14 @@ class Ui_MainWindow(object):
         self.canvas.draw()
 
     def displayEEG(self):
-        fig = plt.figure(figsize=(5, 4), dpi=100)
         if self.canvas is None:
+            fig = plt.figure(figsize=(5, 4), dpi=100)
             self.canvas = FigureCanvasQTAgg(fig)
             self.verticalLayout_2.addWidget(self.canvas)
         else:
-            self.canvas = FigureCanvasQTAgg(fig)
+            plt.cla()
+            self.canvas.draw()
+            # self.canvas = FigureCanvasQTAgg(fig)
         self.plotData()
 
     def closeApp(self):
