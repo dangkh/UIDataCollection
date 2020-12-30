@@ -368,6 +368,9 @@ class Ui_Dialog(object):
         self.Signal_A1.setCheckable(True)
         self.Signal_A1.setChecked(True)
         self.Signal_A1.setObjectName("Signal_A1")
+        self.saveChoosingBtn = QtWidgets.QPushButton(Dialog)
+        self.saveChoosingBtn.setGeometry(QtCore.QRect(450, 390, 75, 23))
+        self.saveChoosingBtn.setObjectName("saveChoosingBtn")
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -381,3 +384,4 @@ class Ui_Dialog(object):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.label_2.setText(_translate("Dialog", "Mặc định"))
+        self.saveChoosingBtn.setText(_translate("Dialog", "Áp dụng"))
