@@ -66,6 +66,8 @@ class Ui_MainWindow(object):
         self.horizontalSlider.setObjectName("horizontalSlider")
         self.verticalLayout.addWidget(self.horizontalSlider)
         self.layoutVisual.addLayout(self.verticalLayout)
+        self.layoutVisual.setStretch(0, 600)
+        self.layoutVisual.setStretch(1, 100)
         self.gridLayout_2.addLayout(self.layoutVisual, 0, 1, 1, 1)
         self.layoutMetaData = QtWidgets.QVBoxLayout()
         self.layoutMetaData.setSizeConstraint(QtWidgets.QLayout.SetNoConstraint)
