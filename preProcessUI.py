@@ -270,7 +270,7 @@ class Ui_MainWindow(object):
         self.createTextSpinBox()
         # create maximum chanels can be reviewed
         self.channelSpacing = 200
-        self.channelVisualLen = 1000
+        self.channelVisualLen = 500
         self.defaultChanel = 8
         self.counter = 0
         self.horizontalSlider.hide()
@@ -377,41 +377,42 @@ class Ui_MainWindow(object):
 
         self.label.setText(str(path).split('/')[-1])
         dataLen = len(data['EEG'])
+        dataLen = self.data.shape[0]
         self.EEG = data['EEG']
         self.displayEEG()
-        self.setupSlider(dataLen, dataLen // 2)
+        self.setupSlider(dataLen, 0)
 
     def setupSlider(self, dataLen, point=500):
         self.horizontalSlider.show()
         self.currentVisualEEG = point
-        minV = point - dataLen // 2
-        maxV = point + dataLen // 2
-        self.horizontalSlider.setMinimum(minV)
-        self.horizontalSlider.setMaximum(maxV)
+        checkPoint = min(point, self.data.shape[0])
+        self.horizontalSlider.setMinimum(0)
+        self.horizontalSlider.setMaximum(self.data.shape[0])
         self.horizontalSlider.setValue(self.currentVisualEEG)
-        self.currentIdx.setText(str(self.currentVisualEEG))
-        self.leftIdx.setText(str(minV))
-        self.rightIdx.setText(str(maxV))
+        self.currentIdx.setText("Current position: " + str(checkPoint))
+        self.leftIdx.setText(str(0))
+        self.rightIdx.setText(str(self.data.shape[0]))
 
     def changeValueSL(self):
         value = self.horizontalSlider.value()
+        value = min(self.data.shape[0] - self.channelVisualLen, value)
         self.currentSliderValue = value
-        self.currentIdx.setText(str(value))
+        self.currentIdx.setText("Current position: " + str(value))
         self.updatePlot()
 
     def updatePlot(self):
         value = self.currentSliderValue
         for idx, channel in enumerate(self.currentChannel):
             xc = min(channel, 13)
-            self.listLines[idx].set_ydata(self.data[value:1000 + value, xc] - 4100 + idx * 100)
+            self.listLines[idx].set_ydata(self.data[value:self.channelVisualLen + value, xc] - 4100 + idx * 100)
         self.canvas.draw()
 
     def plotData(self):
-        xdata = (range(1000))
+        xdata = (range(self.channelVisualLen))
         self.listLines = []
         for idx, channel in enumerate(self.currentChannel):
             xc = min(channel, 13)
-            line, = plt.plot(xdata, self.data[:1000, xc] - 4100 + idx * 100, self.colors[idx], lw=1)
+            line, = plt.plot(xdata, self.data[:self.channelVisualLen, xc] - 4100 + idx * 100, self.colors[idx], lw=1)
             self.listLines.append(line)
             plt.text(-100, self.data[0, xc] - 4100 + idx * 100, self.signalNames[self.currentChannel[idx]],
                      verticalalignment='bottom', horizontalalignment='right',
