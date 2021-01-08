@@ -18,13 +18,16 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 # from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 from utility import *
-import matplotlib._color_data as mcd
+from mnelab.mnelab.__main__ import *
+from mainwindow import OtherMainWindow
+from model import Model
+from PyQt5.QtWidgets import QApplication
 
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1296, 827)
+        MainWindow.resize(1296, 830)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("../.designer/backup/my-beautiful-life-logo-3.png"),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -61,11 +64,26 @@ class Ui_MainWindow(object):
         self.rightIdx.setObjectName("rightIdx")
         self.gridLayout.addWidget(self.rightIdx, 0, 2, 1, 1, QtCore.Qt.AlignRight)
         self.verticalLayout.addLayout(self.gridLayout)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout.addItem(spacerItem)
+        self.defaultData = QtWidgets.QPushButton(self.gridLayoutWidget_2)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(20)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.defaultData.sizePolicy().hasHeightForWidth())
+        self.defaultData.setSizePolicy(sizePolicy)
+        self.defaultData.setObjectName("defaultData")
+        self.horizontalLayout.addWidget(self.defaultData)
+        self.verticalLayout.addLayout(self.horizontalLayout)
         self.horizontalSlider = QtWidgets.QSlider(self.gridLayoutWidget_2)
         self.horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider.setObjectName("horizontalSlider")
         self.verticalLayout.addWidget(self.horizontalSlider)
         self.layoutVisual.addLayout(self.verticalLayout)
+        self.layoutVisual.setStretch(0, 600)
+        self.layoutVisual.setStretch(1, 100)
         self.gridLayout_2.addLayout(self.layoutVisual, 0, 1, 1, 1)
         self.layoutMetaData = QtWidgets.QVBoxLayout()
         self.layoutMetaData.setSizeConstraint(QtWidgets.QLayout.SetNoConstraint)
@@ -110,8 +128,6 @@ class Ui_MainWindow(object):
         self.DiseaseDescEdit = QtWidgets.QTextEdit(self.gridLayoutWidget_2)
         self.DiseaseDescEdit.setObjectName("DiseaseDescEdit")
         self.formMetaData.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.DiseaseDescEdit)
-        spacerItem = QtWidgets.QSpacerItem(20, 89, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.formMetaData.setItem(4, QtWidgets.QFormLayout.FieldRole, spacerItem)
         self.label_10 = QtWidgets.QLabel(self.gridLayoutWidget_2)
         self.label_10.setObjectName("label_10")
         self.formMetaData.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.label_10)
@@ -144,61 +160,9 @@ class Ui_MainWindow(object):
         self.formMetaData.setWidget(9, QtWidgets.QFormLayout.FieldRole, self.dateTimeEdit)
         spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.formMetaData.setItem(10, QtWidgets.QFormLayout.SpanningRole, spacerItem1)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 89, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.formMetaData.setItem(4, QtWidgets.QFormLayout.FieldRole, spacerItem2)
         self.layoutMetaData.addLayout(self.formMetaData)
-        self.formSelectData = QtWidgets.QFormLayout()
-        self.formSelectData.setObjectName("formSelectData")
-        self.label_2 = QtWidgets.QLabel(self.gridLayoutWidget_2)
-        self.label_2.setObjectName("label_2")
-        self.formSelectData.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_2)
-        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
-        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.spinBoxData = textSpinBox(self.gridLayoutWidget_2)
-        self.spinBoxData.setObjectName("spinBoxData")
-        self.horizontalLayout_3.addWidget(self.spinBoxData)
-        self.defaultData = QtWidgets.QPushButton(self.gridLayoutWidget_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Fixed)
-        sizePolicy.setHorizontalStretch(20)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.defaultData.sizePolicy().hasHeightForWidth())
-        self.defaultData.setSizePolicy(sizePolicy)
-        self.defaultData.setObjectName("defaultData")
-        self.horizontalLayout_3.addWidget(self.defaultData)
-        self.formSelectData.setLayout(0, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_3)
-        self.label_5 = QtWidgets.QLabel(self.gridLayoutWidget_2)
-        self.label_5.setObjectName("label_5")
-        self.formSelectData.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_5)
-        self.spinBox_2 = textSpinBox(self.gridLayoutWidget_2)
-        self.spinBox_2.setInputMethodHints(QtCore.Qt.ImhLowercaseOnly)
-        self.spinBox_2.setObjectName("spinBox_2")
-        self.formSelectData.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.spinBox_2)
-        self.label_6 = QtWidgets.QLabel(self.gridLayoutWidget_2)
-        self.label_6.setObjectName("label_6")
-        self.formSelectData.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_6)
-        self.doubleSpinBox = QtWidgets.QDoubleSpinBox(self.gridLayoutWidget_2)
-        self.doubleSpinBox.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
-        self.doubleSpinBox.setInputMethodHints(QtCore.Qt.ImhDigitsOnly)
-        self.doubleSpinBox.setObjectName("doubleSpinBox")
-        self.formSelectData.setWidget(2, QtWidgets.QFormLayout.FieldRole, self.doubleSpinBox)
-        self.pushButton = QtWidgets.QPushButton(self.gridLayoutWidget_2)
-        self.pushButton.setWhatsThis("")
-        self.pushButton.setStyleSheet("QPushButton#pushButton {\n"
-                                      "    background-color: rgb(167, 192, 220);\n"
-                                      "    border-style: outset;\n"
-                                      "    border-width: 2px;\n"
-                                      "    border-radius: 10px;\n"
-                                      "    border-color: beige;\n"
-                                      "    font: bold 14px;\n"
-                                      "    min-width: 10em;\n"
-                                      "    padding: 6px;\n"
-                                      "}\n"
-                                      "\n"
-                                      "QPushButton#pushButton:pressed {\n"
-                                      "    background-color: rgb(171, 196, 223);\n"
-                                      "    border-style: inset;\n"
-                                      "}")
-        self.pushButton.setObjectName("pushButton")
-        self.formSelectData.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.pushButton)
-        self.layoutMetaData.addLayout(self.formSelectData)
         self.gridLayout_2.addLayout(self.layoutMetaData, 0, 0, 1, 1)
         self.gridLayout_2.setColumnStretch(0, 300)
         self.gridLayout_2.setColumnStretch(1, 600)
@@ -208,6 +172,10 @@ class Ui_MainWindow(object):
         self.menubar.setObjectName("menubar")
         self.menuFile = QtWidgets.QMenu(self.menubar)
         self.menuFile.setObjectName("menuFile")
+        self.menuPreprocessing_Tool = QtWidgets.QMenu(self.menubar)
+        self.menuPreprocessing_Tool.setObjectName("menuPreprocessing_Tool")
+        self.menuHelp = QtWidgets.QMenu(self.menubar)
+        self.menuHelp.setObjectName("menuHelp")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -220,11 +188,43 @@ class Ui_MainWindow(object):
         self.actionSave_as.setObjectName("actionSave_as")
         self.actionExit = QtWidgets.QAction(MainWindow)
         self.actionExit.setObjectName("actionExit")
+        self.actionScale_up = QtWidgets.QAction(MainWindow)
+        self.actionScale_up.setObjectName("actionScale_up")
+        self.actionScale_down = QtWidgets.QAction(MainWindow)
+        self.actionScale_down.setObjectName("actionScale_down")
+        self.actionUp = QtWidgets.QAction(MainWindow)
+        self.actionUp.setObjectName("actionUp")
+        self.actionDown = QtWidgets.QAction(MainWindow)
+        self.actionDown.setObjectName("actionDown")
+        self.actionICA = QtWidgets.QAction(MainWindow)
+        self.actionICA.setObjectName("actionICA")
+        self.actionFFT = QtWidgets.QAction(MainWindow)
+        self.actionFFT.setObjectName("actionFFT")
+        self.actionVisual_Left = QtWidgets.QAction(MainWindow)
+        self.actionVisual_Left.setObjectName("actionVisual_Left")
+        self.actionVisual_Right = QtWidgets.QAction(MainWindow)
+        self.actionVisual_Right.setObjectName("actionVisual_Right")
+        self.actionMove_Up = QtWidgets.QAction(MainWindow)
+        self.actionMove_Up.setObjectName("actionMove_Up")
+        self.actionMove_Down = QtWidgets.QAction(MainWindow)
+        self.actionMove_Down.setObjectName("actionMove_Down")
         self.menuFile.addAction(self.actionOpen_file)
         self.menuFile.addAction(self.actionSave)
         self.menuFile.addAction(self.actionSave_as)
         self.menuFile.addAction(self.actionExit)
+        self.menuPreprocessing_Tool.addAction(self.actionICA)
+        self.menuPreprocessing_Tool.addAction(self.actionFFT)
+        self.menuHelp.addAction(self.actionScale_up)
+        self.menuHelp.addAction(self.actionScale_down)
+        self.menuHelp.addAction(self.actionUp)
+        self.menuHelp.addAction(self.actionDown)
+        self.menuHelp.addAction(self.actionVisual_Left)
+        self.menuHelp.addAction(self.actionVisual_Right)
+        self.menuHelp.addAction(self.actionMove_Up)
+        self.menuHelp.addAction(self.actionMove_Down)
         self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuPreprocessing_Tool.menuAction())
+        self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -235,12 +235,10 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label_2.setText(_translate("MainWindow", "Chọn loại dữ liệu"))
-        self.defaultData.setText(_translate("MainWindow", "Default"))
-        self.label_5.setText(_translate("MainWindow", "Chọn Phương pháp"))
-        self.label_6.setText(_translate("MainWindow", "Tham số 01"))
-        self.pushButton.setText(_translate("MainWindow", "Áp dụng"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "HMIlab"))
+        self.defaultData.setText(_translate("MainWindow", "Tùy chọn kênh"))
+        self.label.setText(_translate("MainWindow", "Tên dữ liệu"))
+        self.label_7.setText(_translate("MainWindow", "Họ tên người bệnh"))
         self.label_8.setText(_translate("MainWindow", "Tuổi"))
         self.label_9.setText(_translate("MainWindow", "Giới tính"))
         self.MaleEdit.setText(_translate("MainWindow", "Nam"))
@@ -251,13 +249,23 @@ class Ui_MainWindow(object):
         self.label_12.setText(_translate("MainWindow", "Kịch bản"))
         self.label_21.setText(_translate("MainWindow", "Câu trong kịch bản"))
         self.label_13.setText(_translate("MainWindow", "Thời gian"))
-        self.label_7.setText(_translate("MainWindow", "Họ tên người bệnh"))
-        self.label.setText(_translate("MainWindow", "Tên dữ liệu"))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
+        self.menuPreprocessing_Tool.setTitle(_translate("MainWindow", "Preprocessing Tool"))
+        self.menuHelp.setTitle(_translate("MainWindow", "Visual setups"))
         self.actionOpen_file.setText(_translate("MainWindow", "Open file"))
         self.actionSave.setText(_translate("MainWindow", "Save"))
         self.actionSave_as.setText(_translate("MainWindow", "Save as "))
         self.actionExit.setText(_translate("MainWindow", "Exit"))
+        self.actionScale_up.setText(_translate("MainWindow", "Scale up"))
+        self.actionScale_down.setText(_translate("MainWindow", "Scale down"))
+        self.actionUp.setText(_translate("MainWindow", "Visual Up"))
+        self.actionDown.setText(_translate("MainWindow", "Visual Down"))
+        self.actionICA.setText(_translate("MainWindow", "ICA"))
+        self.actionFFT.setText(_translate("MainWindow", "FFT"))
+        self.actionVisual_Left.setText(_translate("MainWindow", "Visual Left"))
+        self.actionVisual_Right.setText(_translate("MainWindow", "Visual Right"))
+        self.actionMove_Up.setText(_translate("MainWindow", "Move Up"))
+        self.actionMove_Down.setText(_translate("MainWindow", "Move Down"))
 
     def createEvent(self):
         self.actionExit.setShortcut("Ctrl+Q")
@@ -265,7 +273,31 @@ class Ui_MainWindow(object):
         self.actionOpen_file.setShortcut("Ctrl+O")
         self.actionOpen_file.setStatusTip('Open file browser')
         self.actionOpen_file.triggered.connect(self.openFilePath)
-        self.createTextSpinBox()
+
+        self.actionUp.setShortcut(QtGui.QKeySequence("Up"))
+        self.actionUp.triggered.connect(self.keyUpEvent)
+
+        self.actionDown.setShortcut(QtGui.QKeySequence("Down"))
+        self.actionDown.triggered.connect(self.keyDownEvent)
+
+        self.actionMove_Up.setShortcut(QtGui.QKeySequence("PgUp"))
+        self.actionMove_Up.triggered.connect(self.keyPageUpEvent)
+
+        self.actionMove_Down.setShortcut(QtGui.QKeySequence("PgDown"))
+        self.actionMove_Down.triggered.connect(self.keyPageDownEvent)
+
+        self.actionScale_up.setShortcut(QtGui.QKeySequence("Home"))
+        self.actionScale_up.triggered.connect(self.keyScaleUpEvent)
+
+        self.actionScale_down.setShortcut(QtGui.QKeySequence("End"))
+        self.actionScale_down.triggered.connect(self.keyScaleDownEvent)
+
+        self.actionICA.setShortcut(QtGui.QKeySequence("Ctrl+I"))
+        self.actionICA.triggered.connect(self.ICAEvent)
+
+        self.actionFFT.setShortcut(QtGui.QKeySequence("Ctrl+F"))
+        self.actionFFT.triggered.connect(self.toDoEvent)
+        # self.createTextSpinBox()
         # create maximum chanels can be reviewed
         self.channelSpacing = 200
         self.channelVisualLen = 1000
@@ -277,8 +309,14 @@ class Ui_MainWindow(object):
         self.numDefaultChan = 8
         self.defaultChanel = np.copy(self.channels)
         np.random.shuffle(self.defaultChanel)
-        colors = [name for name in mcd.CSS4_COLORS if "xkcd:" + name in mcd.XKCD_COLORS]
-        np.random.shuffle(colors)
+        # colors = [name for name in mcd.CSS4_COLORS if "xkcd:" + name in mcd.XKCD_COLORS]
+        colors = ['aqua', 'aquamarine', 'black', 'blue', 'brown', 'chartreuse', 'chocolate', 'coral',
+                  'crimson', 'cyan', 'darkblue', 'darkgreen', 'fuchsia', 'gold', 'goldenrod', 'green', 'grey', 'indigo',
+                  'ivory', 'khaki', 'lavender', 'lightblue', 'lightgreen', 'lime', 'magenta', 'maroon', 'navy', 'olive',
+                  'orange', 'orangered', 'orchid', 'pink', 'plum', 'purple', 'red', 'salmon', 'sienna', 'silver', 'tan',
+                  'teal', 'tomato', 'turquoise', 'violet', 'wheat', 'white', 'yellow', 'yellowgreen']
+        # there is loads of color not good at visualizing, eliminate some.
+        # np.random.shuffle(colors)
         self.colors = colors
         self.choosedChannel = self.defaultChanel[:self.numDefaultChan]
         self.listChannel = []
@@ -294,8 +332,70 @@ class Ui_MainWindow(object):
         self.list_names = []
         for x in range(len(self.signalNames)):
             self.list_names.append(preName + "Signal_" + self.signalNames[x])
+        self.defaultData.hide()
         self.defaultData.clicked.connect(self.openDialog)
+        # hide preprocessing tool
         self.canvas = None
+        self.existData = False
+        self.channelDistCof = 100
+        self.channelReduceCof = 4100
+
+    def toDoEvent(self):
+        print("completing")
+
+    def ICAEvent(self):
+        runningICA()
+        self.model = Model()
+        self.model.view = OtherMainWindow(self.model)
+        self.model.view.show()
+        print("ICA")
+
+    def keyScaleUpEvent(self):
+        if not self.existData:
+            return
+        print("Scale Up")
+        self.channelVisualLen += 50
+        plt.cla()
+        self.canvas.draw()
+        self.plotData()
+
+    def keyScaleDownEvent(self):
+        if not self.existData:
+            return
+        print("Scale Down")
+        self.channelVisualLen -= 50
+        self.channelVisualLen = max(200, self.channelVisualLen)
+        plt.cla()
+        self.canvas.draw()
+        self.plotData()
+
+    def keyPageUpEvent(self):
+        if not self.existData:
+            return
+        print("Page Up")
+        self.channelReduceCof += 50
+        self.updatePlot()
+
+    def keyPageDownEvent(self):
+        if not self.existData:
+            return
+        print("Page Down")
+        self.channelReduceCof -= 50
+        self.updatePlot()
+
+    def keyUpEvent(self):
+        if not self.existData:
+            return
+        print("Up")
+        self.channelDistCof += 10
+        self.updatePlot()
+
+    def keyDownEvent(self):
+        if not self.existData:
+            return
+        print("Down")
+        self.channelDistCof -= 10
+        self.updatePlot()
 
     def openDialog(self):
         self.Dialog = QtWidgets.QDialog()
@@ -375,45 +475,52 @@ class Ui_MainWindow(object):
 
         self.label.setText(str(path).split('/')[-1])
         dataLen = len(data['EEG'])
+        dataLen = self.data.shape[0]
         self.EEG = data['EEG']
         self.displayEEG()
-        self.setupSlider(dataLen, dataLen // 2)
+        self.setupSlider(dataLen, 0)
+        self.defaultData.show()
+        self.existData = True
 
     def setupSlider(self, dataLen, point=500):
         self.horizontalSlider.show()
         self.currentVisualEEG = point
-        minV = point - dataLen // 2
-        maxV = point + dataLen // 2
-        self.horizontalSlider.setMinimum(minV)
-        self.horizontalSlider.setMaximum(maxV)
+        checkPoint = min(point, self.data.shape[0])
+        self.horizontalSlider.setMinimum(0)
+        self.horizontalSlider.setMaximum(self.data.shape[0])
         self.horizontalSlider.setValue(self.currentVisualEEG)
-        self.currentIdx.setText(str(self.currentVisualEEG))
-        self.leftIdx.setText(str(minV))
-        self.rightIdx.setText(str(maxV))
+        self.currentIdx.setText("Current position: " + str(checkPoint))
+        self.leftIdx.setText(str(0))
+        self.rightIdx.setText(str(self.data.shape[0]))
+        self.currentSliderValue = 0
 
     def changeValueSL(self):
         value = self.horizontalSlider.value()
+        value = min(self.data.shape[0] - self.channelVisualLen, value)
         self.currentSliderValue = value
-        self.currentIdx.setText(str(value))
+        self.currentIdx.setText("Current position: " + str(value))
         self.updatePlot()
 
     def updatePlot(self):
         value = self.currentSliderValue
         for idx, channel in enumerate(self.currentChannel):
             xc = min(channel, 13)
-            self.listLines[idx].set_ydata(self.data[value:1000 + value, xc] - 4100 + idx * 100)
+            self.listLines[idx].set_ydata(self.data[value:self.channelVisualLen + value,
+                                                    xc] - self.channelReduceCof + idx * self.channelDistCof)
         self.canvas.draw()
 
     def plotData(self):
-        xdata = (range(1000))
+        xdata = (range(self.channelVisualLen))
         self.listLines = []
         for idx, channel in enumerate(self.currentChannel):
             xc = min(channel, 13)
-            line, = plt.plot(xdata, self.data[:1000, xc] - 4100 + idx * 100, self.colors[idx], lw=1)
+            line, = plt.plot(xdata, self.data[:self.channelVisualLen,
+                                              xc] - self.channelReduceCof + idx * self.channelDistCof,
+                             self.colors[idx], lw=1)
             self.listLines.append(line)
-            plt.text(-100, self.data[0, xc] - 4100 + idx * 100, self.signalNames[self.currentChannel[idx]],
-                     verticalalignment='bottom', horizontalalignment='right',
-                     color=self.colors[idx], fontsize=10)
+            plt.text(0, idx * self.channelDistCof,
+                     self.signalNames[self.currentChannel[idx]], verticalalignment='bottom',
+                     horizontalalignment='right', color=self.colors[idx], fontsize=10)
         ax = plt.axes()
         ax.axes.xaxis.set_visible(False)
         ax.axes.yaxis.set_visible(False)
@@ -430,8 +537,9 @@ class Ui_MainWindow(object):
             # self.canvas = FigureCanvasQTAgg(fig)
         self.plotData()
 
-    def closeApp(self):
-        sys.exit()
+    def closeApp(self, event):
+        print("exit")
+        QApplication.quit()
 
 
 class textSpinBox(QSpinBox):
@@ -452,6 +560,7 @@ class textSpinBox(QSpinBox):
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
+    app.setApplicationName("HMIlab")
     MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi(MainWindow)
