@@ -381,8 +381,8 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        self.receievePing()
-        self.initPing()
+        # self.receievePing()
+        # self.initPing()
         self.createEvent()
 
     def createEvent(self):
