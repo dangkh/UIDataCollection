@@ -16,6 +16,8 @@ from PyQt5.QtWidgets import *
 import random
 import json
 
+from createSampleDialog import Sample_Dialog
+
 
 class Ui_MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -94,6 +96,12 @@ class Ui_MainWindow(QMainWindow):
         self.horizontalLayout_sample.addItem(spacerItem3)
         self.newSam = QtWidgets.QPushButton(self.verticalLayoutWidget_3)
         self.newSam.setObjectName("newSam")
+
+        addIcon = QtGui.QIcon()
+        addIcon.addPixmap(QtGui.QPixmap("addIcon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.newSam.setIcon(addIcon)
+        self.newSam.setIconSize(QtCore.QSize(50, 50))
+
         self.horizontalLayout_sample.addWidget(self.newSam)
         self.verticalSample.addLayout(self.horizontalLayout_sample)
         self.horizontalLayout.addWidget(self.sampleWidget)
@@ -140,6 +148,7 @@ class Ui_MainWindow(QMainWindow):
         self.currentSub = -1
         self.currentPage = 0
         self.currentSamPage = 0
+        self.storeDir = "./DataVIN/"
         self.newSam.hide()
         self.prevSub.hide()
         self.prevSam.hide()
@@ -163,9 +172,16 @@ class Ui_MainWindow(QMainWindow):
         self.prevSam.clicked.connect(self.prevSamAction)
         self.nextSam.clicked.connect(self.nextSamAction)
 
+        self.actionQuit.setShortcut("Ctrl+Q")
+        self.actionQuit.triggered.connect(self.closeApp)
+        self.actionOpenFile.setShortcut("Ctrl+O")
+        self.actionOpenFile.setStatusTip('Open file browser')
+        self.actionOpenFile.triggered.connect(self.openFilePath)
+
     def updateSub(self, listDir=[], page=0):
         self.listSub = []
-        self.listDirSub = readStorageData()
+        self.listDirSub = readStorageData(self.storeDir)
+        # print(self.listDirSub)
         self.numPage = len(self.listDirSub) // self.numItem
         if len(self.listDirSub) % self.numItem == 0:
             self.numPage -= 1
@@ -174,7 +190,7 @@ class Ui_MainWindow(QMainWindow):
             self.nextSub.show()
         self.currentPage = page
         if page == -1:
-            self.currentPage = numPage
+            self.currentPage = self.numPage
             
         counter = 0
         showDir = self.listDirSub[self.currentPage * self.numItem:self.currentPage * self.numItem + self.numItem]
@@ -241,9 +257,6 @@ class Ui_MainWindow(QMainWindow):
         self.actionOpenFile.setText(_translate("MainWindow", " OpenFile"))
         self.actionQuit.setText(_translate("MainWindow", " Quit"))
 
-    def collectID(self, page=0):
-        return 0
-
     def newSubject(self):
         self.createSubdialog = createSub(self)
         self.createSubdialog.ui.saveBtn.clicked.connect(self.createNewSub)
@@ -266,12 +279,9 @@ class Ui_MainWindow(QMainWindow):
             missingValue = True
 
         if not missingValue:
-            print("full")
             gender = "M"
             if genderG:
                 gender = "Fm"
-            # get ID
-            # id = last json number files
             recordID = random.randint(1, 100)
             js = {
                 'id': recordID,
@@ -293,8 +303,14 @@ class Ui_MainWindow(QMainWindow):
 
     def newSample(self):
         print("newSam")
+        self.createSamdialog = createSam(self)
+        self.createSamdialog.setInfo(self.currentSub)
+        print(self.currentSub)
+        # self.createSamdialog.ui.saveBtn.clicked.connect(self.createNewSub)
+        self.createSamdialog.exec_()
 
     def updateSam(self, listDir=[], page=0):
+        self.label_2.setText("Danh sách bản ghi" + str(self.currentSub))
         self.listDirSam = listDir
         self.currentSamPage = page
         self.numSamPage = len(self.listDirSam) // self.numItem
@@ -350,20 +366,15 @@ class Ui_MainWindow(QMainWindow):
 
     def updateSamVisual(self, arg):
         def wrap():
-            print("Updating Sam")
-            print(arg['dir'])
             link = arg['dir']
             self.currentSub = link
-            self.label_2.setText("Danh sách bản ghi" + str(link))
             if os.path.isdir(link):
                 onlydir = [link + "/" + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
-                print(onlydir)
             else:
                 print("Error in link Sub")
             onlydir.sort(key=os.path.getctime)
             self.updateSam(listDir=onlydir)
             self.newSam.show()
-            # print(arg[-1], arg[-2])
         return wrap
 
     def showErrorPopup(self, error):
@@ -382,17 +393,32 @@ class Ui_MainWindow(QMainWindow):
         self.updateSub(page = newPage)
 
     def prevSamAction(self):
-        print("prev")
         newPage = self.currentSamPage-1
         newPage = max(0, newPage)
         self.updateSam(listDir = self.listDirSam, page = newPage)
 
     def nextSamAction(self):
-        print("next")
         newPage = self.currentSamPage+1
         newPage = min(newPage, self.numSamPage)
         self.updateSam(listDir = self.listDirSam,page = newPage)
 
+    def closeApp(self, event):
+        print("exit")
+        QApplication.quit()
+
+    def openFilePath(self):
+        dlg = QFileDialog()
+        dlg.setFileMode(QFileDialog.Directory)
+        if dlg.exec_():
+            filenames = dlg.selectedFiles()
+        path = filenames[0]        
+        if path == "" or path is None:
+            return
+        self.storeDir = path+'/'
+        self.currentSub = ""
+        self.updateSub()
+        
+        self.updateSam()
 
 def readStorageData(link="./DataVIN/"):
     if os.path.isdir(link):
@@ -410,6 +436,40 @@ class createSub(QDialog):
         super().__init__(parent)
         self.ui = createSub_Dialog()
         self.ui.setupUi(self)
+
+
+class createSam(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.ui = Sample_Dialog()
+        self.ui.setupUi(self)
+
+    def setInfo(self, info):
+        self.info = info
+        try:
+            jsonDir = info + '/info.json'
+            with open(jsonDir) as json_file:
+                data = json.load(json_file)
+            self.ui.NameEdit.setText(data['name'])
+            self.ui.AgeEdit.setValue(data['age'])
+            if data['gender'] == 'M':
+                self.ui.MaleEdit.setChecked(True)
+            else:
+                self.ui.FemaleEdit.setChecked(True)
+            self.ui.DiseaseDescEdit.setText(data['patientDesc'])
+            self.ui.spinBox.setValue(1)
+
+            self.ui.NameEdit.setEnabled(False)
+            self.ui.AgeEdit.setEnabled(False)
+            if data['gender'] == 'M':
+                self.ui.MaleEdit.setEnabled(False)
+            else:
+                self.ui.FemaleEdit.setEnabled(False)
+            self.ui.DiseaseDescEdit.setEnabled(False)
+            self.ui.spinBox.setEnabled(False)
+        except Exception as e:
+            print("cant find json file, subject dont have required infomation")
+        
 
 
 if __name__ == "__main__":
