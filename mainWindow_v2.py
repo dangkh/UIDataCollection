@@ -14,6 +14,7 @@ from createSub import createSub_Dialog
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 import random
+import json
 
 
 class Ui_MainWindow(QMainWindow):
@@ -108,18 +109,75 @@ class Ui_MainWindow(QMainWindow):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar.setNativeMenuBar(False)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1307, 21))
+        self.menubar.setObjectName(" menubar")
+        self.menuFile = QtWidgets.QMenu(self.menubar)
+        self.menuFile.setObjectName(" menuFile")
+        self.menuAbout = QtWidgets.QMenu(self.menubar)
+        self.menuAbout.setObjectName(" menuAbout")
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName(" statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+        self.actionOpenFile = QtWidgets.QAction(MainWindow)
+        self.actionOpenFile.setObjectName(" actionOpenFile")
+        self.actionQuit = QtWidgets.QAction(MainWindow)
+        self.actionQuit.setObjectName(" actionQuit")
+        self.menuFile.addAction(self.actionOpenFile)
+        self.menuFile.addAction(self.actionQuit)
+        self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuAbout.menuAction())
+
         self.subjectWidget.setLayout(self.verticalLayout)
         self.sampleWidget.setLayout(self.verticalSample)
 
         self.createEvent()
 
     def createEvent(self):
+        self.numItem = 16
+        self.currentSub = -1
+        self.currentPage = 0
+        self.currentSamPage = 0
+        self.newSam.hide()
+        self.prevSub.hide()
+        self.prevSam.hide()
+        self.nextSam.hide()
+        self.nextSub.hide()
+        
+        self.updateSub()
+
+        self.updateSam()
+
+        self.retranslateUi(MainWindow)
+
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        widget = QtWidgets.QWidget()
+        widget.setLayout(self.horizontalLayout)
+        MainWindow.setCentralWidget(widget)
+        self.newSam.clicked.connect(self.newSample)
+        self.newSub.clicked.connect(self.newSubject)
+        self.prevSub.clicked.connect(self.prevSubAction)
+        self.nextSub.clicked.connect(self.nextSubAction)
+        self.prevSam.clicked.connect(self.prevSamAction)
+        self.nextSam.clicked.connect(self.nextSamAction)
+
+    def updateSub(self, listDir=[], page=0):
         self.listSub = []
         self.listDirSub = readStorageData()
-        self.currentPage = 0
+        self.numPage = len(self.listDirSub) // self.numItem
+        if len(self.listDirSub) % self.numItem == 0:
+            self.numPage -= 1
+        if len(self.listDirSub) > 0:
+            self.prevSub.show()
+            self.nextSub.show()
+        self.currentPage = page
+        if page == -1:
+            self.currentPage = numPage
+            
         counter = 0
-        # numSub = self.collectID(0)
-        showDir = self.listDirSub[self.currentPage * 16:self.currentPage * 16 + 16]
+        showDir = self.listDirSub[self.currentPage * self.numItem:self.currentPage * self.numItem + self.numItem]
         for x in range(4):
             for y in range(4):
                 newSubject = QtWidgets.QWidget()
@@ -157,7 +215,7 @@ class Ui_MainWindow(QMainWindow):
                 }
                 self.listSub.append(subDict)
                 self.gridLayout.addWidget(newSubject, x, y)
-                if counter >= len(self.listDirSub):
+                if counter >= len(showDir):
                     newSubject.setEnabled(False)
                 else:
                     subLabel.setText(str(showDir[counter]))
@@ -167,40 +225,31 @@ class Ui_MainWindow(QMainWindow):
         for x in self.listSub:
             x['Btn'].clicked.connect(self.updateSamVisual(x))
 
-        self.updateSam()
-
-        self.retranslateUi(MainWindow)
-
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        widget = QtWidgets.QWidget()
-        widget.setLayout(self.horizontalLayout)
-        MainWindow.setCentralWidget(widget)
-        self.newSam.clicked.connect(self.newSample)
-        self.newSub.clicked.connect(self.newSubject)
-
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "HMIlab"))
         self.label.setText(_translate("MainWindow", "Danh sách người bệnh"))
         self.prevSub.setText(_translate("MainWindow", "Previous"))
         self.nextSub.setText(_translate("MainWindow", "Next"))
-        self.newSub.setText(_translate("MainWindow", "New"))
+        self.newSub.setText(_translate("MainWindow", "New Patient"))
         self.label_2.setText(_translate("MainWindow", "Danh sách bản ghi"))
         self.prevSam.setText(_translate("MainWindow", "Previous"))
         self.nextSam.setText(_translate("MainWindow", "Next"))
-        self.newSam.setText(_translate("MainWindow", "New"))
-        # self.nameSubject.setText(_translate("MainWindow", "Người bệnh + ID"))
-        # self.nameSample.setText(_translate("MainWindow", "Tên file"))
+        self.newSam.setText(_translate("MainWindow", "New Record"))
+        self.menuFile.setTitle(_translate("MainWindow", " File"))
+        self.menuAbout.setTitle(_translate("MainWindow", " About"))
+        self.actionOpenFile.setText(_translate("MainWindow", " OpenFile"))
+        self.actionQuit.setText(_translate("MainWindow", " Quit"))
 
     def collectID(self, page=0):
         return 0
 
     def newSubject(self):
         self.createSubdialog = createSub(self)
-        self.createSubdialog.ui.saveBtn.clicked.connect(self.eventToDo)
+        self.createSubdialog.ui.saveBtn.clicked.connect(self.createNewSub)
         self.createSubdialog.exec_()
 
-    def eventToDo(self):
+    def createNewSub(self):
         name = self.createSubdialog.ui.NameEdit.text()
         age = self.createSubdialog.ui.AgeEdit.value()
         genderG = self.createSubdialog.ui.FemaleEdit.isChecked()
@@ -235,13 +284,10 @@ class Ui_MainWindow(QMainWindow):
             newlink = './dataVIN/' + "_" + str(name) + "_" + str(recordID)
             os.mkdir(newlink)
             fileName = newlink + '/' + 'info.json'
-            self.jsonFiles.append(fileName)
             with open(fileName, 'w') as outfile:
                 json.dump(js, outfile)
             self.createSubdialog.close()
-            # self.refreshPage(math.ceil(len(self.jsonFiles) / 10) - 1)
-            # if self.loadingStt:
-            #     self.stopLoadingFunc()
+            self.updateSub(page = -1)
         else:
             self.showErrorPopup("Please complete fully the form")
 
@@ -251,10 +297,21 @@ class Ui_MainWindow(QMainWindow):
     def updateSam(self, listDir=[], page=0):
         self.listDirSam = listDir
         self.currentSamPage = page
-        showDirSam = self.listDirSam[self.currentSamPage * 16:self.currentSamPage * 16 + 16]
+        self.numSamPage = len(self.listDirSam) // self.numItem
         counter = 0
-        # newSam = QtWidgets.QWidget()
 
+        if len(self.listDirSam) % self.numItem == 0:
+            self.numSamPage -= 1
+        if len(self.listDirSam) > self.numItem:
+            self.prevSam.show()
+            self.nextSam.show()
+        else:
+            self.prevSam.hide()
+            self.nextSam.hide()
+        self.currentPage = page
+        if page == -1:
+            self.currentPage = numPage
+        showDirSam = self.listDirSam[self.currentSamPage * self.numItem:self.currentSamPage * self.numItem + self.numItem]
         for x in range(4):
             for y in range(4):
                 newSam = QtWidgets.QWidget()
@@ -273,8 +330,6 @@ class Ui_MainWindow(QMainWindow):
                 icon1.addPixmap(QtGui.QPixmap("mfiles.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
                 icon2 = QtGui.QIcon()
                 icon2.addPixmap(QtGui.QPixmap("file.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-                samBtn.setIcon(icon1)
-                samBtn.setIconSize(QtCore.QSize(50, 50))
                 samBtn.setObjectName("samBtn" + str(x) + str(y))
                 samInfo.addWidget(samBtn)
                 samLabel = QtWidgets.QLabel(newSam)
@@ -289,6 +344,8 @@ class Ui_MainWindow(QMainWindow):
                     samBtn.setIcon(icon2)
                 else:
                     samLabel.setText(str(showDirSam[counter]))
+                    samBtn.setIcon(icon1)
+                    samBtn.setIconSize(QtCore.QSize(50, 50))
                 counter += 1
 
     def updateSamVisual(self, arg):
@@ -296,6 +353,8 @@ class Ui_MainWindow(QMainWindow):
             print("Updating Sam")
             print(arg['dir'])
             link = arg['dir']
+            self.currentSub = link
+            self.label_2.setText("Danh sách bản ghi" + str(link))
             if os.path.isdir(link):
                 onlydir = [link + "/" + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
                 print(onlydir)
@@ -303,6 +362,7 @@ class Ui_MainWindow(QMainWindow):
                 print("Error in link Sub")
             onlydir.sort(key=os.path.getctime)
             self.updateSam(listDir=onlydir)
+            self.newSam.show()
             # print(arg[-1], arg[-2])
         return wrap
 
@@ -310,6 +370,28 @@ class Ui_MainWindow(QMainWindow):
         msg = QtWidgets.QMessageBox()
         msg.setText(str(error))
         x = msg.exec_()
+
+    def prevSubAction(self):
+        newPage = self.currentPage-1
+        newPage = max(0, newPage)
+        self.updateSub(page = newPage)
+
+    def nextSubAction(self):
+        newPage = self.currentPage+1
+        newPage = min(newPage, self.numPage)
+        self.updateSub(page = newPage)
+
+    def prevSamAction(self):
+        print("prev")
+        newPage = self.currentSamPage-1
+        newPage = max(0, newPage)
+        self.updateSam(listDir = self.listDirSam, page = newPage)
+
+    def nextSamAction(self):
+        print("next")
+        newPage = self.currentSamPage+1
+        newPage = min(newPage, self.numSamPage)
+        self.updateSam(listDir = self.listDirSam,page = newPage)
 
 
 def readStorageData(link="./DataVIN/"):
@@ -324,13 +406,9 @@ def readStorageData(link="./DataVIN/"):
 
 
 class createSub(QDialog):
-    """Employee dialog."""
-
     def __init__(self, parent=None):
         super().__init__(parent)
-        # Create an instance of the GUI
         self.ui = createSub_Dialog()
-        # Run the .setupUi() method to show the GUI
         self.ui.setupUi(self)
 
 
