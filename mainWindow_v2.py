@@ -145,7 +145,7 @@ class Ui_MainWindow(QMainWindow):
 
     def createEvent(self):
         self.numItem = 16
-        self.currentSub = -1
+        self.currentSub = ""
         self.currentPage = 0
         self.currentSamPage = 0
         self.storeDir = "./DataVIN/"
@@ -154,10 +154,10 @@ class Ui_MainWindow(QMainWindow):
         self.prevSam.hide()
         self.nextSam.hide()
         self.nextSub.hide()
-        
+
         self.updateSub()
 
-        self.updateSam()
+        self.updateSam(listDir=-1)
 
         self.retranslateUi(MainWindow)
 
@@ -185,13 +185,13 @@ class Ui_MainWindow(QMainWindow):
         self.numPage = len(self.listDirSub) // self.numItem
         if len(self.listDirSub) % self.numItem == 0:
             self.numPage -= 1
-        if len(self.listDirSub) > 0:
+        if len(self.listDirSub) > self.numItem:
             self.prevSub.show()
             self.nextSub.show()
         self.currentPage = page
         if page == -1:
             self.currentPage = self.numPage
-            
+
         counter = 0
         showDir = self.listDirSub[self.currentPage * self.numItem:self.currentPage * self.numItem + self.numItem]
         for x in range(4):
@@ -297,21 +297,28 @@ class Ui_MainWindow(QMainWindow):
             with open(fileName, 'w') as outfile:
                 json.dump(js, outfile)
             self.createSubdialog.close()
-            self.updateSub(page = -1)
+            self.updateSub(page=-1)
         else:
             self.showErrorPopup("Please complete fully the form")
 
     def newSample(self):
-        print("newSam")
+        # print("newSam")
         self.createSamdialog = createSam(self)
         self.createSamdialog.setInfo(self.currentSub)
-        print(self.currentSub)
-        # self.createSamdialog.ui.saveBtn.clicked.connect(self.createNewSub)
+        # print(self.currentSub)
+        self.createSamdialog.ui.fetchInfoBtn.clicked.connect(lambda: self.updateInfoSample(reuse=True))
+        self.createSamdialog.ui.resetBtn.clicked.connect(self.updateInfoSample)
+        self.createSamdialog.ui.rcdBtn.clicked.connect(self.createRecord)
         self.createSamdialog.exec_()
 
-    def updateSam(self, listDir=[], page=0):
+    def updateSam(self, listDir=0, page=0):
+        # print(self.currentSub)
         self.label_2.setText("Danh sách bản ghi" + str(self.currentSub))
-        self.listDirSam = listDir
+        if listDir == -1:
+            self.listDirSam = []
+        else:
+            self.listDirSam = readStorageData(self.currentSub + '/')
+        # print(self.listDirSam)
         self.currentSamPage = page
         self.numSamPage = len(self.listDirSam) // self.numItem
         counter = 0
@@ -324,10 +331,12 @@ class Ui_MainWindow(QMainWindow):
         else:
             self.prevSam.hide()
             self.nextSam.hide()
-        self.currentPage = page
+        self.currentSamPage = page
         if page == -1:
-            self.currentPage = numPage
-        showDirSam = self.listDirSam[self.currentSamPage * self.numItem:self.currentSamPage * self.numItem + self.numItem]
+            self.currentSamPage = self.numSamPage
+        showDirSam = self.listDirSam[
+            self.currentSamPage * self.numItem:self.currentSamPage * self.numItem + self.numItem]
+        # print(showDirSam)
         for x in range(4):
             for y in range(4):
                 newSam = QtWidgets.QWidget()
@@ -373,34 +382,48 @@ class Ui_MainWindow(QMainWindow):
             else:
                 print("Error in link Sub")
             onlydir.sort(key=os.path.getctime)
-            self.updateSam(listDir=onlydir)
+            self.updateSam()
+            self.newSam.show()
+        return wrap
+
+    def viewSam(self, arg):
+        # TODO
+        def wrap():
+            link = arg['dir']
+            self.currentSub = link
+            if os.path.isdir(link):
+                onlydir = [link + "/" + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
+            else:
+                print("Error in link Sub")
+            onlydir.sort(key=os.path.getctime)
+            self.updateSam()
             self.newSam.show()
         return wrap
 
     def showErrorPopup(self, error):
         msg = QtWidgets.QMessageBox()
         msg.setText(str(error))
-        x = msg.exec_()
+        msg.exec_()
 
     def prevSubAction(self):
-        newPage = self.currentPage-1
+        newPage = self.currentPage - 1
         newPage = max(0, newPage)
-        self.updateSub(page = newPage)
+        self.updateSub(page=newPage)
 
     def nextSubAction(self):
-        newPage = self.currentPage+1
+        newPage = self.currentPage + 1
         newPage = min(newPage, self.numPage)
-        self.updateSub(page = newPage)
+        self.updateSub(page=newPage)
 
     def prevSamAction(self):
-        newPage = self.currentSamPage-1
+        newPage = self.currentSamPage - 1
         newPage = max(0, newPage)
-        self.updateSam(listDir = self.listDirSam, page = newPage)
+        self.updateSam(page=newPage)
 
     def nextSamAction(self):
-        newPage = self.currentSamPage+1
+        newPage = self.currentSamPage + 1
         newPage = min(newPage, self.numSamPage)
-        self.updateSam(listDir = self.listDirSam,page = newPage)
+        self.updateSam(page=newPage)
 
     def closeApp(self, event):
         print("exit")
@@ -411,22 +434,78 @@ class Ui_MainWindow(QMainWindow):
         dlg.setFileMode(QFileDialog.Directory)
         if dlg.exec_():
             filenames = dlg.selectedFiles()
-        path = filenames[0]        
+        path = filenames[0]
         if path == "" or path is None:
             return
-        self.storeDir = path+'/'
+        self.storeDir = path + '/'
         self.currentSub = ""
         self.updateSub()
-        
-        self.updateSam()
+
+        self.updateSam(listDir=-1)
+
+    def updateInfoSample(self, reuse=False):
+        if not reuse:
+            newData = {
+                'RecorderEdit': "",
+                'LocateEdit': "",
+                'RecPlanEdit': 0,
+                'sentenceIdEdit': 0
+            }
+            self.createSamdialog.setRecodData(newData)
+        else:
+            print("ENterrrrrrrrrrrrrrrrrrrr")
+            onlydir = []
+            link = self.currentSub + '/'
+            if os.path.isdir(link):
+                onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + d)]
+            onlydir.sort(key=os.path.getctime)
+            if len(onlydir) == 0:
+                # pop
+                return
+            lastDir = onlydir[-1] + '/plan.json'
+            print(lastDir)
+            with open(lastDir) as json_file:
+                data = json.load(json_file)
+            self.createSamdialog.setRecodData(data)
+
+    def createRecord(self):
+        # print("Enter Record")
+        # get info
+        RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
+        LocateEdit = self.createSamdialog.ui.LocateEdit.text()
+        RecPlanEdit = self.createSamdialog.ui.RecPlanEdit.value()
+        sentenceIdEdit = self.createSamdialog.ui.sentenceIdEdit.value()
+        newData = {
+            'RecorderEdit': RecorderEdit,
+            'LocateEdit': LocateEdit,
+            'RecPlanEdit': RecPlanEdit,
+            'sentenceIdEdit': sentenceIdEdit
+        }
+        # create new sample folder
+        link = self.currentSub + '/'
+        if os.path.isdir(link):
+            onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
+        else:
+            print("Error in link Sub")
+        onlydir.sort(key=os.path.getctime)
+        newID = len(onlydir) + 1
+        newDir = link + "sample" + str(newID)
+        os.mkdir(newDir)
+        # save file
+        fileName = newDir + '/' + 'plan.json'
+        with open(fileName, 'w') as outfile:
+            json.dump(newData, outfile)
+        self.createSamdialog.close()
+        self.updateSam(page=-1)
+
 
 def readStorageData(link="./DataVIN/"):
     if os.path.isdir(link):
         onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + d)]
     else:
         print("imported link is not exist")
-        print("DataVIN folder is created, run again!")
-        os.mkdir(link)
+        # print("DataVIN folder is created, run again!")
+        # os.mkdir(link)
     onlydir.sort(key=os.path.getctime)
     return onlydir
 
@@ -445,6 +524,7 @@ class createSam(QDialog):
         self.ui.setupUi(self)
 
     def setInfo(self, info):
+        # set sample info as the info of the patient
         self.info = info
         try:
             jsonDir = info + '/info.json'
@@ -457,19 +537,23 @@ class createSam(QDialog):
             else:
                 self.ui.FemaleEdit.setChecked(True)
             self.ui.DiseaseDescEdit.setText(data['patientDesc'])
-            self.ui.spinBox.setValue(1)
+            self.ui.spinTTB.setValue(1)
 
             self.ui.NameEdit.setEnabled(False)
             self.ui.AgeEdit.setEnabled(False)
-            if data['gender'] == 'M':
-                self.ui.MaleEdit.setEnabled(False)
-            else:
-                self.ui.FemaleEdit.setEnabled(False)
+            self.ui.MaleEdit.setEnabled(False)
+            self.ui.FemaleEdit.setEnabled(False)
             self.ui.DiseaseDescEdit.setEnabled(False)
-            self.ui.spinBox.setEnabled(False)
+            self.ui.spinTTB.setEnabled(False)
         except Exception as e:
             print("cant find json file, subject dont have required infomation")
-        
+            print(e)
+
+    def setRecodData(self, data):
+        self.ui.RecorderEdit.setText(data['RecorderEdit'])
+        self.ui.LocateEdit.setText(data['LocateEdit'])
+        self.ui.RecPlanEdit.setValue(data['RecPlanEdit'])
+        self.ui.sentenceIdEdit.setValue(data['sentenceIdEdit'])
 
 
 if __name__ == "__main__":
