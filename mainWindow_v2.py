@@ -17,6 +17,7 @@ import random
 import json
 
 from createSampleDialog import Sample_Dialog
+from ReceiveAndPlot import EEGReceive_Plot, ETReceive
 
 
 class Ui_MainWindow(QMainWindow):
@@ -149,6 +150,8 @@ class Ui_MainWindow(QMainWindow):
         self.currentPage = 0
         self.currentSamPage = 0
         self.storeDir = "./DataVIN/"
+        self.record_save = True
+        self.counter = 0
         self.newSam.hide()
         self.prevSub.hide()
         self.prevSam.hide()
@@ -173,7 +176,7 @@ class Ui_MainWindow(QMainWindow):
         self.nextSam.clicked.connect(self.nextSamAction)
 
         self.actionQuit.setShortcut("Ctrl+Q")
-        self.actionQuit.triggered.connect(self.closeApp)
+        self.actionQuit.triggered.connect(self.closeEvent)
         self.actionOpenFile.setShortcut("Ctrl+O")
         self.actionOpenFile.setStatusTip('Open file browser')
         self.actionOpenFile.triggered.connect(self.openFilePath)
@@ -308,7 +311,7 @@ class Ui_MainWindow(QMainWindow):
         # print(self.currentSub)
         self.createSamdialog.ui.fetchInfoBtn.clicked.connect(lambda: self.updateInfoSample(reuse=True))
         self.createSamdialog.ui.resetBtn.clicked.connect(self.updateInfoSample)
-        self.createSamdialog.ui.rcdBtn.clicked.connect(self.createRecord)
+        self.createSamdialog.ui.rcdBtn.clicked.connect(self.record_saveData)
         self.createSamdialog.exec_()
 
     def updateSam(self, listDir=0, page=0):
@@ -425,9 +428,18 @@ class Ui_MainWindow(QMainWindow):
         newPage = min(newPage, self.numSamPage)
         self.updateSam(page=newPage)
 
-    def closeApp(self, event):
+    def closeEvent(self, event):
         print("exit")
-        QApplication.quit()
+        close = QMessageBox()
+        close.setText("You sure?")
+        close.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
+        close = close.exec()
+
+        if close == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+        # QApplication.quit()
 
     def openFilePath(self):
         dlg = QFileDialog()
@@ -468,9 +480,74 @@ class Ui_MainWindow(QMainWindow):
                 data = json.load(json_file)
             self.createSamdialog.setRecodData(data)
 
+    def record_saveData(self):
+        # self.createSamdialog.close.connect(self.closeApp)
+        if self.record_save:
+            self.createRecord()
+            return
+        self.saveRecord()
+
     def createRecord(self):
-        # print("Enter Record")
-        # get info
+        print("Enter Record")
+        self.record_save = False
+        self.createSamdialog.ui.rcdBtn.setText("Save")
+        # visual EEG
+        self.EEGPlot = EEGReceive_Plot("new")
+        self.createSamdialog.ui.widEEG.addWidget(self.EEGPlot.pw)
+        print(self.createSamdialog.ui.widEEG.count())
+
+        self.update_timer = QtCore.QTimer()
+        self.update_timer.setInterval(60)
+        self.update_timer.timeout.connect(self.EEGPlot.scroll)
+        self.update_timer.start()
+
+        # create a timer that will pull and add new data occasionally
+        self.pull_timer = QtCore.QTimer()
+        self.pull_timer.setInterval(500)
+        self.pull_timer.timeout.connect(self.EEGPlot.update)
+        self.pull_timer.start()
+        # get ET
+
+        self.ETPlot = ETReceive("new")
+
+        self.ETtimer = QtCore.QTimer()
+        self.ETtimer.setInterval(10)
+        self.ETtimer.timeout.connect(self.ET_update)
+        self.ETtimer.start()
+
+    # def EEG_ETupdate(self):
+    #     self.EEGPlot.update()
+        # ETdata = self.EEGPlot.listDataET[-1]
+        # print(ETdata[0])
+        # s1, s2, _ = ETdata[0].split(":")
+        # x, y, _ = s1[1:-1].split(",")
+        # print(x, y)
+        # print("update neeeeee")
+        # self.createSamdialog.ui.position.setText(str(x) + " " + str(y))
+        # self.createSamdialog.ui.character.setText(str(s2))
+
+    def ET_update(self):
+        self.ETPlot.update()
+        ETdata = self.ETPlot.listDataET[-1]
+        print(ETdata[0])
+        s1, s2, _ = ETdata[0].split(":")
+        x, y, _ = s1[1:-1].split(",")
+
+        # print(x, y)
+        # print("update neeeeee")
+        self.createSamdialog.ui.position.setText(str(x) + " " + str(y))
+        self.createSamdialog.ui.character.setText(str(s2))
+        # print(self.ETPlot.listDataET)
+
+    def testEnter(self):
+        print("pass")
+
+    def saveRecord(self):
+        print("Enter Save")
+        self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
+        print(self.createSamdialog.ui.widEEG.count())
+        self.update_timer = None
+        self.pull_timer = None
         RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
         RecPlanEdit = self.createSamdialog.ui.RecPlanEdit.value()
