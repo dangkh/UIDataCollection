@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import *
 class Sample_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(1293, 648)
+        Dialog.resize(1293, 643)
         self.horizontalLayoutWidget = QtWidgets.QWidget(Dialog)
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(20, 20, 1261, 601))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
@@ -238,7 +238,7 @@ class Sample_Dialog(object):
         self.vLayoutDataRight = QtWidgets.QVBoxLayout()
         self.vLayoutDataRight.setSpacing(0)
         self.vLayoutDataRight.setObjectName("vLayoutDataRight")
-        self.widEEG = QtWidgets.QWidget(self.gridLayoutWidget_2)
+        self.widEEG = QtWidgets.QStackedWidget(self.gridLayoutWidget_2)
         self.widEEG.setStyleSheet("background-color: rgb(178, 202, 226);")
         self.widEEG.setObjectName("widEEG")
         self.vLayoutDataRight.addWidget(self.widEEG)
@@ -249,10 +249,26 @@ class Sample_Dialog(object):
         self.widScreen.setStyleSheet("background-color: rgb(252, 202, 65);")
         self.widScreen.setObjectName("widScreen")
         self.hLayoutWidET.addWidget(self.widScreen)
-        self.widET = QtWidgets.QWidget(self.gridLayoutWidget_2)
-        self.widET.setStyleSheet("background-color: rgb(178, 202, 226);")
-        self.widET.setObjectName("widET")
-        self.hLayoutWidET.addWidget(self.widET)
+        self.vLayoutETch = QtWidgets.QVBoxLayout()
+        self.vLayoutETch.setObjectName("vLayoutETch")
+        self.position = QtWidgets.QLabel(self.gridLayoutWidget_2)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.position.setFont(font)
+        self.position.setStyleSheet("")
+        self.position.setObjectName("position")
+        self.vLayoutETch.addWidget(self.position, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.character = QtWidgets.QLabel(self.gridLayoutWidget_2)
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.character.setFont(font)
+        self.character.setObjectName("character")
+        self.vLayoutETch.addWidget(self.character, 0, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.hLayoutWidET.addLayout(self.vLayoutETch)
         self.hLayoutWidET.setStretch(0, 3)
         self.hLayoutWidET.setStretch(1, 1)
         self.vLayoutDataRight.addLayout(self.hLayoutWidET)
@@ -297,6 +313,20 @@ class Sample_Dialog(object):
         self.label_CAM1.setText(_translate("Dialog", "CAM1"))
         self.label_ET.setText(_translate("Dialog", "ET"))
         self.label_EEG.setText(_translate("Dialog", "EEG"))
+        self.position.setText(_translate("Dialog", "NONE"))
+        self.character.setText(_translate("Dialog", "NONE"))
+
+    def closeEvent(self, event):
+        close = QMessageBox()
+        close.setText("You sure?")
+        close.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
+        close = close.exec()
+
+        if close == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+        # QApplication.quit()
 
 
 class textSpinBox(QSpinBox):
