@@ -120,6 +120,7 @@ class EEGReceive_Plot(object):
         self.arg = arg
         self.counter = 0
         self.inlets: List[Inlet] = []
+        self.stt = False
         print("looking for streams")
         streams = pylsl.resolve_streams()
         # Create the pyqtgraph window
@@ -143,26 +144,10 @@ class EEGReceive_Plot(object):
                 self.inlets.append(DataInlet(info, self.plt))
             else:
                 print('Don\'t know what to do with stream ' + info.name())
-
-        # self.listDataET = [['(0, 0, 0) : _ : _']]
-        # create a new inlet to read from the stream
-        # self.inletET = pylsl.StreamInlet(streams[1])
-
-        # create a timer that will move the view every update_interval ms
-        # update_timer = QtCore.QTimer()
-        # update_timer.timeout.connect(self.scroll)
-        # update_timer.start(update_interval)
-
-        # # create a timer that will pull and add new data occasionally
-        # pull_timer = QtCore.QTimer()
-        # pull_timer.timeout.connect(self.update)
-        # pull_timer.start(pull_interval)
-
-        # self.pwET = pg.PlotWidget(title='ET Plot')
+        if len(self.inlets) > 0:
+            self.stt = True
 
     def scroll(self):
-        # print("scroll: ", self.counter)
-        # self.counter += 1
         """Move the view so the data appears to scroll"""
         # We show data only up to a timepoint shortly before the current time
         # so new data doesn't suddenly appear in the middle of the plot
@@ -171,8 +156,7 @@ class EEGReceive_Plot(object):
         self.pw.setXRange(plot_time - plot_duration + fudge_factor, plot_time - fudge_factor)
 
     def update(self):
-        # print("update: ", self.counter)
-        # self.counter += 1
+        print("EEG update")
         # Read data from the inlet. Use a timeout of 0.0 so we don't block GUI interaction.
         mintime = pylsl.local_clock() - plot_duration
         # call pull_and_plot for each inlet.
@@ -181,10 +165,8 @@ class EEGReceive_Plot(object):
         for inlet in self.inlets:
             inlet.pull_and_plot(mintime, self.plt)
 
-        # sample, timestamp = self.inletET.pull_sample()
-        # print("ET: ", sample, timestamp)
-        # # stop
-        # self.listDataET.append(sample)
+    def signalStt(self):
+        return self.stt
 
 
 class ETReceive(object):
@@ -193,16 +175,24 @@ class ETReceive(object):
     def __init__(self, arg):
         super(ETReceive, self).__init__()
         self.arg = arg
+        self.stt = False
         streams = pylsl.resolve_stream()
-        # print(streams[1])
-        self.inlet = pylsl.StreamInlet(streams[1])
+        for stream in streams:
+            print(stream.name())
+            if stream.name() == "Unity.ExampleStream":
+                self.inlet = pylsl.StreamInlet(stream)
+                self.stt = True
+
         self.listDataET = [['(0, 0, 0) : _ : _']]
 
     def update(self):
         sample, timestamp = self.inlet.pull_sample()
-        print(sample, timestamp)
+        # print(sample, timestamp)
         # stop
         self.listDataET.append(sample)
+
+    def signalStt(self):
+        return self.stt
 
 
 if __name__ == "__main__":
