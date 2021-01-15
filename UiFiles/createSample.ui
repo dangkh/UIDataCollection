@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1293</width>
-    <height>643</height>
+    <height>634</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -232,6 +232,13 @@
            </spacer>
           </item>
           <item>
+           <widget class="QPushButton" name="turnOnOffBtn">
+            <property name="text">
+             <string>Bật</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QPushButton" name="rcdBtn">
             <property name="text">
              <string>Record</string>
@@ -248,13 +255,13 @@
           <widget class="QWidget" name="gridLayoutWidget">
            <property name="geometry">
             <rect>
-             <x>20</x>
-             <y>20</y>
+             <x>10</x>
+             <y>-20</y>
              <width>559</width>
              <height>126</height>
             </rect>
            </property>
-           <layout class="QGridLayout" name="gLayoutSignal">
+           <layout class="QGridLayout" name="gLayoutSignal" rowstretch="2,2" rowminimumheight="2,2">
             <item row="1" column="0" alignment="Qt::AlignHCenter">
              <widget class="QToolButton" name="SignalET">
               <property name="enabled">
@@ -430,16 +437,22 @@
              <number>0</number>
             </property>
             <item>
-             <widget class="QWidget" name="widCAM1" native="true">
+             <widget class="QLabel" name="CAM2">
               <property name="styleSheet">
                <string notr="true">background-color: rgb(185, 209, 234);</string>
+              </property>
+              <property name="text">
+               <string/>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QWidget" name="widCAM2" native="true">
+             <widget class="QLabel" name="CAM1">
               <property name="styleSheet">
                <string notr="true">background-color: rgb(220, 82, 70);</string>
+              </property>
+              <property name="text">
+               <string/>
               </property>
              </widget>
             </item>

@@ -18,6 +18,7 @@ import json
 
 from createSampleDialog import Sample_Dialog
 from ReceiveAndPlot import EEGReceive_Plot, ETReceive
+from multi import *
 
 
 class Ui_MainWindow(QMainWindow):
@@ -83,8 +84,6 @@ class Ui_MainWindow(QMainWindow):
         self.gridLayout_sample = QtWidgets.QGridLayout()
         self.gridLayout_sample.setObjectName("gridLayout_sample")
         self.verticalSample.addLayout(self.gridLayout_sample)
-        # spacerItem2 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        # self.verticalSample.addItem(spacerItem2)
         self.horizontalLayout_sample = QtWidgets.QHBoxLayout()
         self.horizontalLayout_sample.setObjectName("horizontalLayout_sample")
         self.prevSam = QtWidgets.QPushButton(self.verticalLayoutWidget_3)
@@ -312,6 +311,7 @@ class Ui_MainWindow(QMainWindow):
         self.createSamdialog.ui.fetchInfoBtn.clicked.connect(lambda: self.updateInfoSample(reuse=True))
         self.createSamdialog.ui.resetBtn.clicked.connect(self.updateInfoSample)
         self.createSamdialog.ui.rcdBtn.clicked.connect(self.record_saveData)
+        self.createSamdialog.ui.turnOnOffBtn.clicked.connect(self.turnBtnSam)
         self.createSamdialog.exec_()
 
     def updateSam(self, listDir=0, page=0):
@@ -492,9 +492,6 @@ class Ui_MainWindow(QMainWindow):
         self.record_save = False
         self.createSamdialog.ui.rcdBtn.setText("Save")
         # visual EEG
-        self.EEGPlot = EEGReceive_Plot("new")
-        self.createSamdialog.ui.widEEG.addWidget(self.EEGPlot.pw)
-        print(self.createSamdialog.ui.widEEG.count())
 
         self.update_timer = QtCore.QTimer()
         self.update_timer.setInterval(60)
@@ -508,46 +505,34 @@ class Ui_MainWindow(QMainWindow):
         self.pull_timer.start()
         # get ET
 
-        self.ETPlot = ETReceive("new")
-
         self.ETtimer = QtCore.QTimer()
-        self.ETtimer.setInterval(10)
+        self.ETtimer.setInterval(0)
         self.ETtimer.timeout.connect(self.ET_update)
         self.ETtimer.start()
 
-    # def EEG_ETupdate(self):
-    #     self.EEGPlot.update()
-        # ETdata = self.EEGPlot.listDataET[-1]
-        # print(ETdata[0])
-        # s1, s2, _ = ETdata[0].split(":")
-        # x, y, _ = s1[1:-1].split(",")
-        # print(x, y)
-        # print("update neeeeee")
-        # self.createSamdialog.ui.position.setText(str(x) + " " + str(y))
-        # self.createSamdialog.ui.character.setText(str(s2))
+        self.CAMth.beginRecord()
 
     def ET_update(self):
+        # print("update ET")
         self.ETPlot.update()
         ETdata = self.ETPlot.listDataET[-1]
-        print(ETdata[0])
-        s1, s2, _ = ETdata[0].split(":")
+        # print(ETdata[0])
+        s1, s2, s3 = ETdata[0].split(":")
         x, y, _ = s1[1:-1].split(",")
 
-        # print(x, y)
-        # print("update neeeeee")
         self.createSamdialog.ui.position.setText(str(x) + " " + str(y))
         self.createSamdialog.ui.character.setText(str(s2))
-        # print(self.ETPlot.listDataET)
+        self.createSamdialog.ui.widScreen.setText(str(s3))
 
     def testEnter(self):
         print("pass")
 
     def saveRecord(self):
         print("Enter Save")
+
         self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
-        print(self.createSamdialog.ui.widEEG.count())
-        self.update_timer = None
-        self.pull_timer = None
+        # self.update_timer = None
+        # self.pull_timer = None
         RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
         RecPlanEdit = self.createSamdialog.ui.RecPlanEdit.value()
@@ -558,6 +543,14 @@ class Ui_MainWindow(QMainWindow):
             'RecPlanEdit': RecPlanEdit,
             'sentenceIdEdit': sentenceIdEdit
         }
+        timers = [self.update_timer, self.pull_timer, self.ETtimer]
+        for t in timers:
+            print("stop")
+            t.stop()
+            t.deleteLater()
+
+        self.CAMth.stopRecord()
+
         # create new sample folder
         link = self.currentSub + '/'
         if os.path.isdir(link):
@@ -574,6 +567,49 @@ class Ui_MainWindow(QMainWindow):
             json.dump(newData, outfile)
         self.createSamdialog.close()
         self.updateSam(page=-1)
+
+    def turnBtnSam(self):
+        if self.createSamdialog.turnOnBtn:
+            self.createSamdialog.turnOnBtn = False
+            self.createSamdialog.ui.rcdBtn.hide()
+            self.createSamdialog.ui.turnOnOffBtn.setText("Bật")
+            l2 = [self.createSamdialog.ui.SignalET, self.createSamdialog.ui.SignalEEG,
+                  self.createSamdialog.ui.SignalCAM1, self.createSamdialog.ui.SignalCAM2]
+            for x in l2:
+                x.setChecked(True)
+            self.signalTimer.stop()
+            self.signalTimer.deleteLater()
+        else:
+            self.createSamdialog.turnOnBtn = True
+            self.createSamdialog.ui.turnOnOffBtn.setText("Tắt")
+            self.createSamdialog.ui.rcdBtn.show()
+
+            self.signalTimer = QtCore.QTimer()
+            self.signalTimer.setInterval(100)
+            self.signalTimer.timeout.connect(self.changeSignal)
+            self.signalTimer.start()
+
+            self.EEGPlot = EEGReceive_Plot("new")
+            self.createSamdialog.ui.widEEG.addWidget(self.EEGPlot.pw)
+
+            self.ETPlot = ETReceive("new")
+
+            self.CAMth = VideoRecorder()
+            self.CAMth.setLabelImage([self.createSamdialog.ui.CAM1, self.createSamdialog.ui.CAM2])
+
+    def changeSignal(self):
+        cam1 = True
+        cam2 = True
+        if self.CAMth.numberDevices < 2:
+            cam2 = False
+        if self.CAMth.numberDevices < 1:
+            cam1 = False
+        l1 = [self.ETPlot.signalStt, self.EEGPlot.signalStt, cam1, cam2]
+        l2 = [self.createSamdialog.ui.SignalET, self.createSamdialog.ui.SignalEEG,
+              self.createSamdialog.ui.SignalCAM1, self.createSamdialog.ui.SignalCAM2]
+
+        for x, y in zip(l1, l2):
+            y.setChecked(not x)
 
 
 def readStorageData(link="./DataVIN/"):
@@ -599,6 +635,8 @@ class createSam(QDialog):
         super().__init__(parent)
         self.ui = Sample_Dialog()
         self.ui.setupUi(self)
+        self.turnOnBtn = False
+        self.ui.rcdBtn.hide()
 
     def setInfo(self, info):
         # set sample info as the info of the patient
