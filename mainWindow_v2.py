@@ -493,22 +493,22 @@ class Ui_MainWindow(QMainWindow):
         self.createSamdialog.ui.rcdBtn.setText("Save")
         # visual EEG
 
-        self.update_timer = QtCore.QTimer()
-        self.update_timer.setInterval(60)
-        self.update_timer.timeout.connect(self.EEGPlot.scroll)
-        self.update_timer.start()
+        # self.update_timer = QtCore.QTimer()
+        # self.update_timer.setInterval(60)
+        # self.update_timer.timeout.connect(self.EEGPlot.scroll)
+        # self.update_timer.start()
 
-        # create a timer that will pull and add new data occasionally
-        self.pull_timer = QtCore.QTimer()
-        self.pull_timer.setInterval(500)
-        self.pull_timer.timeout.connect(self.EEGPlot.update)
-        self.pull_timer.start()
-        # get ET
+        # # create a timer that will pull and add new data occasionally
+        # self.pull_timer = QtCore.QTimer()
+        # self.pull_timer.setInterval(500)
+        # self.pull_timer.timeout.connect(self.EEGPlot.update)
+        # self.pull_timer.start()
+        # # get ET
 
-        self.ETtimer = QtCore.QTimer()
-        self.ETtimer.setInterval(0)
-        self.ETtimer.timeout.connect(self.ET_update)
-        self.ETtimer.start()
+        # self.ETtimer = QtCore.QTimer()
+        # self.ETtimer.setInterval(0)
+        # self.ETtimer.timeout.connect(self.ET_update)
+        # self.ETtimer.start()
 
         self.CAMth.beginRecord()
 
@@ -529,10 +529,9 @@ class Ui_MainWindow(QMainWindow):
 
     def saveRecord(self):
         print("Enter Save")
+        self.record_save = True
+        # self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
 
-        self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
-        # self.update_timer = None
-        # self.pull_timer = None
         RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
         RecPlanEdit = self.createSamdialog.ui.RecPlanEdit.value()
@@ -543,13 +542,12 @@ class Ui_MainWindow(QMainWindow):
             'RecPlanEdit': RecPlanEdit,
             'sentenceIdEdit': sentenceIdEdit
         }
-        timers = [self.update_timer, self.pull_timer, self.ETtimer]
-        for t in timers:
-            print("stop")
-            t.stop()
-            t.deleteLater()
+        # timers = [self.update_timer, self.pull_timer, self.ETtimer]
+        # for t in timers:
+        #     print("stop")
+        #     t.stop()
+        #     t.deleteLater()
 
-        self.CAMth.stopRecord()
 
         # create new sample folder
         link = self.currentSub + '/'
@@ -561,6 +559,10 @@ class Ui_MainWindow(QMainWindow):
         newID = len(onlydir) + 1
         newDir = link + "sample" + str(newID)
         os.mkdir(newDir)
+
+        self.CAMth.updateSavingDir(newDir + '/')
+        self.CAMth.stopRecord()
+
         # save file
         fileName = newDir + '/' + 'plan.json'
         with open(fileName, 'w') as outfile:
