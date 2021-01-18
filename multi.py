@@ -39,6 +39,8 @@ class VideoRecorder:
         self.numberDevices = 0
         self.threads = []
         self.threadID = 1
+        self.savingDir = ""
+        self.record = False
         self.listCapDev()
 
     def cleanRecorder(self):
@@ -58,6 +60,7 @@ class VideoRecorder:
         cap.set(cv2.CAP_PROP_HUE, self.parameters['hue'])
         cap.set(cv2.CAP_PROP_GAIN, self.parameters['gain'])
         cap.set(cv2.CAP_PROP_EXPOSURE, self.parameters['exposure'])
+        cap.set(cv2.CAP_PROP_CONVERT_RGB, 16)
 
     def listCapDev(self):
         k = 0
@@ -89,14 +92,6 @@ class VideoRecorder:
         # winName = 'Camera ' + str(deviceID)
         # cv2.namedWindow(winName)
 
-        if record:
-            fps = cap_i.get(cv2.CAP_PROP_FPS)
-            width = cap_i.get(cv2.CAP_PROP_FRAME_WIDTH)
-            height = cap_i.get(cv2.CAP_PROP_FRAME_HEIGHT)
-            filename = os.path.join("", 'Camera' + str(deviceID) + '.avi')
-            fourcc = cv2.VideoWriter_fourcc(*'XVID')
-            writer_i = cv2.VideoWriter(filename, fourcc, fps, (int(width), int(height)))
-            outlet = self.createOutlet(int(deviceID), filename)
         try:
             ret = True
             # print("Exit", self.exitFlag)
@@ -104,14 +99,20 @@ class VideoRecorder:
                 # win_i = winName
                 if True:  # cv2.getWindowProperty(win_i, cv2.WND_PROP_VISIBLE):
                     ret, frame = cap_i.read()
-                    # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    # image = qimage2ndarray.array2qimage(frame)
-                    # frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    # image = qimage2ndarray.array2qimage(frame)
+                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    image = qimage2ndarray.array2qimage(frame)
 
-                    # self.updateInThread(deviceID, image)
+                    self.updateInThread(deviceID, image)
+
                     # cv2.imshow(win_i, frame)
-                    if record:
+                    if self.record:
+                        fps = cap_i.get(cv2.CAP_PROP_FPS)
+                        width = cap_i.get(cv2.CAP_PROP_FRAME_WIDTH)
+                        height = cap_i.get(cv2.CAP_PROP_FRAME_HEIGHT)
+                        filename = os.path.join(self.savingDir, 'Camera' + str(deviceID) + '.avi')
+                        fourcc = cv2.VideoWriter_fourcc(*'MPEG')
+                        writer_i = cv2.VideoWriter(filename, fourcc, fps, (int(width), int(height)))
+                        outlet = self.createOutlet(int(deviceID), filename)
                         outlet.push_sample([frameCounter])
                         if int(deviceID) == 0:
                             print(frameCounter)
@@ -149,6 +150,10 @@ class VideoRecorder:
             self.threads.append(thread)
             self.threadID += 1
 
+    def updateSavingDir(self, path):
+        self.record = True
+        self.savingDir = path
+
     def stopRecord(self):
         self.exitFlag = 1
         # Wait for all threads to complete
@@ -164,13 +169,13 @@ class VideoRecorder:
         # self.listLabel[int(deviceID)].setText(str(deviceID))
         # image = QtGui.QImage(bytes(frame), 50, 50, 3 * 50, QtGui.QImage.Format_RGB888)
         # pixmap = QtGui.QPixmap(image)
-        # w = self.listLabel[int(deviceID)].width()
-        # h = self.listLabel[int(deviceID)].height()
-        # # label->setPixmap(p.scaled(w,h,Qt::KeepAspectRatio));
-        # self.listLabel[int(deviceID)].setPixmap(QPixmap.fromImage(frame).scaled(w, h))
+        w = self.listLabel[int(deviceID)].width()
+        h = self.listLabel[int(deviceID)].height()
+        # label->setPixmap(p.scaled(w,h,Qt::KeepAspectRatio));
+        self.listLabel[int(deviceID)].setPixmap(QPixmap.fromImage(frame).scaled(w, h))
 
 
-record = VideoRecorder()
-record.beginRecord()
-time.sleep(5)
-record.stopRecord()
+# record = VideoRecorder()
+# record.beginRecord()
+# time.sleep(5)
+# record.stopRecord()
