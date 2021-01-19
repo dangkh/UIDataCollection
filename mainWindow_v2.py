@@ -17,8 +17,9 @@ import random
 import json
 
 from createSampleDialog import Sample_Dialog
-from ReceiveAndPlot import EEGReceive_Plot, ETReceive
+from ReceiveAndPlot import *
 from multi import *
+import csv
 
 
 class Ui_MainWindow(QMainWindow):
@@ -341,7 +342,7 @@ class Ui_MainWindow(QMainWindow):
         self.CAMth.setLabelImage([self.createSamdialog.ui.CAM1, self.createSamdialog.ui.CAM2])
         self.CAMth.beginRecord()
 
-        self.createSamdialog.exec_()
+        self.createSamdialog.ui.show()
 
     def updateSam(self, listDir=0, page=0):
         self.label_2.setText("Danh sách bản ghi" + str(self.currentSub))
@@ -457,16 +458,7 @@ class Ui_MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         print("exit")
-        close = QMessageBox()
-        close.setText("You sure?")
-        close.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
-        close = close.exec()
-
-        if close == QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
-        # QApplication.quit()
+        QApplication.quit()
 
     def openFilePath(self):
         dlg = QFileDialog()
@@ -528,6 +520,14 @@ class Ui_MainWindow(QMainWindow):
         os.mkdir(newDir)
         self.newDir = newDir
         self.CAMth.updateSavingDir(newDir + '/')
+        self.ETPlot.updateSaving()
+
+        self.EEGRcv = EEGReceive("new")
+        self.EEGtimer = QtCore.QTimer()
+        self.EEGtimer.setInterval(0)
+        self.EEGtimer.timeout.connect(self.EEGRcv.update)
+        self.EEGtimer.start()
+
         self.createSamdialog.ui.rcdBtn.setText("Save")
 
     def testEnter(self):
@@ -548,7 +548,7 @@ class Ui_MainWindow(QMainWindow):
             'RecPlanEdit': RecPlanEdit,
             'sentenceIdEdit': sentenceIdEdit
         }
-        timers = [self.update_timer, self.pull_timer, self.ETtimer, self.signalTimer]
+        timers = [self.update_timer, self.pull_timer, self.ETtimer, self.signalTimer, self.EEGtimer]
         for t in timers:
             t.stop()
             t.deleteLater()
@@ -560,6 +560,26 @@ class Ui_MainWindow(QMainWindow):
         fileName = newDir + '/' + 'plan.json'
         with open(fileName, 'w') as outfile:
             json.dump(newData, outfile)
+
+        list_ET = self.ETPlot.getSavingData()
+        fileNameET = newDir + '/' + 'ET.csv'
+        with open(fileNameET, mode='w', newline='', encoding='utf-8') as ETfile:
+            fieldnames = ['Data', 'TimeStamp']
+            et_writer = csv.writer(ETfile)
+            et_writer.writerow(fieldnames)
+            for idx in range(len(list_ET[0])):
+                et_writer.writerow([list_ET[0][idx], list_ET[1][idx]])
+
+        fileNameEEG = newDir + '/' + 'EEG.csv'
+        listEEG = self.EEGRcv.getSavingData()
+        headFiles = self.EEGRcv.getInfo()
+
+        with open(fileNameEEG, mode='w', newline='') as EEGfile:
+            eeg_writer = csv.writer(EEGfile)
+            eeg_writer.writerow(headFiles)
+            for idx in range(len(listEEG[0])):
+                eeg_writer.writerow(listEEG[0][idx])
+
         self.createSamdialog.close()
         self.updateSam(page=-1)
 
@@ -578,10 +598,10 @@ class Ui_MainWindow(QMainWindow):
         cam1 = True
         cam2 = True
         # print(self.CAMth.numberDevices)
-        if self.CAMth.numberDevices < 2:
-            cam2 = False
-        if self.CAMth.numberDevices < 1:
-            cam1 = False
+        # if self.CAMth.numberDevices < 2:
+        #     cam2 = False
+        # if self.CAMth.numberDevices < 1:
+        #     cam1 = False
         l1 = [self.ETPlot.signalStt(), self.EEGPlot.signalStt(), cam1, cam2]
         l2 = [self.createSamdialog.ui.SignalET, self.createSamdialog.ui.SignalEEG,
               self.createSamdialog.ui.SignalCAM1, self.createSamdialog.ui.SignalCAM2]
@@ -618,7 +638,7 @@ class createSam(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.ui = Sample_Dialog()
-        self.ui.setupUi(self)
+        self.ui.setupUi()
         self.turnOnBtn = False
         self.ui.rcdBtn.hide()
 

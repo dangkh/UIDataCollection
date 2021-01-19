@@ -12,11 +12,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 
 
-class Sample_Dialog(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(1293, 643)
-        self.horizontalLayoutWidget = QtWidgets.QWidget(Dialog)
+class Sample_Dialog(QDialog):
+    def setupUi(self):
+        self.Dialog = QtWidgets.QDialog()
+
+        self.setObjectName("Dialog")
+        self.resize(1293, 643)
+        self.horizontalLayoutWidget = QtWidgets.QWidget()
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(20, 20, 1261, 601))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
@@ -291,20 +293,20 @@ class Sample_Dialog(object):
         self.horizontalLayout.setStretch(0, 1)
         self.horizontalLayout.setStretch(1, 2)
 
-        self.retranslateUi(Dialog)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
+        self.retranslateUi()
+        QtCore.QMetaObject.connectSlotsByName(self.Dialog)
 
         self.createEvent()
 
     def createEvent(self):
-        self.turnOnOffBtn.hide()
         self.infoWidget.setLayout(self.verticalLayout)
         self.visualDatWidget.setLayout(self.layoutVisual)
         self.widSignal.setLayout(self.gLayoutSignal)
+        self.setLayout(self.horizontalLayout)
 
-    def retranslateUi(self, Dialog):
+    def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Tạo bản ghi mới"))
+        self.setWindowTitle(_translate("Dialog", "Tạo bản ghi mới"))
         self.label.setText(_translate("Dialog", "Thông tin người thu"))
         self.label_4.setText(_translate("Dialog", "Họ tên người bệnh"))
         self.label_5.setText(_translate("Dialog", "Tuổi"))
@@ -330,6 +332,7 @@ class Sample_Dialog(object):
         self.turnOnOffBtn.setText(_translate("Dialog", "Bật"))
 
     def closeEvent(self, event):
+        print("close ?")
         close = QMessageBox()
         close.setText("You sure?")
         close.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
@@ -339,7 +342,9 @@ class Sample_Dialog(object):
             event.accept()
         else:
             event.ignore()
-        # QApplication.quit()
+
+    def close(self):
+        print("close!!!")
 
 
 class textSpinBox(QSpinBox):
@@ -360,8 +365,7 @@ class textSpinBox(QSpinBox):
 # if __name__ == "__main__":
 #     import sys
 #     app = QtWidgets.QApplication(sys.argv)
-#     Dialog = QtWidgets.QDialog()
 #     ui = Sample_Dialog()
-#     ui.setupUi(Dialog)
-#     Dialog.show()
+#     ui.setupUi()
+#     ui.show()
 #     sys.exit(app.exec_())

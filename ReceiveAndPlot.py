@@ -121,6 +121,7 @@ class EEGReceive_Plot(object):
         self.counter = 0
         self.inlets: List[Inlet] = []
         self.stt = False
+        self.saving = True
         print("looking for streams")
         streams = pylsl.resolve_streams()
         # Create the pyqtgraph window
@@ -168,6 +169,9 @@ class EEGReceive_Plot(object):
     def signalStt(self):
         return self.stt
 
+    def updateSaving(self):
+        self.saving = True
+
 
 class ETReceive(object):
     """docstring for ETReceive"""
@@ -178,12 +182,14 @@ class ETReceive(object):
         self.stt = False
         streams = pylsl.resolve_stream()
         for stream in streams:
-            print(stream.name())
             if stream.name() == "Unity.ExampleStream":
                 self.inlet = pylsl.StreamInlet(stream)
                 self.stt = True
 
         self.listDataET = [['(0, 0, 0) : NONE : NONE']]
+        self.lSample = []
+        self.lTimeStamp = []
+        self.saving = False
 
     def update(self):
         # print("update ET")
@@ -194,10 +200,52 @@ class ETReceive(object):
         # print(sample, timestamp)
         # stop
         self.listDataET.append(sample)
+        if self.saving:
+            self.lSample.append(sample)
+            self.lTimeStamp.append(timestamp)
 
     def signalStt(self):
         return self.stt
 
+    def updateSaving(self):
+        self.saving = True
+
+    def getSavingData(self):
+        return [self.lSample, self.lTimeStamp]
+
+
+class EEGReceive(object):
+    """docstring for ETReceive"""
+
+    def __init__(self, arg):
+        super(EEGReceive, self).__init__()
+        self.arg = arg
+        streams = pylsl.resolve_stream()
+        for stream in streams:
+            if stream.name() == "EmotivDataStream-EEG":
+                self.inlet = pylsl.StreamInlet(stream)
+
+        self.listSaving = []
+        self.lData = []
+        self.lTimeStamp = []
+
+    def update(self):
+        # print("update EEG")
+        sample, timestamp = self.inlet.pull_sample()
+        self.lData.append(sample)
+        self.lTimeStamp.append(timestamp)
+
+    def getSavingData(self):
+        return [self.lData, self.lTimeStamp]
+
+    def getInfo(self):
+        import xml.etree.ElementTree as ET
+        root = ET.fromstring(self.inlet.info().as_xml())
+        info = root[17][1]
+        lInfo = []
+        for x in info:
+            lInfo.append(x[0].text)
+        return lInfo
 
 # if __name__ == "__main__":
 #     EEGReceive_Plot("none")
