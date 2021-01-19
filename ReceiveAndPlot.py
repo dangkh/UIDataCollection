@@ -156,7 +156,7 @@ class EEGReceive_Plot(object):
         self.pw.setXRange(plot_time - plot_duration + fudge_factor, plot_time - fudge_factor)
 
     def update(self):
-        print("EEG update")
+        # print("EEG update")
         # Read data from the inlet. Use a timeout of 0.0 so we don't block GUI interaction.
         mintime = pylsl.local_clock() - plot_duration
         # call pull_and_plot for each inlet.
@@ -183,10 +183,14 @@ class ETReceive(object):
                 self.inlet = pylsl.StreamInlet(stream)
                 self.stt = True
 
-        self.listDataET = [['(0, 0, 0) : _ : _']]
+        self.listDataET = [['(0, 0, 0) : NONE : NONE']]
 
     def update(self):
-        sample, timestamp = self.inlet.pull_sample()
+        # print("update ET")
+        if self.stt:
+            sample, timestamp = self.inlet.pull_sample()
+        else:
+            sample = ['(0, 0, 0) : NONE : NONE']
         # print(sample, timestamp)
         # stop
         self.listDataET.append(sample)
@@ -195,5 +199,5 @@ class ETReceive(object):
         return self.stt
 
 
-if __name__ == "__main__":
-    EEGReceive_Plot("none")
+# if __name__ == "__main__":
+#     EEGReceive_Plot("none")
