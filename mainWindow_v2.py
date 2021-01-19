@@ -304,24 +304,51 @@ class Ui_MainWindow(QMainWindow):
             self.showErrorPopup("Please complete fully the form")
 
     def newSample(self):
-        # print("newSam")
         self.createSamdialog = createSam(self)
         self.createSamdialog.setInfo(self.currentSub)
-        # print(self.currentSub)
         self.createSamdialog.ui.fetchInfoBtn.clicked.connect(lambda: self.updateInfoSample(reuse=True))
         self.createSamdialog.ui.resetBtn.clicked.connect(self.updateInfoSample)
         self.createSamdialog.ui.rcdBtn.clicked.connect(self.record_saveData)
-        self.createSamdialog.ui.turnOnOffBtn.clicked.connect(self.turnBtnSam)
+
+        self.signalTimer = QtCore.QTimer()
+        self.signalTimer.setInterval(100)
+        self.signalTimer.timeout.connect(self.changeSignal)
+        self.signalTimer.start()
+
+        self.EEGPlot = EEGReceive_Plot("new")
+        self.createSamdialog.ui.widEEG.addWidget(self.EEGPlot.pw)
+
+        self.ETPlot = ETReceive("new")
+
+        self.update_timer = QtCore.QTimer()
+        self.update_timer.setInterval(60)
+        self.update_timer.timeout.connect(self.EEGPlot.scroll)
+        self.update_timer.start()
+
+        # create a timer that will pull and add new data occasionally
+        self.pull_timer = QtCore.QTimer()
+        self.pull_timer.setInterval(500)
+        self.pull_timer.timeout.connect(self.EEGPlot.update)
+        self.pull_timer.start()
+        # get ET
+
+        self.ETtimer = QtCore.QTimer()
+        self.ETtimer.setInterval(0)
+        self.ETtimer.timeout.connect(self.ET_update)
+        self.ETtimer.start()
+
+        self.CAMth = VideoRecorder()
+        self.CAMth.setLabelImage([self.createSamdialog.ui.CAM1, self.createSamdialog.ui.CAM2])
+        self.CAMth.beginRecord()
+
         self.createSamdialog.exec_()
 
     def updateSam(self, listDir=0, page=0):
-        # print(self.currentSub)
         self.label_2.setText("Danh sách bản ghi" + str(self.currentSub))
         if listDir == -1:
             self.listDirSam = []
         else:
             self.listDirSam = readStorageData(self.currentSub + '/')
-        # print(self.listDirSam)
         self.currentSamPage = page
         self.numSamPage = len(self.listDirSam) // self.numItem
         counter = 0
@@ -481,7 +508,6 @@ class Ui_MainWindow(QMainWindow):
             self.createSamdialog.setRecodData(data)
 
     def record_saveData(self):
-        # self.createSamdialog.close.connect(self.closeApp)
         if self.record_save:
             self.createRecord()
             return
@@ -490,39 +516,19 @@ class Ui_MainWindow(QMainWindow):
     def createRecord(self):
         print("Enter Record")
         self.record_save = False
+        # create new sample folder
+        link = self.currentSub + '/'
+        if os.path.isdir(link):
+            onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
+        else:
+            print("Error in link Sub")
+        onlydir.sort(key=os.path.getctime)
+        newID = len(onlydir) + 1
+        newDir = link + "sample" + str(newID)
+        os.mkdir(newDir)
+        self.newDir = newDir
+        self.CAMth.updateSavingDir(newDir + '/')
         self.createSamdialog.ui.rcdBtn.setText("Save")
-        # visual EEG
-
-        # self.update_timer = QtCore.QTimer()
-        # self.update_timer.setInterval(60)
-        # self.update_timer.timeout.connect(self.EEGPlot.scroll)
-        # self.update_timer.start()
-
-        # # create a timer that will pull and add new data occasionally
-        # self.pull_timer = QtCore.QTimer()
-        # self.pull_timer.setInterval(500)
-        # self.pull_timer.timeout.connect(self.EEGPlot.update)
-        # self.pull_timer.start()
-        # # get ET
-
-        # self.ETtimer = QtCore.QTimer()
-        # self.ETtimer.setInterval(0)
-        # self.ETtimer.timeout.connect(self.ET_update)
-        # self.ETtimer.start()
-
-        self.CAMth.beginRecord()
-
-    def ET_update(self):
-        # print("update ET")
-        self.ETPlot.update()
-        ETdata = self.ETPlot.listDataET[-1]
-        # print(ETdata[0])
-        s1, s2, s3 = ETdata[0].split(":")
-        x, y, _ = s1[1:-1].split(",")
-
-        self.createSamdialog.ui.position.setText(str(x) + " " + str(y))
-        self.createSamdialog.ui.character.setText(str(s2))
-        self.createSamdialog.ui.widScreen.setText(str(s3))
 
     def testEnter(self):
         print("pass")
@@ -530,7 +536,7 @@ class Ui_MainWindow(QMainWindow):
     def saveRecord(self):
         print("Enter Save")
         self.record_save = True
-        # self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
+        self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
 
         RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
@@ -542,25 +548,12 @@ class Ui_MainWindow(QMainWindow):
             'RecPlanEdit': RecPlanEdit,
             'sentenceIdEdit': sentenceIdEdit
         }
-        # timers = [self.update_timer, self.pull_timer, self.ETtimer]
-        # for t in timers:
-        #     print("stop")
-        #     t.stop()
-        #     t.deleteLater()
+        timers = [self.update_timer, self.pull_timer, self.ETtimer, self.signalTimer]
+        for t in timers:
+            t.stop()
+            t.deleteLater()
 
-
-        # create new sample folder
-        link = self.currentSub + '/'
-        if os.path.isdir(link):
-            onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
-        else:
-            print("Error in link Sub")
-        onlydir.sort(key=os.path.getctime)
-        newID = len(onlydir) + 1
-        newDir = link + "sample" + str(newID)
-        os.mkdir(newDir)
-
-        self.CAMth.updateSavingDir(newDir + '/')
+        newDir = self.newDir
         self.CAMth.stopRecord()
 
         # save file
@@ -570,58 +563,47 @@ class Ui_MainWindow(QMainWindow):
         self.createSamdialog.close()
         self.updateSam(page=-1)
 
-    def turnBtnSam(self):
-        if self.createSamdialog.turnOnBtn:
-            self.createSamdialog.turnOnBtn = False
-            self.createSamdialog.ui.rcdBtn.hide()
-            self.createSamdialog.ui.turnOnOffBtn.setText("Bật")
-            l2 = [self.createSamdialog.ui.SignalET, self.createSamdialog.ui.SignalEEG,
-                  self.createSamdialog.ui.SignalCAM1, self.createSamdialog.ui.SignalCAM2]
-            for x in l2:
-                x.setChecked(True)
-            self.signalTimer.stop()
-            self.signalTimer.deleteLater()
-        else:
-            self.createSamdialog.turnOnBtn = True
-            self.createSamdialog.ui.turnOnOffBtn.setText("Tắt")
-            self.createSamdialog.ui.rcdBtn.show()
+    def ET_update(self):
+        self.ETPlot.update()
+        ETdata = self.ETPlot.listDataET[-1]
+        s1, s2, s3 = ETdata[0].split(":")
+        x, y, _ = s1[1:-1].split(",")
 
-            self.signalTimer = QtCore.QTimer()
-            self.signalTimer.setInterval(100)
-            self.signalTimer.timeout.connect(self.changeSignal)
-            self.signalTimer.start()
-
-            self.EEGPlot = EEGReceive_Plot("new")
-            self.createSamdialog.ui.widEEG.addWidget(self.EEGPlot.pw)
-
-            self.ETPlot = ETReceive("new")
-
-            self.CAMth = VideoRecorder()
-            self.CAMth.setLabelImage([self.createSamdialog.ui.CAM1, self.createSamdialog.ui.CAM2])
+        self.createSamdialog.ui.position.setText(str(x) + " " + str(y))
+        self.createSamdialog.ui.character.setText(str(s2))
+        self.createSamdialog.ui.widScreen.setText(str(s3))
 
     def changeSignal(self):
+        counter = 0
         cam1 = True
         cam2 = True
+        # print(self.CAMth.numberDevices)
         if self.CAMth.numberDevices < 2:
             cam2 = False
         if self.CAMth.numberDevices < 1:
             cam1 = False
-        l1 = [self.ETPlot.signalStt, self.EEGPlot.signalStt, cam1, cam2]
+        l1 = [self.ETPlot.signalStt(), self.EEGPlot.signalStt(), cam1, cam2]
         l2 = [self.createSamdialog.ui.SignalET, self.createSamdialog.ui.SignalEEG,
               self.createSamdialog.ui.SignalCAM1, self.createSamdialog.ui.SignalCAM2]
-
+        # print(l1)
+        for x in l1:
+            if x:
+                counter += 1
+        if counter >= 2:
+            self.createSamdialog.ui.rcdBtn.show()
+        else:
+            self.createSamdialog.ui.rcdBtn.hide()
         for x, y in zip(l1, l2):
             y.setChecked(not x)
 
 
 def readStorageData(link="./DataVIN/"):
+    onlydir = []
     if os.path.isdir(link):
         onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + d)]
+        onlydir.sort(key=os.path.getctime)
     else:
         print("imported link is not exist")
-        # print("DataVIN folder is created, run again!")
-        # os.mkdir(link)
-    onlydir.sort(key=os.path.getctime)
     return onlydir
 
 

@@ -12,6 +12,7 @@ import numpy as np
 import qimage2ndarray
 import time
 
+
 class VideoRecorder:
     class myThread (threading.Thread):
         def __init__(self, threadID, name, func):
@@ -41,6 +42,10 @@ class VideoRecorder:
         self.threadID = 1
         self.savingDir = ""
         self.record = False
+        self.createMeta = [False] * 10
+        self.outlet = {}
+        self.filename = {}
+        self.writer = {}
         self.listCapDev()
 
     def cleanRecorder(self):
@@ -79,6 +84,7 @@ class VideoRecorder:
 
     def capture(self, deviceID, record=False):
 
+        iDID = int(deviceID)
         # print(" capture hihi deviceID: " + str(deviceID))
         frameCounter = 1
         cap_i = cv2.VideoCapture(int(deviceID), cv2.CAP_DSHOW)
@@ -91,32 +97,34 @@ class VideoRecorder:
 
         # winName = 'Camera ' + str(deviceID)
         # cv2.namedWindow(winName)
+        fps = cap_i.get(cv2.CAP_PROP_FPS)
+        width = cap_i.get(cv2.CAP_PROP_FRAME_WIDTH)
+        height = cap_i.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        fourcc = cv2.VideoWriter_fourcc(*'MPEG')
+        self.outlet[iDID] = self.createOutlet(iDID)
 
         try:
             ret = True
             # print("Exit", self.exitFlag)
             while self.exitFlag != 1 and ret:
+
+                if self.record and not self.createMeta[iDID]:
+                    self.filename[iDID] = os.path.join(self.savingDir, 'Camera' + str(deviceID) + '.avi')
+                    self.writer[iDID] = cv2.VideoWriter(self.filename[iDID], fourcc, fps, (int(width), int(height)))
+                    self.createMeta[iDID] = True
+                    print("INIT")
                 # win_i = winName
                 if True:  # cv2.getWindowProperty(win_i, cv2.WND_PROP_VISIBLE):
                     ret, frame = cap_i.read()
-                    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    image = qimage2ndarray.array2qimage(frame)
+                    self.outlet[iDID].push_sample([frameCounter])
 
-                    self.updateInThread(deviceID, image)
-
-                    # cv2.imshow(win_i, frame)
-                    if self.record:
-                        fps = cap_i.get(cv2.CAP_PROP_FPS)
-                        width = cap_i.get(cv2.CAP_PROP_FRAME_WIDTH)
-                        height = cap_i.get(cv2.CAP_PROP_FRAME_HEIGHT)
-                        filename = os.path.join(self.savingDir, 'Camera' + str(deviceID) + '.avi')
-                        fourcc = cv2.VideoWriter_fourcc(*'MPEG')
-                        writer_i = cv2.VideoWriter(filename, fourcc, fps, (int(width), int(height)))
-                        outlet = self.createOutlet(int(deviceID), filename)
-                        outlet.push_sample([frameCounter])
-                        if int(deviceID) == 0:
-                            print(frameCounter)
-                        writer_i.write(frame)
+                    if not self.record:
+                        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                        image = qimage2ndarray.array2qimage(frame)
+                        self.updateInThread(deviceID, image)
+                    elif self.createMeta[iDID]:
+                        # print(self.outlet)
+                        self.writer[iDID].write(frame)
                 else:
                     ret = False
 
@@ -127,25 +135,21 @@ class VideoRecorder:
             cap_i.release()
             cv2.destroyAllWindows()
 
-    def createOutlet(self, index, filename):
-        streamName = 'FrameMarker' + str(index + 1)
+    def createOutlet(self, index):
+        streamName = 'Camera' + str(index)
         info = StreamInfo(name=streamName, type='videostream', channel_format='float32',
                           channel_count=1, source_id=str(index))
-        if sys.platform == "linux":
-            videoFile = os.path.splitext(filename)[0] + '.ogv'
-        else:
-            videoFile = os.path.splitext(filename)[0] + '.avi'
-        info.desc().append_child_value("videoFile", videoFile)
+        # if sys.platform == "linux":
+        #     videoFile = os.path.splitext(filename)[0] + '.ogv'
+        # else:
+        #     videoFile = os.path.splitext(filename)[0] + '.avi'
+        # info.desc().append_child_value("videoFile", videoFile)
         return StreamOutlet(info)
 
     def beginRecord(self):
         self.cleanRecorder()
-        # Create new threads
-        print(self.numberDevices)
         for tName in range(self.numberDevices):
-            # print("vong for ko co van de")
             thread = self.myThread(self.threadID, str(tName), self.capture)
-            # print("starting", thread)
             thread.start()
             self.threads.append(thread)
             self.threadID += 1
@@ -165,7 +169,6 @@ class VideoRecorder:
         self.listLabel = listLabel
 
     def updateInThread(self, deviceID, frame):
-        print("print thread update device: ", deviceID)
         # self.listLabel[int(deviceID)].setText(str(deviceID))
         # image = QtGui.QImage(bytes(frame), 50, 50, 3 * 50, QtGui.QImage.Format_RGB888)
         # pixmap = QtGui.QPixmap(image)

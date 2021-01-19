@@ -297,6 +297,7 @@ class Sample_Dialog(object):
         self.createEvent()
 
     def createEvent(self):
+        self.turnOnOffBtn.hide()
         self.infoWidget.setLayout(self.verticalLayout)
         self.visualDatWidget.setLayout(self.layoutVisual)
         self.widSignal.setLayout(self.gLayoutSignal)
