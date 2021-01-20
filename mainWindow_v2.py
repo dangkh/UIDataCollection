@@ -21,6 +21,8 @@ from ReceiveAndPlot import *
 from multi import *
 import csv
 
+from detailSamDialog import *
+
 
 class Ui_MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -369,6 +371,7 @@ class Ui_MainWindow(QMainWindow):
         showDirSam = self.listDirSam[
             self.currentSamPage * self.numItem:self.currentSamPage * self.numItem + self.numItem]
         # print(showDirSam)
+        self.listSam = []
         for x in range(4):
             for y in range(4):
                 newSam = QtWidgets.QWidget()
@@ -396,6 +399,15 @@ class Ui_MainWindow(QMainWindow):
                 samInfo.setStretch(0, 4)
                 samInfo.setStretch(1, 1)
                 self.gridLayout_sample.addWidget(newSam, x, y)
+                samDict = {
+                    'subject': newSam,
+                    'Info': samInfo,
+                    'Btn': samBtn,
+                    'Label': samLabel,
+                    'pos': [x, y],
+                    'dir': ""
+                }
+                self.listSam.append(samDict)
                 if counter >= len(showDirSam):
                     newSam.setEnabled(False)
                     samBtn.setIcon(icon2)
@@ -403,7 +415,11 @@ class Ui_MainWindow(QMainWindow):
                     samLabel.setText(str(showDirSam[counter]))
                     samBtn.setIcon(icon1)
                     samBtn.setIconSize(QtCore.QSize(50, 50))
+                    self.listSam[counter]["dir"] = showDirSam[counter]
                 counter += 1
+
+        for x in self.listSam:
+            x['Btn'].clicked.connect(self.visualSamdetail(x))
 
     def updateSamVisual(self, arg):
         def wrap():
@@ -418,18 +434,26 @@ class Ui_MainWindow(QMainWindow):
             self.newSam.show()
         return wrap
 
-    def viewSam(self, arg):
+    def chooseViewSam(self, error, link):
+        buttonReply = QMessageBox.question(self, 'Visual Sample', "Do you want view detail?",
+                                           QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        if buttonReply == QMessageBox.Yes:
+            print('Yes clicked.')
+            self.visualSam(link)
+        else:
+            print('No clicked.')
+
+    def visualSam(self, link):
+        print(link)
+        self.samDetail = createViewSam(self)
+        self.samDetail.setInfo(link)
+        self.samDetail.ui.exec_()
+
+    def visualSamdetail(self, arg):
         # TODO
         def wrap():
             link = arg['dir']
-            self.currentSub = link
-            if os.path.isdir(link):
-                onlydir = [link + "/" + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
-            else:
-                print("Error in link Sub")
-            onlydir.sort(key=os.path.getctime)
-            self.updateSam()
-            self.newSam.show()
+            self.chooseViewSam("Do you want to view Sample detail at ", link)
         return wrap
 
     def showErrorPopup(self, error):
@@ -664,6 +688,61 @@ class createSub(QDialog):
         self.ui.setupUi(self)
 
 
+class createViewSam(QDialog):
+    """docstring for createViewSam"""
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.ui = detailSam_Dialog()
+        self.ui.setupUi()
+
+    def setInfo(self, link):
+        self.ui.label_2.setText("Bản ghi: " + str(link))
+        listVisual = ["ET", "EEG", "CAM", "Info"]
+        # listVisual TODO
+        counter = 0
+        for idx, x in enumerate(listVisual):
+
+            newSubject = QtWidgets.QWidget()
+            newSubject.setObjectName("newSubject"+ str(x))
+            viewInfo = QtWidgets.QVBoxLayout(newSubject)
+            viewInfo.setContentsMargins(0, 0, 0, 0)
+            viewInfo.setObjectName("subInfo" + str(x))
+            viewBtn = QtWidgets.QPushButton(newSubject)
+            sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+            sizePolicy.setHorizontalStretch(0)
+            sizePolicy.setVerticalStretch(0)
+            sizePolicy.setHeightForWidth(viewBtn.sizePolicy().hasHeightForWidth())
+            viewBtn.setSizePolicy(sizePolicy)
+            viewBtn.setStyleSheet("background-color: rgba(255,255,255,0);border: 0px;")
+            viewBtn.setText("")
+            icon = QtGui.QIcon()
+            icon.addPixmap(QtGui.QPixmap("file.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            viewBtn.setIcon(icon)
+            viewBtn.setIconSize(QtCore.QSize(50, 50))
+            viewBtn.setObjectName("subBtn" + str(x))
+            viewInfo.addWidget(viewBtn)
+            viewLabel = QtWidgets.QLabel(newSubject)
+            viewLabel.setObjectName("subLabel" + str(x))
+            viewLabel.setText("")
+            viewInfo.addWidget(viewLabel, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+            viewInfo.setStretch(0, 4)
+            viewInfo.setStretch(1, 1)
+            # subDict = {
+            #     'subject': newSubject,
+            #     'Info': subInfo,
+            #     'Btn': subBtn,
+            #     'Label': subLabel,
+            #     'pos': [x, y],
+            #     'dir': ""
+            # }
+            # self.listSub.append(subDict)
+            self.ui.gridLayout_sample.addWidget(newSubject, 0, idx)
+            viewLabel.setText(str(x))
+            # self.listSub[counter]['dir'] = showDir[counter]
+            counter += 1
+
+
 class createSam(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -703,9 +782,6 @@ class createSam(QDialog):
         self.ui.LocateEdit.setText(data['LocateEdit'])
         self.ui.RecPlanEdit.setValue(data['RecPlanEdit'])
         self.ui.sentenceIdEdit.setValue(data['sentenceIdEdit'])
-
-    def quitTimer(self):
-        print("hihi")
 
     def closeEvent(self, event):
         # event.accept()
