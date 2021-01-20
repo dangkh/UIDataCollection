@@ -310,6 +310,7 @@ class Ui_MainWindow(QMainWindow):
         self.createSamdialog.ui.fetchInfoBtn.clicked.connect(lambda: self.updateInfoSample(reuse=True))
         self.createSamdialog.ui.resetBtn.clicked.connect(self.updateInfoSample)
         self.createSamdialog.ui.rcdBtn.clicked.connect(self.record_saveData)
+        self.createSamdialog.ui.turnOnOffBtn.clicked.connect(self.samForceQuit)
 
         self.signalTimer = QtCore.QTimer()
         self.signalTimer.setInterval(100)
@@ -342,7 +343,7 @@ class Ui_MainWindow(QMainWindow):
         self.CAMth.setLabelImage([self.createSamdialog.ui.CAM1, self.createSamdialog.ui.CAM2])
         self.CAMth.beginRecord()
 
-        self.createSamdialog.ui.show()
+        self.createSamdialog.ui.exec_()
 
     def updateSam(self, listDir=0, page=0):
         self.label_2.setText("Danh sách bản ghi" + str(self.currentSub))
@@ -499,6 +500,14 @@ class Ui_MainWindow(QMainWindow):
                 data = json.load(json_file)
             self.createSamdialog.setRecodData(data)
 
+    def samForceQuit(self):
+        timers = [self.update_timer, self.pull_timer, self.signalTimer]
+        for t in timers:
+            t.stop()
+            t.deleteLater()
+        self.CAMth.stopRecord()
+        self.createSamdialog.ui.forceQuit()
+
     def record_saveData(self):
         if self.record_save:
             self.createRecord()
@@ -507,36 +516,53 @@ class Ui_MainWindow(QMainWindow):
 
     def createRecord(self):
         print("Enter Record")
-        self.record_save = False
-        # create new sample folder
-        link = self.currentSub + '/'
-        if os.path.isdir(link):
-            onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
+
+        RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
+        LocateEdit = self.createSamdialog.ui.LocateEdit.text()
+        RecPlanEdit = self.createSamdialog.ui.RecPlanEdit.value()
+        sentenceIdEdit = self.createSamdialog.ui.sentenceIdEdit.value()
+        missingValue = False
+        if RecorderEdit == '' or LocateEdit == '':
+            missingValue = True
+        if RecPlanEdit == 0 or sentenceIdEdit == 0:
+            missingValue = True
+
+        if not missingValue:
+            self.record_save = False
+            self.createSamdialog.ui.recordingStt = True
+            # create new sample folder
+            link = self.currentSub + '/'
+            if os.path.isdir(link):
+                onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
+            else:
+                print("Error in link Sub")
+            onlydir.sort(key=os.path.getctime)
+            newID = len(onlydir) + 1
+            newDir = link + "sample" + str(newID)
+            os.mkdir(newDir)
+            self.newDir = newDir
+            self.CAMth.updateSavingDir(newDir + '/')
+            self.ETPlot.updateSaving()
+
+            self.EEGRcv = EEGReceive("new")
+            self.EEGtimer = QtCore.QTimer()
+            self.EEGtimer.setInterval(0)
+            self.EEGtimer.timeout.connect(self.EEGRcv.update)
+            self.EEGtimer.start()
+
+            self.createSamdialog.ui.rcdBtn.setText("Save")
+            timers = [self.update_timer, self.pull_timer]
+            for t in timers:
+                t.stop()
+                t.deleteLater()
         else:
-            print("Error in link Sub")
-        onlydir.sort(key=os.path.getctime)
-        newID = len(onlydir) + 1
-        newDir = link + "sample" + str(newID)
-        os.mkdir(newDir)
-        self.newDir = newDir
-        self.CAMth.updateSavingDir(newDir + '/')
-        self.ETPlot.updateSaving()
-
-        self.EEGRcv = EEGReceive("new")
-        self.EEGtimer = QtCore.QTimer()
-        self.EEGtimer.setInterval(0)
-        self.EEGtimer.timeout.connect(self.EEGRcv.update)
-        self.EEGtimer.start()
-
-        self.createSamdialog.ui.rcdBtn.setText("Save")
+            self.showErrorPopup("Please complete fully the form")
 
     def testEnter(self):
         print("pass")
 
     def saveRecord(self):
         print("Enter Save")
-        self.record_save = True
-        self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
 
         RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
@@ -548,15 +574,15 @@ class Ui_MainWindow(QMainWindow):
             'RecPlanEdit': RecPlanEdit,
             'sentenceIdEdit': sentenceIdEdit
         }
-        timers = [self.update_timer, self.pull_timer, self.ETtimer, self.signalTimer, self.EEGtimer]
+        self.record_save = True
+        self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
+        timers = [self.ETtimer, self.signalTimer, self.EEGtimer]
         for t in timers:
             t.stop()
             t.deleteLater()
-
         newDir = self.newDir
         self.CAMth.stopRecord()
 
-        # save file
         fileName = newDir + '/' + 'plan.json'
         with open(fileName, 'w') as outfile:
             json.dump(newData, outfile)
@@ -567,6 +593,7 @@ class Ui_MainWindow(QMainWindow):
             fieldnames = ['Data', 'TimeStamp']
             et_writer = csv.writer(ETfile)
             et_writer.writerow(fieldnames)
+            print(len(list_ET[0]))
             for idx in range(len(list_ET[0])):
                 et_writer.writerow([list_ET[0][idx], list_ET[1][idx]])
 
@@ -580,6 +607,7 @@ class Ui_MainWindow(QMainWindow):
             for idx in range(len(listEEG[0])):
                 eeg_writer.writerow(listEEG[0][idx])
 
+        self.createSamdialog.ui.recordingStt = False
         self.createSamdialog.close()
         self.updateSam(page=-1)
 
@@ -598,10 +626,10 @@ class Ui_MainWindow(QMainWindow):
         cam1 = True
         cam2 = True
         # print(self.CAMth.numberDevices)
-        # if self.CAMth.numberDevices < 2:
-        #     cam2 = False
-        # if self.CAMth.numberDevices < 1:
-        #     cam1 = False
+        if self.CAMth.numberDevices < 2:
+            cam2 = False
+        if self.CAMth.numberDevices < 1:
+            cam1 = False
         l1 = [self.ETPlot.signalStt(), self.EEGPlot.signalStt(), cam1, cam2]
         l2 = [self.createSamdialog.ui.SignalET, self.createSamdialog.ui.SignalEEG,
               self.createSamdialog.ui.SignalCAM1, self.createSamdialog.ui.SignalCAM2]
@@ -609,7 +637,7 @@ class Ui_MainWindow(QMainWindow):
         for x in l1:
             if x:
                 counter += 1
-        if counter >= 2:
+        if counter >= 0:
             self.createSamdialog.ui.rcdBtn.show()
         else:
             self.createSamdialog.ui.rcdBtn.hide()
@@ -624,6 +652,8 @@ def readStorageData(link="./DataVIN/"):
         onlydir.sort(key=os.path.getctime)
     else:
         print("imported link is not exist")
+        print("DataVIN folder is created, run again!")
+        os.mkdir(link)
     return onlydir
 
 
@@ -673,6 +703,14 @@ class createSam(QDialog):
         self.ui.LocateEdit.setText(data['LocateEdit'])
         self.ui.RecPlanEdit.setValue(data['RecPlanEdit'])
         self.ui.sentenceIdEdit.setValue(data['sentenceIdEdit'])
+
+    def quitTimer(self):
+        print("hihi")
+
+    def closeEvent(self, event):
+        # event.accept()
+        self.ui.closeEvent(event)
+        # QApplication.quit()
 
 
 if __name__ == "__main__":
