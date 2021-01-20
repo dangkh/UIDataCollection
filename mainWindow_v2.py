@@ -445,9 +445,12 @@ class Ui_MainWindow(QMainWindow):
 
     def visualSam(self, link):
         print(link)
-        self.samDetail = createViewSam(self)
-        self.samDetail.setInfo(link)
-        self.samDetail.ui.exec_()
+        import os
+        path = os.path.realpath(link)
+        os.startfile(path)
+        # self.samDetail = createViewSam(self)
+        # self.samDetail.setInfo(link)
+        # self.samDetail.ui.exec_()
 
     def visualSamdetail(self, arg):
         # TODO
