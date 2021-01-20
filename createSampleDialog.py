@@ -339,8 +339,15 @@ class Sample_Dialog(QDialog):
             event.accept()
             self.close()
         else:
+            self.showErrorPopup("Hãy ấn Tắt nếu muốn đóng cửa sổ này")
             event.ignore()
+
         # super(Sample_Dialog, self).quitTimer()
+
+    def showErrorPopup(self, error):
+        msg = QtWidgets.QMessageBox()
+        msg.setText(str(error))
+        msg.exec_()
 
     def forceQuit(self):
         self.recordingStt = False

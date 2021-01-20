@@ -70,7 +70,7 @@ class VideoRecorder:
     def listCapDev(self):
         k = 0
         while True:
-            cap = cv2.VideoCapture(k)
+            cap = cv2.VideoCapture(k, cv2.CAP_DSHOW)
             if not cap.isOpened():
                 print("device " + str(k) + " is not opended.")
                 break
@@ -89,7 +89,7 @@ class VideoRecorder:
         iDID = int(deviceID)
         # print(" capture hihi deviceID: " + str(deviceID))
         frameCounter = 1
-        cap_i = cv2.VideoCapture(int(deviceID))
+        cap_i = cv2.VideoCapture(int(deviceID), cv2.CAP_DSHOW)
         if not cap_i.isOpened():
             print("capture deviceID: " + str(deviceID) + " is not opended.")
             return
@@ -100,6 +100,7 @@ class VideoRecorder:
         # winName = 'Camera ' + str(deviceID)
         # cv2.namedWindow(winName)
         fps = cap_i.get(cv2.CAP_PROP_FPS)
+        print("FPSSSSSSSSSSSSSSSSSSSS: ", fps)
         width = cap_i.get(cv2.CAP_PROP_FRAME_WIDTH)
         height = cap_i.get(cv2.CAP_PROP_FRAME_HEIGHT)
         fourcc = cv2.VideoWriter_fourcc(*'MPEG')
@@ -112,7 +113,7 @@ class VideoRecorder:
 
                 if self.record and not self.createMeta[iDID]:
                     self.filename[iDID] = os.path.join(self.savingDir, 'Camera' + str(deviceID) + '.avi')
-                    self.writer[iDID] = cv2.VideoWriter(self.filename[iDID], fourcc, fps, (int(width), int(height)))
+                    self.writer[iDID] = cv2.VideoWriter(self.filename[iDID], fourcc, int(fps), (int(width), int(height)))
                     self.createMeta[iDID] = True
                     print("INIT")
                 # win_i = winName
@@ -134,6 +135,7 @@ class VideoRecorder:
                 # if cv2.waitKey(1) & 0xFF == ord('q'):
                 #     self.exitFlag = 1
         finally:
+            self.writer[iDID].release()
             cap_i.release()
             cv2.destroyAllWindows()
 
