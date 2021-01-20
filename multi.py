@@ -70,7 +70,7 @@ class VideoRecorder:
     def listCapDev(self):
         k = 0
         while True:
-            cap = cv2.VideoCapture(k, cv2.CAP_DSHOW)
+            cap = cv2.VideoCapture(k)
             if not cap.isOpened():
                 print("device " + str(k) + " is not opended.")
                 break
@@ -89,7 +89,7 @@ class VideoRecorder:
         iDID = int(deviceID)
         # print(" capture hihi deviceID: " + str(deviceID))
         frameCounter = 1
-        cap_i = cv2.VideoCapture(int(deviceID), cv2.CAP_DSHOW)
+        cap_i = cv2.VideoCapture(int(deviceID))
         if not cap_i.isOpened():
             print("capture deviceID: " + str(deviceID) + " is not opended.")
             return
