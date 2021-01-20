@@ -310,6 +310,7 @@ class Ui_MainWindow(QMainWindow):
         self.createSamdialog.ui.fetchInfoBtn.clicked.connect(lambda: self.updateInfoSample(reuse=True))
         self.createSamdialog.ui.resetBtn.clicked.connect(self.updateInfoSample)
         self.createSamdialog.ui.rcdBtn.clicked.connect(self.record_saveData)
+        self.createSamdialog.ui.turnOnOffBtn.clicked.connect(self.samForceQuit)
 
         self.signalTimer = QtCore.QTimer()
         self.signalTimer.setInterval(100)
@@ -499,6 +500,14 @@ class Ui_MainWindow(QMainWindow):
                 data = json.load(json_file)
             self.createSamdialog.setRecodData(data)
 
+    def samForceQuit(self):
+        timers = [self.update_timer, self.pull_timer, self.signalTimer]
+        for t in timers:
+            t.stop()
+            t.deleteLater()
+        self.CAMth.stopRecord()
+        self.createSamdialog.ui.forceQuit()
+
     def record_saveData(self):
         if self.record_save:
             self.createRecord()
@@ -512,13 +521,6 @@ class Ui_MainWindow(QMainWindow):
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
         RecPlanEdit = self.createSamdialog.ui.RecPlanEdit.value()
         sentenceIdEdit = self.createSamdialog.ui.sentenceIdEdit.value()
-        newData = {
-            'RecorderEdit': RecorderEdit,
-            'LocateEdit': LocateEdit,
-            'RecPlanEdit': RecPlanEdit,
-            'sentenceIdEdit': sentenceIdEdit
-        }
-
         missingValue = False
         if RecorderEdit == '' or LocateEdit == '':
             missingValue = True
@@ -585,29 +587,29 @@ class Ui_MainWindow(QMainWindow):
         with open(fileName, 'w') as outfile:
             json.dump(newData, outfile)
 
-        # list_ET = self.ETPlot.getSavingData()
-        # fileNameET = newDir + '/' + 'ET.csv'
-        # with open(fileNameET, mode='w', newline='', encoding='utf-8') as ETfile:
-        #     fieldnames = ['Data', 'TimeStamp']
-        #     et_writer = csv.writer(ETfile)
-        #     et_writer.writerow(fieldnames)
-        #     print(len(list_ET[0]))
-        #     for idx in range(len(list_ET[0])):
-        #         et_writer.writerow([list_ET[0][idx], list_ET[1][idx]])
+        list_ET = self.ETPlot.getSavingData()
+        fileNameET = newDir + '/' + 'ET.csv'
+        with open(fileNameET, mode='w', newline='', encoding='utf-8') as ETfile:
+            fieldnames = ['Data', 'TimeStamp']
+            et_writer = csv.writer(ETfile)
+            et_writer.writerow(fieldnames)
+            print(len(list_ET[0]))
+            for idx in range(len(list_ET[0])):
+                et_writer.writerow([list_ET[0][idx], list_ET[1][idx]])
 
-        # fileNameEEG = newDir + '/' + 'EEG.csv'
-        # listEEG = self.EEGRcv.getSavingData()
-        # headFiles = self.EEGRcv.getInfo()
+        fileNameEEG = newDir + '/' + 'EEG.csv'
+        listEEG = self.EEGRcv.getSavingData()
+        headFiles = self.EEGRcv.getInfo()
 
-        # with open(fileNameEEG, mode='w', newline='') as EEGfile:
-        #     eeg_writer = csv.writer(EEGfile)
-        #     eeg_writer.writerow(headFiles)
-        #     for idx in range(len(listEEG[0])):
-        #         eeg_writer.writerow(listEEG[0][idx])
+        with open(fileNameEEG, mode='w', newline='') as EEGfile:
+            eeg_writer = csv.writer(EEGfile)
+            eeg_writer.writerow(headFiles)
+            for idx in range(len(listEEG[0])):
+                eeg_writer.writerow(listEEG[0][idx])
+
         self.createSamdialog.ui.recordingStt = False
-        self.createSamdialog.closeEvent()
+        self.createSamdialog.close()
         self.updateSam(page=-1)
-        
 
     def ET_update(self):
         self.ETPlot.update()

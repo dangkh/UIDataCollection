@@ -197,6 +197,7 @@ class ETReceive(object):
             sample, timestamp = self.inlet.pull_sample()
         else:
             sample = ['(0, 0, 0) : NONE : NONE']
+            timestamp = 0
         # print(sample, timestamp)
         # stop
         self.listDataET.append(sample)

@@ -78,6 +78,8 @@ class VideoRecorder:
                 print("device " + str(k) + " is OPENDED.")
                 cap.release()
             k += 1
+            if k >= 2:
+                break
 
         # print("total cam: ", k)
         self.numberDevices = k

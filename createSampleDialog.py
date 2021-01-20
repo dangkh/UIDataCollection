@@ -303,8 +303,7 @@ class Sample_Dialog(QDialog):
         self.visualDatWidget.setLayout(self.layoutVisual)
         self.widSignal.setLayout(self.gLayoutSignal)
         self.setLayout(self.horizontalLayout)
-        self.turnOnOffBtn.hide()
-        self.recordingStt = False
+        self.recordingStt = True
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
@@ -331,16 +330,21 @@ class Sample_Dialog(QDialog):
         self.label_EEG.setText(_translate("Dialog", "EEG"))
         self.position.setText(_translate("Dialog", "NONE"))
         self.character.setText(_translate("Dialog", "NONE"))
-        self.turnOnOffBtn.setText(_translate("Dialog", "Bật"))
+        self.turnOnOffBtn.setText(_translate("Dialog", "Tắt"))
 
     def closeEvent(self, event):
         print("recordingStt: ", self.recordingStt)
         if not self.recordingStt:
             print("QUIT")
             event.accept()
+            self.close()
         else:
             event.ignore()
         # super(Sample_Dialog, self).quitTimer()
+
+    def forceQuit(self):
+        self.recordingStt = False
+        self.close()
 
 
 class textSpinBox(QSpinBox):
