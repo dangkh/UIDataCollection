@@ -303,6 +303,8 @@ class Sample_Dialog(QDialog):
         self.visualDatWidget.setLayout(self.layoutVisual)
         self.widSignal.setLayout(self.gLayoutSignal)
         self.setLayout(self.horizontalLayout)
+        self.turnOnOffBtn.hide()
+        self.recordingStt = False
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
@@ -332,19 +334,13 @@ class Sample_Dialog(QDialog):
         self.turnOnOffBtn.setText(_translate("Dialog", "Bật"))
 
     def closeEvent(self, event):
-        print("close ?")
-        close = QMessageBox()
-        close.setText("You sure?")
-        close.setStandardButtons(QMessageBox.Yes | QMessageBox.Cancel)
-        close = close.exec()
-
-        if close == QMessageBox.Yes:
+        print("recordingStt: ", self.recordingStt)
+        if not self.recordingStt:
+            print("QUIT")
             event.accept()
         else:
             event.ignore()
-
-    def close(self):
-        print("close!!!")
+        # super(Sample_Dialog, self).quitTimer()
 
 
 class textSpinBox(QSpinBox):
