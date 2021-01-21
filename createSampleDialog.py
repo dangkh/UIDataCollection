@@ -136,6 +136,16 @@ class Sample_Dialog(QDialog):
         self.layoutVisual.setObjectName("layoutVisual")
         self.hLayoutVisual_RcdBtn = QtWidgets.QHBoxLayout()
         self.hLayoutVisual_RcdBtn.setObjectName("hLayoutVisual_RcdBtn")
+        
+        self.timerLabel = QtWidgets.QLabel(self.gridLayoutWidget_2)
+        self.timerLabel.setObjectName("timerLabel")
+        self.hLayoutVisual_RcdBtn.addWidget(self.timerLabel)
+        font = QtGui.QFont()
+        font.setBold(True)
+        font.setWeight(75)
+        self.timerLabel.setFont(font)
+        self.timerLabel.setText("Timer: 0")
+        
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.hLayoutVisual_RcdBtn.addItem(spacerItem)
         self.turnOnOffBtn = QtWidgets.QPushButton(self.gridLayoutWidget_2)

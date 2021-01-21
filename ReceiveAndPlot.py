@@ -229,18 +229,26 @@ class EEGReceive(object):
         self.listSaving = []
         self.lData = []
         self.lTimeStamp = []
+        self.rcdTime = 0
 
     def update(self):
         try:
+            lastTime = 0
+            if len(self.lTimeStamp) > 0:
+                lastTime = self.lTimeStamp[-1]
             sample, timestamp = self.inlet.pull_sample()
             self.lData.append(sample)
             self.lTimeStamp.append(timestamp)
+            self.rcdTime = timestamp - lastTime
         except Exception as e:
             print(e, "Error in inlet EEG Rec")
         # print("update EEG")
 
     def getSavingData(self):
         return [self.lData, self.lTimeStamp]
+
+    def getRcdTime(self):
+        return self.rcdTime
 
     def getInfo(self):
         import xml.etree.ElementTree as ET
