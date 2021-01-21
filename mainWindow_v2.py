@@ -50,8 +50,13 @@ class Ui_MainWindow(QMainWindow):
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label = QtWidgets.QLabel(self.verticalLayoutWidget)
+        font = QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label.setFont(font)
         self.label.setObjectName("label")
-        self.verticalLayout.addWidget(self.label)
+        self.verticalLayout.addWidget(self.label, 0, QtCore.Qt.AlignHCenter)
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
         self.verticalLayout.addLayout(self.gridLayout)
@@ -83,7 +88,12 @@ class Ui_MainWindow(QMainWindow):
         self.verticalSample.setObjectName("verticalSample")
         self.label_2 = QtWidgets.QLabel(self.verticalLayoutWidget_3)
         self.label_2.setObjectName("label_2")
-        self.verticalSample.addWidget(self.label_2)
+        font = QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_2.setFont(font)
+        self.verticalSample.addWidget(self.label_2, 0, QtCore.Qt.AlignHCenter)
         self.gridLayout_sample = QtWidgets.QGridLayout()
         self.gridLayout_sample.setObjectName("gridLayout_sample")
         self.verticalSample.addLayout(self.gridLayout_sample)
@@ -100,10 +110,10 @@ class Ui_MainWindow(QMainWindow):
         self.newSam = QtWidgets.QPushButton(self.verticalLayoutWidget_3)
         self.newSam.setObjectName("newSam")
 
-        addIcon = QtGui.QIcon()
-        addIcon.addPixmap(QtGui.QPixmap("addIcon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.newSam.setIcon(addIcon)
-        self.newSam.setIconSize(QtCore.QSize(50, 50))
+        # addIcon = QtGui.QIcon()
+        # addIcon.addPixmap(QtGui.QPixmap("addIcon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        # self.newSam.setIcon(addIcon)
+        # self.newSam.setIconSize(QtCore.QSize(50, 50))
 
         self.horizontalLayout_sample.addWidget(self.newSam)
         self.verticalSample.addLayout(self.horizontalLayout_sample)
@@ -239,7 +249,8 @@ class Ui_MainWindow(QMainWindow):
                 if counter >= len(showDir):
                     newSubject.setEnabled(False)
                 else:
-                    subLabel.setText(str(showDir[counter]))
+                    nameSubject = str(showDir[counter]).split("/")[-1]
+                    subLabel.setText(nameSubject)
                     self.listSub[counter]['dir'] = showDir[counter]
                 counter += 1
 
@@ -296,7 +307,7 @@ class Ui_MainWindow(QMainWindow):
                 'patientDesc': patientDesc,
                 'patientStt': patientStt,
             }
-            newlink = './dataVIN/' + "_" + str(name) + "_" + str(recordID)
+            newlink = './dataVIN/' + str(name) + "_" + str(recordID)
             os.mkdir(newlink)
             fileName = newlink + '/' + 'info.json'
             with open(fileName, 'w') as outfile:
@@ -348,7 +359,8 @@ class Ui_MainWindow(QMainWindow):
         self.createSamdialog.ui.exec_()
 
     def updateSam(self, listDir=0, page=0):
-        self.label_2.setText("Danh sách bản ghi" + str(self.currentSub))
+        nameSubject = str(self.currentSub).split("/")[-1]
+        self.label_2.setText("Danh sách bản ghi: " + nameSubject)
         if listDir == -1:
             self.listDirSam = []
         else:
@@ -412,7 +424,9 @@ class Ui_MainWindow(QMainWindow):
                     newSam.setEnabled(False)
                     samBtn.setIcon(icon2)
                 else:
-                    samLabel.setText(str(showDirSam[counter]))
+                    subjectName = str(showDirSam[counter]).split("/")[-1]
+
+                    samLabel.setText(subjectName)
                     samBtn.setIcon(icon1)
                     samBtn.setIconSize(QtCore.QSize(50, 50))
                     self.listSam[counter]["dir"] = showDirSam[counter]
@@ -448,9 +462,6 @@ class Ui_MainWindow(QMainWindow):
         import os
         path = os.path.realpath(link)
         os.startfile(path)
-        # self.samDetail = createViewSam(self)
-        # self.samDetail.setInfo(link)
-        # self.samDetail.ui.exec_()
 
     def visualSamdetail(self, arg):
         # TODO
@@ -574,7 +585,7 @@ class Ui_MainWindow(QMainWindow):
             self.EEGRcv = EEGReceive("new")
             self.EEGtimer = QtCore.QTimer()
             self.EEGtimer.setInterval(0)
-            self.EEGtimer.timeout.connect(self.EEGRcv.update)
+            self.EEGtimer.timeout.connect(self.updateEEGRcv)
             self.EEGtimer.start()
 
             self.createSamdialog.ui.rcdBtn.setText("Save")
@@ -582,8 +593,15 @@ class Ui_MainWindow(QMainWindow):
             for t in timers:
                 t.stop()
                 t.deleteLater()
+
+            self.recordTime = 0
         else:
             self.showErrorPopup("Please complete fully the form")
+
+    def updateEEGRcv(self):
+        self.EEGRcv.update()
+        self.recordTime = self.EEGRcv.getRcdTime()
+        self.createSamdialog.ui.timerLabel.setText("Timer: " + str(self.recordTime) + " s")
 
     def testEnter(self):
         print("pass")
@@ -626,6 +644,7 @@ class Ui_MainWindow(QMainWindow):
 
         fileNameEEG = newDir + '/' + 'EEG.csv'
         listEEG = self.EEGRcv.getSavingData()
+
         headFiles = self.EEGRcv.getInfo()
 
         with open(fileNameEEG, mode='w', newline='') as EEGfile:
@@ -707,7 +726,7 @@ class createViewSam(QDialog):
         for idx, x in enumerate(listVisual):
 
             newSubject = QtWidgets.QWidget()
-            newSubject.setObjectName("newSubject"+ str(x))
+            newSubject.setObjectName("newSubject" + str(x))
             viewInfo = QtWidgets.QVBoxLayout(newSubject)
             viewInfo.setContentsMargins(0, 0, 0, 0)
             viewInfo.setObjectName("subInfo" + str(x))

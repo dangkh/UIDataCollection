@@ -256,7 +256,7 @@
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>-20</y>
+             <y>-50</y>
              <width>559</width>
              <height>126</height>
             </rect>
@@ -275,11 +275,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>redBtn.jpg</normaloff>
-                <normalon>greenbt2.png</normalon>
-                <disabledoff>greenbt2.png</disabledoff>
-                <disabledon>redBtn.jpg</disabledon>
-                <selectedoff>redBtn.jpg</selectedoff>redBtn.jpg</iconset>
+                <normaloff>../redBtn.png</normaloff>../redBtn.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -328,11 +324,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>redBtn.jpg</normaloff>
-                <normalon>greenbt2.png</normalon>
-                <disabledoff>greenbt2.png</disabledoff>
-                <disabledon>redBtn.jpg</disabledon>
-                <selectedoff>redBtn.jpg</selectedoff>redBtn.jpg</iconset>
+                <normaloff>../redBtn.png</normaloff>../redBtn.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -355,11 +347,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>redBtn.jpg</normaloff>
-                <normalon>greenbt2.png</normalon>
-                <disabledoff>greenbt2.png</disabledoff>
-                <disabledon>redBtn.jpg</disabledon>
-                <selectedoff>redBtn.jpg</selectedoff>redBtn.jpg</iconset>
+                <normaloff>../redBtn.png</normaloff>../redBtn.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -395,11 +383,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>redBtn.jpg</normaloff>
-                <normalon>greenbt2.png</normalon>
-                <disabledoff>greenbt2.png</disabledoff>
-                <disabledon>redBtn.jpg</disabledon>
-                <selectedoff>redBtn.jpg</selectedoff>redBtn.jpg</iconset>
+                <normaloff>../redBtn.png</normaloff>../redBtn.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
