@@ -132,19 +132,10 @@ class EEGReceive_Plot(object):
 
         # iterate over found streams, creating specialized inlet objects that will
         # handle plotting the data
-        for info in streams:
-            if info.type() == 'Markers':
-                if info.nominal_srate() != pylsl.IRREGULAR_RATE \
-                        or info.channel_format() != pylsl.cf_string:
-                    print('Invalid marker stream ' + info.name())
-                print('Adding marker inlet: ' + info.name())
-                self.inlets.append(MarkerInlet(info))
-            elif info.nominal_srate() != pylsl.IRREGULAR_RATE \
-                    and info.channel_format() != pylsl.cf_string:
-                print('Adding data inlet: ' + info.name())
-                self.inlets.append(DataInlet(info, self.plt))
-            else:
-                print('Don\'t know what to do with stream ' + info.name())
+        for stream in streams:
+            if stream.name() == "EmotivDataStream-EEG":
+                self.stt = True
+                self.inlet = DataInlet(stream, self.plt)
         if len(self.inlets) > 0:
             self.stt = True
 
@@ -159,12 +150,17 @@ class EEGReceive_Plot(object):
     def update(self):
         # print("EEG update")
         # Read data from the inlet. Use a timeout of 0.0 so we don't block GUI interaction.
-        mintime = pylsl.local_clock() - plot_duration
-        # call pull_and_plot for each inlet.
-        # Special handling of inlet types (markers, continuous data) is done in
-        # the different inlet classes.
-        for inlet in self.inlets:
-            inlet.pull_and_plot(mintime, self.plt)
+        if not self.stt:
+            return
+        try:
+            mintime = pylsl.local_clock() - plot_duration
+            # call pull_and_plot for each inlet.
+            # Special handling of inlet types (markers, continuous data) is done in
+            # the different inlet classes.
+            self.inlet.pull_and_plot(mintime, self.plt)
+        except Exception as e:
+            self.stt = False
+            print(e, "error in inlet EEG")
 
     def signalStt(self):
         return self.stt
@@ -192,18 +188,22 @@ class ETReceive(object):
         self.saving = False
 
     def update(self):
+        try:
+            if self.stt:
+                sample, timestamp = self.inlet.pull_sample()
+            else:
+                sample = ['(0, 0, 0) : NONE : NONE']
+                timestamp = 0
+            # print(sample, timestamp)
+            # stop
+            self.listDataET.append(sample)
+            if self.saving:
+                self.lSample.append(sample)
+                self.lTimeStamp.append(timestamp)
+        except Exception as e:
+            print(e, "error in inlet ET")
+            self.stt = False
         # print("update ET")
-        if self.stt:
-            sample, timestamp = self.inlet.pull_sample()
-        else:
-            sample = ['(0, 0, 0) : NONE : NONE']
-            timestamp = 0
-        # print(sample, timestamp)
-        # stop
-        self.listDataET.append(sample)
-        if self.saving:
-            self.lSample.append(sample)
-            self.lTimeStamp.append(timestamp)
 
     def signalStt(self):
         return self.stt
@@ -231,10 +231,13 @@ class EEGReceive(object):
         self.lTimeStamp = []
 
     def update(self):
+        try:
+            sample, timestamp = self.inlet.pull_sample()
+            self.lData.append(sample)
+            self.lTimeStamp.append(timestamp)
+        except Exception as e:
+            print(e, "Error in inlet EEG Rec")
         # print("update EEG")
-        sample, timestamp = self.inlet.pull_sample()
-        self.lData.append(sample)
-        self.lTimeStamp.append(timestamp)
 
     def getSavingData(self):
         return [self.lData, self.lTimeStamp]

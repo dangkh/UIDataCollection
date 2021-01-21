@@ -50,8 +50,13 @@ class Ui_MainWindow(QMainWindow):
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label = QtWidgets.QLabel(self.verticalLayoutWidget)
+        font = QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label.setFont(font)
         self.label.setObjectName("label")
-        self.verticalLayout.addWidget(self.label)
+        self.verticalLayout.addWidget(self.label, 0, QtCore.Qt.AlignHCenter)
         self.gridLayout = QtWidgets.QGridLayout()
         self.gridLayout.setObjectName("gridLayout")
         self.verticalLayout.addLayout(self.gridLayout)
@@ -83,7 +88,12 @@ class Ui_MainWindow(QMainWindow):
         self.verticalSample.setObjectName("verticalSample")
         self.label_2 = QtWidgets.QLabel(self.verticalLayoutWidget_3)
         self.label_2.setObjectName("label_2")
-        self.verticalSample.addWidget(self.label_2)
+        font = QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.label_2.setFont(font)
+        self.verticalSample.addWidget(self.label_2, 0, QtCore.Qt.AlignHCenter)
         self.gridLayout_sample = QtWidgets.QGridLayout()
         self.gridLayout_sample.setObjectName("gridLayout_sample")
         self.verticalSample.addLayout(self.gridLayout_sample)
@@ -100,10 +110,10 @@ class Ui_MainWindow(QMainWindow):
         self.newSam = QtWidgets.QPushButton(self.verticalLayoutWidget_3)
         self.newSam.setObjectName("newSam")
 
-        addIcon = QtGui.QIcon()
-        addIcon.addPixmap(QtGui.QPixmap("addIcon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.newSam.setIcon(addIcon)
-        self.newSam.setIconSize(QtCore.QSize(50, 50))
+        # addIcon = QtGui.QIcon()
+        # addIcon.addPixmap(QtGui.QPixmap("addIcon.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        # self.newSam.setIcon(addIcon)
+        # self.newSam.setIconSize(QtCore.QSize(50, 50))
 
         self.horizontalLayout_sample.addWidget(self.newSam)
         self.verticalSample.addLayout(self.horizontalLayout_sample)
@@ -658,6 +668,7 @@ class Ui_MainWindow(QMainWindow):
         if self.CAMth.numberDevices < 1:
             cam1 = False
         l1 = [self.ETPlot.signalStt(), self.EEGPlot.signalStt(), cam1, cam2]
+        print(l1)
         l2 = [self.createSamdialog.ui.SignalET, self.createSamdialog.ui.SignalEEG,
               self.createSamdialog.ui.SignalCAM1, self.createSamdialog.ui.SignalCAM2]
         # print(l1)

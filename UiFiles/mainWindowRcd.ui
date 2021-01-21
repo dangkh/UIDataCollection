@@ -39,8 +39,15 @@
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
+         <item alignment="Qt::AlignHCenter">
           <widget class="QLabel" name="label">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
             <string>Danh sách người bệnh</string>
            </property>
@@ -119,8 +126,15 @@
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalSample">
-         <item>
+         <item alignment="Qt::AlignHCenter">
           <widget class="QLabel" name="label_2">
+           <property name="font">
+            <font>
+             <pointsize>12</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="text">
             <string>Danh sách bản ghi</string>
            </property>
