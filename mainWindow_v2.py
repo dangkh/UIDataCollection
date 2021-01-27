@@ -22,7 +22,7 @@ from multi import *
 import csv
 
 from detailSamDialog import *
-
+import requests
 
 class Ui_MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -676,14 +676,24 @@ class Ui_MainWindow(QMainWindow):
             cam2 = False
         if self.CAMth.numberDevices < 1:
             cam1 = False
-        l1 = [self.ETPlot.signalStt(), self.EEGPlot.signalStt(), cam1, cam2]
+        l1 = [self.ETPlot.signalStt(), cam1, cam2]
         l2 = [self.createSamdialog.ui.SignalET, self.createSamdialog.ui.SignalEEG,
               self.createSamdialog.ui.SignalCAM1, self.createSamdialog.ui.SignalCAM2]
+        status = requests.get("http://192.168.1.199:8080/device_status")
+        percent = 0
+        try:
+            infoDev = status.json()['dev']
+            percent = infoDev[-1][-1]
+        except Exception as e:
+            print(e, "error catch percent")
+        
+
+        self.createSamdialog.ui.label_EEG.setText("SignalEEG " + str(percent) + "%")
         # print(l1)
         for x in l1:
             if x:
                 counter += 1
-        if counter >= 0:
+        if counter >= 3:
             self.createSamdialog.ui.rcdBtn.show()
         else:
             self.createSamdialog.ui.rcdBtn.hide()

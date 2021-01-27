@@ -239,7 +239,11 @@ class EEGReceive(object):
             sample, timestamp = self.inlet.pull_sample()
             self.lData.append(sample)
             self.lTimeStamp.append(timestamp)
-            self.rcdTime = timestamp - lastTime
+            if lastTime == 0:
+                lastTime = int(timestamp)
+            timeStep = timestamp - lastTime
+            lastTime = timestamp
+            self.rcdTime += timeStep
         except Exception as e:
             print(e, "Error in inlet EEG Rec")
         # print("update EEG")
