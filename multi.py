@@ -28,9 +28,9 @@ class VideoRecorder:
 
     def __init__(self):
         self.exitFlag = 0
-        self.parameters = {'fps': 30.0,
-                           'width': 1920.0,
-                           'height': 1080.0,
+        self.parameters = {'fps': 60,
+                           'width': 1920,
+                           'height': 1080,
                            'brightness': 128.0,
                            'contrast': 128.0,
                            'saturation': 128.0,
@@ -56,7 +56,8 @@ class VideoRecorder:
         self.listCapDev()
 
     def setDevParameters(self, cap):
-        cap.set(cv2.CAP_PROP_FPS, self.parameters['fps'])
+        cap.set(cv2.CAP_PROP_FPS, 10.0)
+        cap.set(cv2.CAP_PROP_BUFFERSIZE, 1)
         cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.parameters['width'])
         cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.parameters['height'])
         cap.set(cv2.CAP_PROP_BRIGHTNESS, self.parameters['brightness'])
@@ -65,7 +66,7 @@ class VideoRecorder:
         cap.set(cv2.CAP_PROP_HUE, self.parameters['hue'])
         cap.set(cv2.CAP_PROP_GAIN, self.parameters['gain'])
         cap.set(cv2.CAP_PROP_EXPOSURE, self.parameters['exposure'])
-        cap.set(cv2.CAP_PROP_CONVERT_RGB, 16)
+        # cap.set(cv2.CAP_PROP_CONVERT_RGB, 16)
 
     def listCapDev(self):
         k = 0
@@ -96,16 +97,25 @@ class VideoRecorder:
         # print('')
 
         self.setDevParameters(cap=cap_i)
-
-        # winName = 'Camera ' + str(deviceID)
+        # cap_i.set(cv2.CAP_PROP_FPS, 5)
+        # cap_i.set(cv2.CAP_PROP_BUFFERSIZE, 0.1)
+        # cap_i.set(cv2.CAP_PROP_FRAME_WIDTH, self.parameters['width'])
+        # cap_i.set(cv2.CAP_PROP_FRAME_HEIGHT, self.parameters['height'])
+        # # cap_i.set(cv2.CAP_PROP_BRIGHTNESS, self.parameters['brightness'])
+        # # cap_i.set(cv2.CAP_PROP_CONTRAST, self.parameters['contrast'])
+        # # cap_i.set(cv2.CAP_PROP_SATURATION, self.parameters['saturation'])
+        # # cap_i.set(cv2.CAP_PROP_HUE, self.parameters['hue'])
+        # # cap_i.set(cv2.CAP_PROP_GAIN, self.parameters['gain'])
+        # # cap_i.set(cv2.CAP_PROP_EXPOSURE, self.parameters['exposure'])
+        # # cap_i.set(cv2.CAP_PROP_CONVERT_RGB, 16)
+        # # winName = 'Camera ' + str(deviceID)
         # cv2.namedWindow(winName)
         fps = cap_i.get(cv2.CAP_PROP_FPS)
-        print("FPSSSSSSSSSSSSSSSSSSSS: ", fps)
         width = cap_i.get(cv2.CAP_PROP_FRAME_WIDTH)
         height = cap_i.get(cv2.CAP_PROP_FRAME_HEIGHT)
-        fourcc = cv2.VideoWriter_fourcc(*'MPEG')
+        fourcc = cv2.VideoWriter_fourcc(*'MJPG')
         self.outlet[iDID] = self.createOutlet(iDID)
-
+        self.record = True
         try:
             ret = True
             # print("Exit", self.exitFlag)
@@ -113,7 +123,8 @@ class VideoRecorder:
 
                 if self.record and not self.createMeta[iDID]:
                     self.filename[iDID] = os.path.join(self.savingDir, 'Camera' + str(deviceID) + '.avi')
-                    self.writer[iDID] = cv2.VideoWriter(self.filename[iDID], fourcc, int(fps), (int(width), int(height)))
+                    self.writer[iDID] = cv2.VideoWriter(self.filename[iDID], fourcc,
+                                                        int(fps), (int(width), int(height)))
                     self.createMeta[iDID] = True
                     print("INIT")
                 # win_i = winName
@@ -135,7 +146,7 @@ class VideoRecorder:
                 # if cv2.waitKey(1) & 0xFF == ord('q'):
                 #     self.exitFlag = 1
         finally:
-            self.writer[iDID].release()
+            self.writer[iDID].release() 
             cap_i.release()
             cv2.destroyAllWindows()
 
@@ -182,7 +193,8 @@ class VideoRecorder:
         self.listLabel[int(deviceID)].setPixmap(QPixmap.fromImage(frame).scaled(w, h))
 
 
-# record = VideoRecorder()
+# print(cv2.getBuildInformation())
+# record=VideoRecorder()
 # record.beginRecord()
-# time.sleep(5)
+# time.sleep(10)
 # record.stopRecord()
