@@ -100,7 +100,7 @@ class VideoRecorder:
         # winName = 'Camera ' + str(deviceID)
         # cv2.namedWindow(winName)
         fps = cap_i.get(cv2.CAP_PROP_FPS)
-        print("FPSSSSSSSSSSSSSSSSSSSS: ", fps)
+        print("FPS: ", fps)
         width = cap_i.get(cv2.CAP_PROP_FRAME_WIDTH)
         height = cap_i.get(cv2.CAP_PROP_FRAME_HEIGHT)
         fourcc = cv2.VideoWriter_fourcc(*'MPEG')
@@ -135,7 +135,7 @@ class VideoRecorder:
                 # if cv2.waitKey(1) & 0xFF == ord('q'):
                 #     self.exitFlag = 1
         finally:
-            self.writer[iDID].release()
+            # self.writer[iDID].release()
             cap_i.release()
             cv2.destroyAllWindows()
 

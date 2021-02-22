@@ -16,9 +16,9 @@ from PyQt5.QtWidgets import *
 class createSub_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.resize(544, 438)
+        Dialog.resize(544, 224)
         self.formLayoutWidget = QtWidgets.QWidget(Dialog)
-        self.formLayoutWidget.setGeometry(QtCore.QRect(60, 40, 411, 361))
+        self.formLayoutWidget.setGeometry(QtCore.QRect(60, 40, 411, 131))
         self.formLayoutWidget.setObjectName("formLayoutWidget")
         self.formLayout = QtWidgets.QFormLayout(self.formLayoutWidget)
         self.formLayout.setContentsMargins(0, 0, 0, 0)
@@ -47,22 +47,14 @@ class createSub_Dialog(object):
         self.FemaleEdit.setObjectName("FemaleEdit")
         self.horizontalLayout_2.addWidget(self.FemaleEdit)
         self.formLayout.setLayout(2, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_2)
-        spacerItem = QtWidgets.QSpacerItem(20, 89, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.formLayout.setItem(3, QtWidgets.QFormLayout.FieldRole, spacerItem)
         self.label_7 = QtWidgets.QLabel(self.formLayoutWidget)
         self.label_7.setObjectName("label_7")
-        self.formLayout.setWidget(4, QtWidgets.QFormLayout.LabelRole, self.label_7)
-        self.DiseaseDescEdit = QtWidgets.QTextEdit(self.formLayoutWidget)
-        self.DiseaseDescEdit.setObjectName("DiseaseDescEdit")
-        self.formLayout.setWidget(4, QtWidgets.QFormLayout.FieldRole, self.DiseaseDescEdit)
-        self.label = QtWidgets.QLabel(self.formLayoutWidget)
-        self.label.setObjectName("label")
-        self.formLayout.setWidget(5, QtWidgets.QFormLayout.LabelRole, self.label)
-        self.spinBox = textSpinBox(self.formLayoutWidget)
-        self.spinBox.setObjectName("spinBox")
-        self.formLayout.setWidget(5, QtWidgets.QFormLayout.FieldRole, self.spinBox)
+        self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_7)
+        self.lineEdit = QtWidgets.QLineEdit(self.formLayoutWidget)
+        self.lineEdit.setObjectName("lineEdit")
+        self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.lineEdit)
         self.saveBtn = QtWidgets.QPushButton(Dialog)
-        self.saveBtn.setGeometry(QtCore.QRect(230, 410, 75, 23))
+        self.saveBtn.setGeometry(QtCore.QRect(230, 190, 75, 23))
         self.saveBtn.setObjectName("saveBtn")
 
         self.retranslateUi(Dialog)
@@ -70,15 +62,14 @@ class createSub_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "CreateSubject"))
         self.label_4.setText(_translate("Dialog", "Họ tên người bệnh"))
         self.label_5.setText(_translate("Dialog", "Tuổi"))
         self.label_6.setText(_translate("Dialog", "Giới tính"))
         self.MaleEdit.setText(_translate("Dialog", "Nam"))
         self.FemaleEdit.setText(_translate("Dialog", "Nữ"))
-        self.label_7.setText(_translate("Dialog", "Mô tả bệnh"))
-        self.label.setText(_translate("Dialog", "Tình trạng bệnh"))
-        self.saveBtn.setText(_translate("Dialog", "Save"))
+        self.label_7.setText(_translate("Dialog", "ID người bệnh"))
+        self.saveBtn.setText(_translate("Dialog", "Lưu"))
 
 
 class textSpinBox(QSpinBox):
