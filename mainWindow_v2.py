@@ -26,7 +26,8 @@ import requests
 
 import subprocess
 import pyedflib as pyedf
-
+from arguments import arg
+import pickle
 
 class Ui_MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -35,7 +36,8 @@ class Ui_MainWindow(QMainWindow):
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1494, 866)
+
+        MainWindow.resize(int(1500 * arg.wScale), int(850 * arg.hScale))
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.horizontalLayoutWidget = QtWidgets.QWidget(self.centralwidget)
@@ -255,6 +257,10 @@ class Ui_MainWindow(QMainWindow):
                     newSubject.setEnabled(False)
                 else:
                     nameSubject = str(showDir[counter]).split("/")[-1]
+                    lastDir = showDir[counter] + '/info.json'
+                    with open(lastDir) as json_file:
+                        data = json.load(json_file)
+                    nameSubject = nameSubject + " (" + data["name"] + ")"
                     subLabel.setText(nameSubject)
                     self.listSub[counter]['dir'] = showDir[counter]
                 counter += 1
@@ -288,11 +294,9 @@ class Ui_MainWindow(QMainWindow):
         age = self.createSubdialog.ui.AgeEdit.value()
         genderG = self.createSubdialog.ui.FemaleEdit.isChecked()
         genderM = self.createSubdialog.ui.MaleEdit.isChecked()
-        patientDesc = self.createSubdialog.ui.DiseaseDescEdit.toPlainText()
-        patientStt = self.createSubdialog.ui.spinBox.text()
-
+        userID = self.createSubdialog.ui.lineEdit.text()
         missingValue = False
-        if name == '' or patientDesc == '' or patientStt == '':
+        if name == '' or userID == '':
             missingValue = True
         elif not genderG and not genderM:
             missingValue = True
@@ -303,14 +307,12 @@ class Ui_MainWindow(QMainWindow):
             gender = "M"
             if genderG:
                 gender = "Fm"
-            recordID = random.randint(1, 100)
+            recordID = userID
             js = {
                 'id': recordID,
                 'name': name,
                 'age': age,
                 'gender': gender,
-                'patientDesc': patientDesc,
-                'patientStt': patientStt,
             }
             newlink = './dataVIN/' + str(recordID)
             os.mkdir(newlink)
@@ -370,6 +372,15 @@ class Ui_MainWindow(QMainWindow):
 
     def updateSam(self, listDir=0, page=0):
         nameSubject = str(self.currentSub).split("/")[-1]
+
+        lastDir = self.currentSub + '/info.json'
+        try:
+            with open(lastDir) as json_file:
+                data = json.load(json_file)
+            nameSubject = nameSubject + " (" + data["name"] + ")"
+        except Exception as e:
+            pass
+
         self.label_2.setText("Danh sách bản ghi: " + nameSubject)
         if listDir == -1:
             self.listDirSam = []
@@ -435,6 +446,11 @@ class Ui_MainWindow(QMainWindow):
                     samBtn.setIcon(icon2)
                 else:
                     subjectName = str(showDirSam[counter]).split("/")[-1]
+
+                    lastDir = showDirSam[counter] + '/plan.json'
+                    with open(lastDir) as json_file:
+                        data = json.load(json_file)
+                    subjectName = subjectName + " (plan_" + str(data["RecPlanEdit"]) + ")"
 
                     samLabel.setText(subjectName)
                     samBtn.setIcon(icon1)
@@ -529,7 +545,6 @@ class Ui_MainWindow(QMainWindow):
                 'RecorderEdit': "",
                 'LocateEdit': "",
                 'RecPlanEdit': 0,
-                'sentenceIdEdit': 0
             }
             self.createSamdialog.setRecodData(newData)
         else:
@@ -543,7 +558,7 @@ class Ui_MainWindow(QMainWindow):
                 # pop
                 return
             lastDir = onlydir[-1] + '/plan.json'
-            print(lastDir)
+            # print(lastDir)
             with open(lastDir) as json_file:
                 data = json.load(json_file)
             self.createSamdialog.setRecodData(data)
@@ -568,11 +583,10 @@ class Ui_MainWindow(QMainWindow):
         RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
         RecPlanEdit = self.createSamdialog.ui.RecPlanEdit.value()
-        sentenceIdEdit = self.createSamdialog.ui.sentenceIdEdit.value()
         missingValue = False
         if RecorderEdit == '' or LocateEdit == '':
             missingValue = True
-        if RecPlanEdit == 0 or sentenceIdEdit == 0:
+        if RecPlanEdit == 0:
             missingValue = True
 
         if not missingValue:
@@ -626,12 +640,11 @@ class Ui_MainWindow(QMainWindow):
         RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
         RecPlanEdit = self.createSamdialog.ui.RecPlanEdit.value()
-        sentenceIdEdit = self.createSamdialog.ui.sentenceIdEdit.value()
         newData = {
             'RecorderEdit': RecorderEdit,
             'LocateEdit': LocateEdit,
             'RecPlanEdit': RecPlanEdit,
-            'sentenceIdEdit': sentenceIdEdit
+            'PlanDesc': arg.plans[RecPlanEdit]
         }
         self.record_save = True
         self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
@@ -674,6 +687,18 @@ class Ui_MainWindow(QMainWindow):
 
         pyedf.highlevel.write_edf(fileNameEEG[2:], EEGsignals, signalHeader, header=None,
                                   digital=False, file_type=-1, block_size=1)
+
+        fileName = newDir + '/' + 'eeg.json'
+        js = {
+            'TaskDesc': arg.plans[RecPlanEdit],
+            'SamplingFrequence': rate,
+            'EEGchannelNumber': EEGsignals.shape[0],
+        }
+        with open(fileName, 'w') as outfile:
+            json.dump(js, outfile)
+
+        fileName = newDir + '/' + 'TimeStamp.p'
+        pickle.dump(listEEG[1], open(fileName, "wb"))
 
         self.createSamdialog.ui.recordingStt = False
         self.createSamdialog.close()
@@ -805,6 +830,10 @@ class createSam(QDialog):
         self.ui.setupUi()
         self.turnOnBtn = False
         self.ui.rcdBtn.hide()
+        self.ui.RecPlanEdit.setMaximum(arg.numPlan)
+        self.ui.RecPlanEdit.setMinimum(1)
+        self.ui.RecPlanEdit.valueChanged.connect(self.updatePlanView)
+        self.updatePlanView()
 
     def setInfo(self, info):
         # set sample info as the info of the patient
@@ -819,15 +848,11 @@ class createSam(QDialog):
                 self.ui.MaleEdit.setChecked(True)
             else:
                 self.ui.FemaleEdit.setChecked(True)
-            self.ui.DiseaseDescEdit.setText(data['patientDesc'])
-            self.ui.spinTTB.setValue(1)
 
             self.ui.NameEdit.setEnabled(False)
             self.ui.AgeEdit.setEnabled(False)
             self.ui.MaleEdit.setEnabled(False)
             self.ui.FemaleEdit.setEnabled(False)
-            self.ui.DiseaseDescEdit.setEnabled(False)
-            self.ui.spinTTB.setEnabled(False)
         except Exception as e:
             print("cant find json file, subject dont have required infomation")
             print(e)
@@ -836,7 +861,10 @@ class createSam(QDialog):
         self.ui.RecorderEdit.setText(data['RecorderEdit'])
         self.ui.LocateEdit.setText(data['LocateEdit'])
         self.ui.RecPlanEdit.setValue(data['RecPlanEdit'])
-        self.ui.sentenceIdEdit.setValue(data['sentenceIdEdit'])
+
+    def updatePlanView(self):
+        text = arg.plans[self.ui.RecPlanEdit.value() - 1]
+        self.ui.lineEdit.setText(str(text))
 
     def closeEvent(self, event):
         # event.accept()
