@@ -12,8 +12,8 @@ import numpy as np
 import math
 import pylsl
 import pyqtgraph as pg
-from pyqtgraph.Qt import QtCore, QtGui
 from typing import List
+import xml.etree.ElementTree as ET
 
 # Basic parameters for the plotting window
 plot_duration = 5  # how many seconds of data to show
@@ -230,6 +230,7 @@ class EEGReceive(object):
         self.lData = []
         self.lTimeStamp = []
         self.rcdTime = 0
+        self.root = ET.fromstring(self.inlet.info().as_xml())
 
     def update(self):
         try:
@@ -255,13 +256,15 @@ class EEGReceive(object):
         return self.rcdTime
 
     def getInfo(self):
-        import xml.etree.ElementTree as ET
-        root = ET.fromstring(self.inlet.info().as_xml())
-        info = root[17][1]
+        info = self.root[17][1]
         lInfo = []
         for x in info:
             lInfo.append(x[0].text)
         return lInfo
+
+    def getRate(self):
+        rate = self.root.find("nominal_srate").text
+        return int(float(rate))
 
 # if __name__ == "__main__":
 #     EEGReceive_Plot("none")

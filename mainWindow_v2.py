@@ -24,6 +24,10 @@ import csv
 from detailSamDialog import *
 import requests
 
+import subprocess
+import pyedflib as pyedf
+
+
 class Ui_MainWindow(QMainWindow):
     def __init__(self, parent=None):
         """Initializer."""
@@ -164,6 +168,7 @@ class Ui_MainWindow(QMainWindow):
         self.storeDir = "./DataVIN/"
         self.record_save = True
         self.counter = 0
+        self.percent = 0
         self.newSam.hide()
         self.prevSub.hide()
         self.prevSam.hide()
@@ -307,7 +312,7 @@ class Ui_MainWindow(QMainWindow):
                 'patientDesc': patientDesc,
                 'patientStt': patientStt,
             }
-            newlink = './dataVIN/' + str(name) + "_" + str(recordID)
+            newlink = './dataVIN/' + str(recordID)
             os.mkdir(newlink)
             fileName = newlink + '/' + 'info.json'
             with open(fileName, 'w') as outfile:
@@ -329,6 +334,11 @@ class Ui_MainWindow(QMainWindow):
         self.signalTimer.setInterval(100)
         self.signalTimer.timeout.connect(self.changeSignal)
         self.signalTimer.start()
+
+        self.percentTimer = QtCore.QTimer()
+        self.percentTimer.setInterval(1000)
+        self.percentTimer.timeout.connect(self.changePercent)
+        self.percentTimer.start()
 
         self.EEGPlot = EEGReceive_Plot("new")
         self.createSamdialog.ui.widEEG.addWidget(self.EEGPlot.pw)
@@ -580,6 +590,7 @@ class Ui_MainWindow(QMainWindow):
             os.mkdir(newDir)
             self.newDir = newDir
             self.CAMth.updateSavingDir(newDir + '/')
+            self.CAMth.stopRecord()
             self.ETPlot.updateSaving()
 
             self.EEGRcv = EEGReceive("new")
@@ -595,6 +606,9 @@ class Ui_MainWindow(QMainWindow):
                 t.deleteLater()
 
             self.recordTime = 0
+            cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
+            outVid = '"' + str(self.newDir) + "/out.avi" + '"'
+            self.pipe = subprocess.Popen(cmd + outVid)
         else:
             self.showErrorPopup("Please complete fully the form")
 
@@ -626,7 +640,8 @@ class Ui_MainWindow(QMainWindow):
             t.stop()
             t.deleteLater()
         newDir = self.newDir
-        self.CAMth.stopRecord()
+
+        self.pipe.terminate()
 
         fileName = newDir + '/' + 'plan.json'
         with open(fileName, 'w') as outfile:
@@ -642,16 +657,23 @@ class Ui_MainWindow(QMainWindow):
             for idx in range(len(list_ET[0])):
                 et_writer.writerow([list_ET[0][idx], list_ET[1][idx]])
 
-        fileNameEEG = newDir + '/' + 'EEG.csv'
+        fileNameEEG = newDir + '/' + 'EEG.edf'
+        print(fileNameEEG)
+        print(fileNameEEG[2:])
         listEEG = self.EEGRcv.getSavingData()
 
-        headFiles = self.EEGRcv.getInfo()
+        channels = self.EEGRcv.getInfo()
+        rate = self.EEGRcv.getRate()
+        EEG_channels = channels[3:-1]
+        data = np.asarray(listEEG[0])
+        EEGsignals = data[:, 3:-1].T
 
-        with open(fileNameEEG, mode='w', newline='') as EEGfile:
-            eeg_writer = csv.writer(EEGfile)
-            eeg_writer.writerow(headFiles)
-            for idx in range(len(listEEG[0])):
-                eeg_writer.writerow(listEEG[0][idx])
+        signalHeader = pyedf.highlevel.make_signal_headers(
+            EEG_channels, dimension='mV', sample_rate=rate, physical_min=-5000.0, physical_max=5000.0,
+            digital_min=-32768, digital_max=32767, transducer='', prefiler='')
+
+        pyedf.highlevel.write_edf(fileNameEEG[2:], EEGsignals, signalHeader, header=None,
+                                  digital=False, file_type=-1, block_size=1)
 
         self.createSamdialog.ui.recordingStt = False
         self.createSamdialog.close()
@@ -676,19 +698,9 @@ class Ui_MainWindow(QMainWindow):
             cam2 = False
         if self.CAMth.numberDevices < 1:
             cam1 = False
-        l1 = [self.ETPlot.signalStt(), cam1, cam2]
+        l1 = [self.ETPlot.signalStt(), self.EEGPlot.signalStt(), cam1, cam2]
         l2 = [self.createSamdialog.ui.SignalET, self.createSamdialog.ui.SignalEEG,
               self.createSamdialog.ui.SignalCAM1, self.createSamdialog.ui.SignalCAM2]
-        status = requests.get("http://192.168.1.199:8080/device_status")
-        percent = 0
-        try:
-            infoDev = status.json()['dev']
-            percent = infoDev[-1][-1]
-        except Exception as e:
-            print(e, "error catch percent")
-        
-
-        self.createSamdialog.ui.label_EEG.setText("SignalEEG " + str(percent) + "%")
         # print(l1)
         for x in l1:
             if x:
@@ -699,6 +711,17 @@ class Ui_MainWindow(QMainWindow):
             self.createSamdialog.ui.rcdBtn.hide()
         for x, y in zip(l1, l2):
             y.setChecked(not x)
+
+    def changePercent(self):
+        # status = requests.get("http://192.168.1.199:8080/device_status")
+        self.percent = 0
+        # try:
+        #     infoDev = status.json()['dev']
+        #     self.percent = infoDev[-1][-1]
+        # except Exception as e:
+        #     print(e, "error catch percent")
+
+        self.createSamdialog.ui.label_EEG.setText("SignalEEG " + str(self.percent) + "%")
 
 
 def readStorageData(link="./DataVIN/"):

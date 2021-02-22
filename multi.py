@@ -159,7 +159,7 @@ class VideoRecorder:
             self.threadID += 1
 
     def updateSavingDir(self, path):
-        self.record = True
+        # self.record = True
         self.savingDir = path
 
     def stopRecord(self):
