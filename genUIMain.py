@@ -10,7 +10,6 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from genUICreate import Ui_Form
-from pikachu import Pikachu
 import json
 import random
 import os 
@@ -578,32 +577,7 @@ class Ui_MainWindow(object):
         # **********************************Mr_HOA*******************************
         # Stop receieve Data
         # send a signal to stop recording
-        rabbit_connection = Pikachu()
-        rabbit_connection.exchange = 'direct_controls'
-        rabbit_connection.exchange_type = 'direct'
-        rabbit_connection.routing_key = 'control'
-        rabbit_connection.send(message="StopSendingData", queue='control')
-        # **********************************Mr_HOA*******************************
-        self.uiForm.stopLoadingBtn.hide()
-        self.uiForm.intitialState = False
-        if self.uiForm.timerET:
-            try:
-                self.uiForm.timerET.stop()
-                self.uiForm.timerET.deleteLater()
-            except Exception as e:
-                print("timerET already deleted")
-            self.uiForm.timerET = None
-        if self.uiForm.timerEEG:
-            try:
-                self.uiForm.timerEEG.stop()
-                self.uiForm.timerEEG.deleteLater()
-            except Exception as e:
-                print("timerEEG already deleted")
-            self.uiForm.timerEEG = None
-        self.loadingStt = False
-
-    rabbit_connection_Data = Pikachu()
-    rabbit_connection_Ping = Pikachu()
+        pass
     
     def visualData(self):
         self.uiForm.extendSize(self.Form)

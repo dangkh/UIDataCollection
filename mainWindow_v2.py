@@ -29,6 +29,7 @@ import pyedflib as pyedf
 from arguments import arg
 import pickle
 
+
 class Ui_MainWindow(QMainWindow):
     def __init__(self, parent=None):
         """Initializer."""
@@ -331,9 +332,11 @@ class Ui_MainWindow(QMainWindow):
         self.createSamdialog.ui.resetBtn.clicked.connect(self.updateInfoSample)
         self.createSamdialog.ui.rcdBtn.clicked.connect(self.record_saveData)
         self.createSamdialog.ui.turnOnOffBtn.clicked.connect(self.samForceQuit)
+        self.createSamdialog.ui.eventCreateBtn.clicked.connect(self.createEventSample)
+        self.startEvent = False
 
         self.signalTimer = QtCore.QTimer()
-        self.signalTimer.setInterval(100)
+        self.signalTimer.setInterval(500)
         self.signalTimer.timeout.connect(self.changeSignal)
         self.signalTimer.start()
 
@@ -447,10 +450,10 @@ class Ui_MainWindow(QMainWindow):
                 else:
                     subjectName = str(showDirSam[counter]).split("/")[-1]
 
-                    lastDir = showDirSam[counter] + '/plan.json'
+                    lastDir = showDirSam[counter] + '/scenario.json'
                     with open(lastDir) as json_file:
                         data = json.load(json_file)
-                    subjectName = subjectName + " (plan_" + str(data["RecPlanEdit"]) + ")"
+                    subjectName = subjectName + " (scenario_" + str(data["RecPlanEdit"]) + ")"
 
                     samLabel.setText(subjectName)
                     samBtn.setIcon(icon1)
@@ -548,7 +551,7 @@ class Ui_MainWindow(QMainWindow):
             }
             self.createSamdialog.setRecodData(newData)
         else:
-            print("ENterrrrrrrrrrrrrrrrrrrr")
+            # print("ENterrrrrrrrrrrrrrrrrrrr")
             onlydir = []
             link = self.currentSub + '/'
             if os.path.isdir(link):
@@ -557,11 +560,21 @@ class Ui_MainWindow(QMainWindow):
             if len(onlydir) == 0:
                 # pop
                 return
-            lastDir = onlydir[-1] + '/plan.json'
+            lastDir = onlydir[-1] + '/scenario.json'
             # print(lastDir)
             with open(lastDir) as json_file:
                 data = json.load(json_file)
             self.createSamdialog.setRecodData(data)
+
+    def createEventSample(self):
+        self.startEvent = not self.startEvent
+        last = self.EEGRcv.getLastRcdSample()
+        first = self.EEGRcv.getFirstRcdSample()
+        self.listEvent.append(last[1] - first[1])
+        if self.startEvent:
+            self.createSamdialog.ui.eventCreateBtn.setText("Dừng Event")
+        else:
+            self.createSamdialog.ui.eventCreateBtn.setText("Mở Event")
 
     def samForceQuit(self):
         timers = [self.update_timer, self.pull_timer, self.signalTimer]
@@ -578,7 +591,7 @@ class Ui_MainWindow(QMainWindow):
         self.saveRecord()
 
     def createRecord(self):
-        print("Enter Record")
+        self.listEvent = []
 
         RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
@@ -609,7 +622,7 @@ class Ui_MainWindow(QMainWindow):
 
             self.EEGRcv = EEGReceive("new")
             self.EEGtimer = QtCore.QTimer()
-            self.EEGtimer.setInterval(0)
+            self.EEGtimer.setInterval(5)
             self.EEGtimer.timeout.connect(self.updateEEGRcv)
             self.EEGtimer.start()
 
@@ -623,16 +636,10 @@ class Ui_MainWindow(QMainWindow):
             cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
             outVid = '"' + str(self.newDir) + "/out.avi" + '"'
             self.pipe = subprocess.Popen(cmd + outVid)
+
+            # self.createSamdialog.ui.turnOnOffBtn.hide()
         else:
             self.showErrorPopup("Please complete fully the form")
-
-    def updateEEGRcv(self):
-        self.EEGRcv.update()
-        self.recordTime = self.EEGRcv.getRcdTime()
-        self.createSamdialog.ui.timerLabel.setText("Timer: " + str(self.recordTime) + " s")
-
-    def testEnter(self):
-        print("pass")
 
     def saveRecord(self):
         print("Enter Save")
@@ -644,7 +651,7 @@ class Ui_MainWindow(QMainWindow):
             'RecorderEdit': RecorderEdit,
             'LocateEdit': LocateEdit,
             'RecPlanEdit': RecPlanEdit,
-            'PlanDesc': arg.plans[RecPlanEdit]
+            'PlanDesc': arg.plans[RecPlanEdit - 1]
         }
         self.record_save = True
         self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
@@ -656,7 +663,7 @@ class Ui_MainWindow(QMainWindow):
 
         self.pipe.terminate()
 
-        fileName = newDir + '/' + 'plan.json'
+        fileName = newDir + '/' + 'scenario.json'
         with open(fileName, 'w') as outfile:
             json.dump(newData, outfile)
 
@@ -666,13 +673,10 @@ class Ui_MainWindow(QMainWindow):
             fieldnames = ['Data', 'TimeStamp']
             et_writer = csv.writer(ETfile)
             et_writer.writerow(fieldnames)
-            print(len(list_ET[0]))
             for idx in range(len(list_ET[0])):
                 et_writer.writerow([list_ET[0][idx], list_ET[1][idx]])
 
         fileNameEEG = newDir + '/' + 'EEG.edf'
-        print(fileNameEEG)
-        print(fileNameEEG[2:])
         listEEG = self.EEGRcv.getSavingData()
 
         channels = self.EEGRcv.getInfo()
@@ -685,24 +689,47 @@ class Ui_MainWindow(QMainWindow):
             EEG_channels, dimension='mV', sample_rate=rate, physical_min=-5000.0, physical_max=5000.0,
             digital_min=-32768, digital_max=32767, transducer='', prefiler='')
 
-        pyedf.highlevel.write_edf(fileNameEEG[2:], EEGsignals, signalHeader, header=None,
-                                  digital=False, file_type=-1, block_size=1)
+        f = pyedf.EdfWriter(fileNameEEG[2:], 32)
+        f.setEquipment("Emotiv")
+        f.setSignalHeaders(signalHeader)
+        f.writeSamples(EEGsignals, digital=False)
+
+        event = 0
+        if len(self.listEvent) % 2 == 1:
+            self.listEvent.pop()
+        while event < len(self.listEvent):
+            start = self.listEvent[event]
+            stop = self.listEvent[event + 1]
+            event += 2
+            f.writeAnnotation(start, stop - start, "marker")
+        f.close()
 
         fileName = newDir + '/' + 'eeg.json'
         js = {
-            'TaskDesc': arg.plans[RecPlanEdit],
+            'TaskDesc': arg.plans[RecPlanEdit - 1],
             'SamplingFrequence': rate,
             'EEGchannelNumber': EEGsignals.shape[0],
         }
         with open(fileName, 'w') as outfile:
             json.dump(js, outfile)
 
-        fileName = newDir + '/' + 'TimeStamp.p'
-        pickle.dump(listEEG[1], open(fileName, "wb"))
+        fileName = newDir + '/' + 'EEGTimeStamp.txt'
+        f = open(fileName, "w")
+        for line in listEEG[1]:
+            f.write(str(line) + '\n')
+        f.close()
 
         self.createSamdialog.ui.recordingStt = False
         self.createSamdialog.close()
         self.updateSam(page=-1)
+
+    def updateEEGRcv(self):
+        self.EEGRcv.update()
+        self.recordTime = self.EEGRcv.getRcdTime()
+        self.createSamdialog.ui.timerLabel.setText("Timer: " + str(self.recordTime) + " s")
+
+    def testEnter(self):
+        print("pass")
 
     def ET_update(self):
         self.ETPlot.update()
