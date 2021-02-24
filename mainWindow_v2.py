@@ -29,6 +29,7 @@ import pyedflib as pyedf
 from arguments import arg
 import pickle
 
+
 class Ui_MainWindow(QMainWindow):
     def __init__(self, parent=None):
         """Initializer."""
@@ -447,10 +448,10 @@ class Ui_MainWindow(QMainWindow):
                 else:
                     subjectName = str(showDirSam[counter]).split("/")[-1]
 
-                    lastDir = showDirSam[counter] + '/plan.json'
+                    lastDir = showDirSam[counter] + '/scenario.json'
                     with open(lastDir) as json_file:
                         data = json.load(json_file)
-                    subjectName = subjectName + " (plan_" + str(data["RecPlanEdit"]) + ")"
+                    subjectName = subjectName + " (scenario_" + str(data["RecPlanEdit"]) + ")"
 
                     samLabel.setText(subjectName)
                     samBtn.setIcon(icon1)
@@ -609,7 +610,7 @@ class Ui_MainWindow(QMainWindow):
 
             self.EEGRcv = EEGReceive("new")
             self.EEGtimer = QtCore.QTimer()
-            self.EEGtimer.setInterval(0)
+            self.EEGtimer.setInterval(1)
             self.EEGtimer.timeout.connect(self.updateEEGRcv)
             self.EEGtimer.start()
 
@@ -621,7 +622,7 @@ class Ui_MainWindow(QMainWindow):
 
             self.recordTime = 0
             cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
-            outVid = '"' + str(self.newDir) + "/out.avi" + '"'
+            outVid = '"' + str(self.newDir) + "/videoFaceGesture.avi" + '"'
             self.pipe = subprocess.Popen(cmd + outVid)
         else:
             self.showErrorPopup("Please complete fully the form")
@@ -644,7 +645,7 @@ class Ui_MainWindow(QMainWindow):
             'RecorderEdit': RecorderEdit,
             'LocateEdit': LocateEdit,
             'RecPlanEdit': RecPlanEdit,
-            'PlanDesc': arg.plans[RecPlanEdit]
+            'PlanDesc': arg.plans[RecPlanEdit - 1]
         }
         self.record_save = True
         self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
@@ -656,7 +657,7 @@ class Ui_MainWindow(QMainWindow):
 
         self.pipe.terminate()
 
-        fileName = newDir + '/' + 'plan.json'
+        fileName = newDir + '/' + 'scenario.json'
         with open(fileName, 'w') as outfile:
             json.dump(newData, outfile)
 
@@ -671,8 +672,6 @@ class Ui_MainWindow(QMainWindow):
                 et_writer.writerow([list_ET[0][idx], list_ET[1][idx]])
 
         fileNameEEG = newDir + '/' + 'EEG.edf'
-        print(fileNameEEG)
-        print(fileNameEEG[2:])
         listEEG = self.EEGRcv.getSavingData()
 
         channels = self.EEGRcv.getInfo()
@@ -690,15 +689,17 @@ class Ui_MainWindow(QMainWindow):
 
         fileName = newDir + '/' + 'eeg.json'
         js = {
-            'TaskDesc': arg.plans[RecPlanEdit],
+            'TaskDesc': arg.plans[RecPlanEdit - 1],
             'SamplingFrequence': rate,
             'EEGchannelNumber': EEGsignals.shape[0],
         }
         with open(fileName, 'w') as outfile:
             json.dump(js, outfile)
 
-        fileName = newDir + '/' + 'TimeStamp.p'
-        pickle.dump(listEEG[1], open(fileName, "wb"))
+        fileName = newDir + '/' + 'EEGTimeStamp.txt'
+        with open(fileName, "w") as txt_file:
+            for line in listEEG[1]:
+                txt_file.write(" ".join(line) + "\n")
 
         self.createSamdialog.ui.recordingStt = False
         self.createSamdialog.close()
@@ -745,7 +746,8 @@ class Ui_MainWindow(QMainWindow):
         #     self.percent = infoDev[-1][-1]
         # except Exception as e:
         #     print(e, "error catch percent")
-
+        # if self.percent < 80:
+        #     pass
         self.createSamdialog.ui.label_EEG.setText("SignalEEG " + str(self.percent) + "%")
 
 

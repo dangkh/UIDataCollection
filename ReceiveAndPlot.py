@@ -190,7 +190,7 @@ class ETReceive(object):
     def update(self):
         try:
             if self.stt:
-                sample, timestamp = self.inlet.pull_sample()
+                sample, timestamp = self.inlet.pull_samples()
             else:
                 sample = ['(0, 0, 0) : NONE : NONE']
                 timestamp = 0

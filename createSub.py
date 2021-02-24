@@ -62,7 +62,7 @@ class createSub_Dialog(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "CreateSubject"))
+        Dialog.setWindowTitle(_translate("Dialog", "Tạo thông tin người bệnh mới"))
         self.label_4.setText(_translate("Dialog", "Họ tên người bệnh"))
         self.label_5.setText(_translate("Dialog", "Tuổi"))
         self.label_6.setText(_translate("Dialog", "Giới tính"))

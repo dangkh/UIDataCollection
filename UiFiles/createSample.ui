@@ -147,7 +147,7 @@
           <item row="2" column="1">
            <widget class="QSpinBox" name="RecPlanEdit"/>
           </item>
-          <item row="4" column="1">
+          <item row="5" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>
              <widget class="QPushButton" name="fetchInfoBtn">
@@ -169,6 +169,20 @@
            <widget class="QLineEdit" name="lineEdit">
             <property name="enabled">
              <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_14">
+            <property name="text">
+             <string>Pha thử</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QSpinBox" name="spinBox">
+            <property name="maximum">
+             <number>3</number>
             </property>
            </widget>
           </item>
@@ -219,6 +233,13 @@
            <widget class="QPushButton" name="rcdBtn">
             <property name="text">
              <string>Record</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton">
+            <property name="text">
+             <string>Create Event</string>
             </property>
            </widget>
           </item>
