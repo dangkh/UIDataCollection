@@ -126,7 +126,7 @@ class EEGReceive_Plot(object):
         streams = pylsl.resolve_streams()
         # Create the pyqtgraph window
         self.pw = pg.PlotWidget(title='EEG Plot')
-        self.pw.setYRange(4000, 4800, padding=0)
+        self.pw.setYRange(-2000, 2000, padding=0)
         self.plt = self.pw.getPlotItem()
         self.plt.enableAutoRange(x=False, y=False)
 
@@ -231,26 +231,34 @@ class EEGReceive(object):
         self.lTimeStamp = []
         self.rcdTime = 0
         self.root = ET.fromstring(self.inlet.info().as_xml())
+        self.errorUpdate = 0
 
     def update(self):
         try:
             lastTime = 0
             if len(self.lTimeStamp) > 0:
                 lastTime = self.lTimeStamp[-1]
-            sample, timestamp = self.inlet.pull_sample()
-            self.lData.append(sample)
-            self.lTimeStamp.append(timestamp)
-            if lastTime == 0:
-                lastTime = int(timestamp)
-            timeStep = timestamp - lastTime
-            lastTime = timestamp
-            self.rcdTime += timeStep
+            samples, timestamps = self.inlet.pull_chunk()
+            if len(timestamps) > 0:
+                for idx, _ in enumerate(timestamps):
+                    self.lData.append(samples[idx])
+                    self.lTimeStamp.append(timestamps[idx])
+            if len(self.lTimeStamp) > 0:
+                self.rcdTime = self.lTimeStamp[-1] - self.lTimeStamp[0]
+
         except Exception as e:
-            print(e, "Error in inlet EEG Rec")
+            # print(e, "Error in inlet EEG Rec: ", self.errorUpdate)
+            self.errorUpdate += 1
         # print("update EEG")
 
     def getSavingData(self):
         return [self.lData, self.lTimeStamp]
+
+    def getLastRcdSample(self):
+        return [self.lData[-1], self.lTimeStamp[-1]]
+
+    def getFirstRcdSample(self):
+        return [self.lData[0], self.lTimeStamp[0]]
 
     def getRcdTime(self):
         return self.rcdTime

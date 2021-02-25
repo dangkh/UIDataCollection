@@ -123,7 +123,7 @@ class Sample_Dialog(QDialog):
         self.layoutVisual.setObjectName("layoutVisual")
         self.hLayoutVisual_RcdBtn = QtWidgets.QHBoxLayout()
         self.hLayoutVisual_RcdBtn.setObjectName("hLayoutVisual_RcdBtn")
-        
+
         self.timerLabel = QtWidgets.QLabel(self.gridLayoutWidget_2)
         self.timerLabel.setObjectName("timerLabel")
         self.hLayoutVisual_RcdBtn.addWidget(self.timerLabel)
@@ -132,15 +132,28 @@ class Sample_Dialog(QDialog):
         font.setWeight(75)
         self.timerLabel.setFont(font)
         self.timerLabel.setText("Timer: 0")
-        
+
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.hLayoutVisual_RcdBtn.addItem(spacerItem)
+
         self.turnOnOffBtn = QtWidgets.QPushButton(self.gridLayoutWidget_2)
         self.turnOnOffBtn.setObjectName("turnOnOffBtn")
+        # self.turnOnOffBtn.setStyleSheet(u"border-style: outset;\n"
+        #                                 "border-width: 2px;\n"
+        #                                 "border-radius: 10px;\n"
+        #                                 "border-color: beige;\n"
+        #                                 "font: bold 14px;\n"
+        #                                 "padding: 6px;")
         self.hLayoutVisual_RcdBtn.addWidget(self.turnOnOffBtn)
+
+        self.eventCreateBtn = QtWidgets.QPushButton(self.gridLayoutWidget_2)
+        self.eventCreateBtn.setObjectName("eventCreateBtn")
+        self.hLayoutVisual_RcdBtn.addWidget(self.eventCreateBtn)
+
         self.rcdBtn = QtWidgets.QPushButton(self.gridLayoutWidget_2)
         self.rcdBtn.setObjectName("rcdBtn")
         self.hLayoutVisual_RcdBtn.addWidget(self.rcdBtn)
+
         self.layoutVisual.addLayout(self.hLayoutVisual_RcdBtn, 2, 0, 1, 1)
         self.widSignal = QtWidgets.QWidget(self.gridLayoutWidget_2)
         self.widSignal.setStyleSheet("background-color: rgb(160, 160, 160);")
@@ -325,6 +338,7 @@ class Sample_Dialog(QDialog):
         self.position.setText(_translate("Dialog", "NONE"))
         self.character.setText(_translate("Dialog", "NONE"))
         self.turnOnOffBtn.setText(_translate("Dialog", "Tắt"))
+        self.eventCreateBtn.setText(_translate("Dialog", "Mở Event"))
 
     def closeEvent(self, event):
         print("recordingStt: ", self.recordingStt)
@@ -362,6 +376,7 @@ class textSpinBox(QSpinBox):
 
     def textFromValue(self, value):
         return self.list_text[value]
+
 
 # if __name__ == "__main__":
 #     import sys
