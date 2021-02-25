@@ -321,7 +321,7 @@ class Ui_MainWindow(object):
         self.choosedChannel = self.defaultChanel[:self.numDefaultChan]
         self.listChannel = []
         self.currentChannel = self.choosedChannel
-        self.data = readFile("exampleEEG.csv").T[:, 3:17]
+        # self.data = readFile("exampleEEG.csv").T[:, 3:17]
         preName = "self.Ui_Dialog."
         self.signalNames = ["A1", "A2", "C3", "C4", "CP3", "CP4",
                             "CPz", "Cz", "F17", "F18", "F3", "F4",

@@ -701,7 +701,7 @@ class Ui_MainWindow(QMainWindow):
             start = self.listEvent[event]
             stop = self.listEvent[event + 1]
             event += 2
-            f.writeAnnotation(start, stop - start, "marker")
+            f.writeAnnotation(start, stop - start, "marker_" + str(int(event / 2)))
         f.close()
 
         fileName = newDir + '/' + 'eeg.json'
