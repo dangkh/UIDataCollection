@@ -235,9 +235,9 @@ class EEGReceive(object):
 
     def update(self):
         try:
-            lastTime = 0
-            if len(self.lTimeStamp) > 0:
-                lastTime = self.lTimeStamp[-1]
+            # lastTime = 0
+            # if len(self.lTimeStamp) > 0:
+            #     lastTime = self.lTimeStamp[-1]
             samples, timestamps = self.inlet.pull_chunk()
             if len(timestamps) > 0:
                 for idx, _ in enumerate(timestamps):
@@ -259,9 +259,6 @@ class EEGReceive(object):
 
     def getFirstRcdSample(self):
         return [self.lData[0], self.lTimeStamp[0]]
-
-    def getRcdTime(self):
-        return self.rcdTime
 
     def getInfo(self):
         info = self.root[17][1]
