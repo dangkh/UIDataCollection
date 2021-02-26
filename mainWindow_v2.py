@@ -568,9 +568,9 @@ class Ui_MainWindow(QMainWindow):
 
     def createEventSample(self):
         self.startEvent = not self.startEvent
-        last = self.EEGRcv.getLastRcdSample()
-        first = self.EEGRcv.getFirstRcdSample()
-        self.listEvent.append(last[1] - first[1])
+        last = time.time()
+        first = self.startTime
+        self.listEvent.append(last - first)
         if self.startEvent:
             self.createSamdialog.ui.eventCreateBtn.setText("Dừng Event")
         else:
@@ -622,9 +622,14 @@ class Ui_MainWindow(QMainWindow):
 
             self.EEGRcv = EEGReceive("new")
             self.EEGtimer = QtCore.QTimer()
-            self.EEGtimer.setInterval(5)
+            self.EEGtimer.setInterval(10)
             self.EEGtimer.timeout.connect(self.updateEEGRcv)
             self.EEGtimer.start()
+
+            self.timerRcd = QtCore.QTimer()
+            self.timerRcd.setInterval(100)
+            self.timerRcd.timeout.connect(self.updateTimerRcd)
+            self.timerRcd.start()
 
             self.createSamdialog.ui.rcdBtn.setText("Save")
             timers = [self.update_timer, self.pull_timer]
@@ -633,8 +638,9 @@ class Ui_MainWindow(QMainWindow):
                 t.deleteLater()
 
             self.recordTime = 0
+            self.startTime = time.time()
             cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
-            outVid = '"' + str(self.newDir) + "/out.avi" + '"'
+            outVid = '"' + str(self.newDir) + "/FaceGesture.avi" + '"'
             self.pipe = subprocess.Popen(cmd + outVid)
 
             # self.createSamdialog.ui.turnOnOffBtn.hide()
@@ -725,7 +731,9 @@ class Ui_MainWindow(QMainWindow):
 
     def updateEEGRcv(self):
         self.EEGRcv.update()
-        self.recordTime = self.EEGRcv.getRcdTime()
+
+    def updateTimerRcd(self):
+        self.recordTime = time.time() - self.startTime
         self.createSamdialog.ui.timerLabel.setText("Timer: " + str(self.recordTime) + " s")
 
     def testEnter(self):

@@ -13,56 +13,60 @@ from PyQt5 import *
 from PyQt5.QtWidgets import *
 
 
-class createSub_Dialog(object):
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(544, 224)
-        self.formLayoutWidget = QtWidgets.QWidget(Dialog)
-        self.formLayoutWidget.setGeometry(QtCore.QRect(60, 40, 411, 131))
-        self.formLayoutWidget.setObjectName("formLayoutWidget")
-        self.formLayout = QtWidgets.QFormLayout(self.formLayoutWidget)
-        self.formLayout.setContentsMargins(0, 0, 0, 0)
+class createSub_Dialog(QDialog):
+    def setupUi(self):
+        self.Dialog = QtWidgets.QDialog()
+        self.setObjectName("Dialog")
+        self.resize(544, 224)
+        self.verticalLayoutWidget = QtWidgets.QWidget()
+        self.verticalLayoutWidget.setGeometry(QtCore.QRect(20, 20, 381, 251))
+        self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.formLayout = QtWidgets.QFormLayout()
         self.formLayout.setObjectName("formLayout")
-        self.label_4 = QtWidgets.QLabel(self.formLayoutWidget)
+        self.label_4 = QtWidgets.QLabel(self.verticalLayoutWidget)
         self.label_4.setObjectName("label_4")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.label_4)
-        self.NameEdit = QtWidgets.QLineEdit(self.formLayoutWidget)
+        self.NameEdit = QtWidgets.QLineEdit(self.verticalLayoutWidget)
         self.NameEdit.setObjectName("NameEdit")
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.NameEdit)
-        self.label_5 = QtWidgets.QLabel(self.formLayoutWidget)
+        self.label_5 = QtWidgets.QLabel(self.verticalLayoutWidget)
         self.label_5.setObjectName("label_5")
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.label_5)
-        self.AgeEdit = QtWidgets.QSpinBox(self.formLayoutWidget)
+        self.AgeEdit = QtWidgets.QSpinBox(self.verticalLayoutWidget)
         self.AgeEdit.setObjectName("AgeEdit")
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.AgeEdit)
-        self.label_6 = QtWidgets.QLabel(self.formLayoutWidget)
+        self.label_6 = QtWidgets.QLabel(self.verticalLayoutWidget)
         self.label_6.setObjectName("label_6")
         self.formLayout.setWidget(2, QtWidgets.QFormLayout.LabelRole, self.label_6)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.MaleEdit = QtWidgets.QRadioButton(self.formLayoutWidget)
+        self.MaleEdit = QtWidgets.QRadioButton(self.verticalLayoutWidget)
         self.MaleEdit.setObjectName("MaleEdit")
         self.horizontalLayout_2.addWidget(self.MaleEdit)
-        self.FemaleEdit = QtWidgets.QRadioButton(self.formLayoutWidget)
+        self.FemaleEdit = QtWidgets.QRadioButton(self.verticalLayoutWidget)
         self.FemaleEdit.setObjectName("FemaleEdit")
         self.horizontalLayout_2.addWidget(self.FemaleEdit)
         self.formLayout.setLayout(2, QtWidgets.QFormLayout.FieldRole, self.horizontalLayout_2)
-        self.label_7 = QtWidgets.QLabel(self.formLayoutWidget)
+        self.label_7 = QtWidgets.QLabel(self.verticalLayoutWidget)
         self.label_7.setObjectName("label_7")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.LabelRole, self.label_7)
-        self.lineEdit = QtWidgets.QLineEdit(self.formLayoutWidget)
+        self.lineEdit = QtWidgets.QLineEdit(self.verticalLayoutWidget)
         self.lineEdit.setObjectName("lineEdit")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.FieldRole, self.lineEdit)
-        self.saveBtn = QtWidgets.QPushButton(Dialog)
-        self.saveBtn.setGeometry(QtCore.QRect(230, 190, 75, 23))
+        self.verticalLayout.addLayout(self.formLayout)
+        self.saveBtn = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.saveBtn.setObjectName("saveBtn")
+        self.verticalLayout.addWidget(self.saveBtn)
+        self.setLayout(self.verticalLayout)
+        self.retranslateUi()
+        QtCore.QMetaObject.connectSlotsByName(self.Dialog)
 
-        self.retranslateUi(Dialog)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
-
-    def retranslateUi(self, Dialog):
+    def retranslateUi(self, ):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Tạo thông tin người bệnh mới"))
+        self.setWindowTitle(_translate("Dialog", "Tạo thông tin người bệnh mới"))
         self.label_4.setText(_translate("Dialog", "Họ tên người bệnh"))
         self.label_5.setText(_translate("Dialog", "Tuổi"))
         self.label_6.setText(_translate("Dialog", "Giới tính"))
@@ -87,11 +91,11 @@ class textSpinBox(QSpinBox):
     def textFromValue(self, value):
         return self.list_text[value]
 
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     Dialog = QtWidgets.QDialog()
-#     ui = createSub_Dialog()
-#     ui.setupUi(Dialog)
-#     Dialog.show()
-#     sys.exit(app.exec_())
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    ui = createSub_Dialog()
+    ui.setupUi()
+    ui.show()
+    sys.exit(app.exec_())
+

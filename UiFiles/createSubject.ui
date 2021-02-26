@@ -6,92 +6,90 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>544</width>
-    <height>224</height>
+    <width>435</width>
+    <height>293</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>CreateSubject</string>
   </property>
-  <widget class="QWidget" name="formLayoutWidget">
+  <widget class="QWidget" name="verticalLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>60</x>
-     <y>40</y>
-     <width>411</width>
-     <height>131</height>
+     <x>20</x>
+     <y>20</y>
+     <width>381</width>
+     <height>251</height>
     </rect>
    </property>
-   <layout class="QFormLayout" name="formLayout">
-    <item row="0" column="0">
-     <widget class="QLabel" name="label_4">
-      <property name="text">
-       <string>Họ tên người bệnh</string>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="1">
-     <widget class="QLineEdit" name="NameEdit"/>
-    </item>
-    <item row="1" column="0">
-     <widget class="QLabel" name="label_5">
-      <property name="text">
-       <string>Tuổi</string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="1">
-     <widget class="QSpinBox" name="AgeEdit"/>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="label_6">
-      <property name="text">
-       <string>Giới tính</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QRadioButton" name="MaleEdit">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>Nam</string>
+         <string>Họ tên người bệnh</string>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QRadioButton" name="FemaleEdit">
+      <item row="0" column="1">
+       <widget class="QLineEdit" name="NameEdit"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>Nữ</string>
+         <string>Tuổi</string>
         </property>
        </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QSpinBox" name="AgeEdit"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>Giới tính</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QRadioButton" name="MaleEdit">
+          <property name="text">
+           <string>Nam</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="FemaleEdit">
+          <property name="text">
+           <string>Nữ</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>ID người bệnh</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QLineEdit" name="lineEdit"/>
       </item>
      </layout>
     </item>
-    <item row="3" column="0">
-     <widget class="QLabel" name="label_7">
+    <item>
+     <widget class="QPushButton" name="saveBtn">
       <property name="text">
-       <string>ID người bệnh</string>
+       <string>Lưu</string>
       </property>
      </widget>
     </item>
-    <item row="3" column="1">
-     <widget class="QLineEdit" name="lineEdit"/>
-    </item>
    </layout>
-  </widget>
-  <widget class="QPushButton" name="saveBtn">
-   <property name="geometry">
-    <rect>
-     <x>230</x>
-     <y>190</y>
-     <width>75</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Lưu</string>
-   </property>
   </widget>
  </widget>
  <resources/>

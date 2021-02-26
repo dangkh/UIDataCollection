@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1293</width>
-    <height>634</height>
+    <height>659</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>20</x>
      <y>20</y>
      <width>1261</width>
-     <height>601</height>
+     <height>571</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,2">
@@ -192,42 +192,101 @@
          <height>391</height>
         </rect>
        </property>
-       <layout class="QGridLayout" name="layoutVisual" rowstretch="2,7,1">
-        <item row="2" column="0">
-         <layout class="QHBoxLayout" name="hLayoutVisual_RcdBtn">
+       <layout class="QGridLayout" name="layoutVisual" rowstretch="2,0,0">
+        <item row="1" column="0">
+         <layout class="QHBoxLayout" name="hLayoutData" stretch="1,3">
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <item>
-           <spacer name="hSpacer_RcdBtn">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+           <layout class="QVBoxLayout" name="vLayoutDataLeft">
+            <property name="spacing">
+             <number>0</number>
             </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
+            <item>
+             <widget class="QLabel" name="CAM2">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(185, 209, 234);</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="CAM1">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(220, 82, 70);</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
-           <widget class="QPushButton" name="turnOnOffBtn">
-            <property name="text">
-             <string>Bật</string>
+           <layout class="QVBoxLayout" name="vLayoutDataRight">
+            <property name="spacing">
+             <number>0</number>
             </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="rcdBtn">
-            <property name="text">
-             <string>Record</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="eventCreateBtn">
-            <property name="text">
-             <string>Tạo event</string>
-            </property>
-           </widget>
+            <item>
+             <widget class="QWidget" name="widEEG" native="true">
+              <property name="styleSheet">
+               <string notr="true">background-color: rgb(178, 202, 226);</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="hLayoutWidET" stretch="3,1">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QWidget" name="widScreen" native="true">
+                <property name="styleSheet">
+                 <string notr="true">background-color: rgb(252, 202, 65);</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="vLayoutETch">
+                <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+                 <widget class="QLabel" name="position">
+                  <property name="font">
+                   <font>
+                    <pointsize>12</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true"/>
+                  </property>
+                  <property name="text">
+                   <string>NONE</string>
+                  </property>
+                 </widget>
+                </item>
+                <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+                 <widget class="QLabel" name="character">
+                  <property name="font">
+                   <font>
+                    <pointsize>12</pointsize>
+                    <weight>75</weight>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>NONE</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
@@ -394,98 +453,100 @@
           </widget>
          </widget>
         </item>
-        <item row="1" column="0">
-         <layout class="QHBoxLayout" name="hLayoutData" stretch="1,3">
-          <property name="spacing">
-           <number>0</number>
+        <item row="2" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="4,1">
+          <property name="sizeConstraint">
+           <enum>QLayout::SetDefaultConstraint</enum>
           </property>
           <item>
-           <layout class="QVBoxLayout" name="vLayoutDataLeft">
-            <property name="spacing">
-             <number>0</number>
-            </property>
-            <item>
-             <widget class="QLabel" name="CAM2">
-              <property name="styleSheet">
-               <string notr="true">background-color: rgb(185, 209, 234);</string>
-              </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+             <widget class="QLabel" name="label_2">
               <property name="text">
-               <string/>
+               <string>Timer</string>
               </property>
              </widget>
             </item>
-            <item>
-             <widget class="QLabel" name="CAM1">
-              <property name="styleSheet">
-               <string notr="true">background-color: rgb(220, 82, 70);</string>
-              </property>
+            <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+             <widget class="QLabel" name="label_3">
               <property name="text">
-               <string/>
+               <string>0s</string>
               </property>
              </widget>
             </item>
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="vLayoutDataRight">
-            <property name="spacing">
-             <number>0</number>
-            </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3" stretch="2,1,2">
             <item>
-             <widget class="QWidget" name="widEEG" native="true">
-              <property name="styleSheet">
-               <string notr="true">background-color: rgb(178, 202, 226);</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="hLayoutWidET" stretch="3,1">
-              <property name="spacing">
-               <number>0</number>
-              </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
               <item>
-               <widget class="QWidget" name="widScreen" native="true">
-                <property name="styleSheet">
-                 <string notr="true">background-color: rgb(252, 202, 65);</string>
+               <widget class="QPushButton" name="turnOnOffBtn_2">
+                <property name="text">
+                 <string>Thoát</string>
                 </property>
                </widget>
               </item>
               <item>
-               <layout class="QVBoxLayout" name="vLayoutETch">
-                <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                 <widget class="QLabel" name="position">
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true"/>
-                  </property>
-                  <property name="text">
-                   <string>NONE</string>
-                  </property>
-                 </widget>
-                </item>
-                <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                 <widget class="QLabel" name="character">
-                  <property name="font">
-                   <font>
-                    <pointsize>12</pointsize>
-                    <weight>75</weight>
-                    <bold>true</bold>
-                   </font>
-                  </property>
-                  <property name="text">
-                   <string>NONE</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               <widget class="QPushButton" name="rcdBtn_2">
+                <property name="text">
+                 <string>Record</string>
+                </property>
+               </widget>
               </item>
              </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_6">
+              <item>
+               <widget class="QPushButton" name="pushButton">
+                <property name="styleSheet">
+                 <string notr="true">background-color:green;
+</string>
+                </property>
+                <property name="text">
+                 <string>Nghĩ</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_2">
+                <property name="text">
+                 <string>Nghĩ và Hành động</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="pushButton_3">
+                <property name="text">
+                 <string>Gõ bàn phím</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <widget class="QPushButton" name="eventCreateBtn_2">
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: red;
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: beige;
+    font: bold 14px;
+    min-width: 10em;
+    padding: 6px;
+}
+QPushButton:pressed {
+    background-color: rgb(224, 0, 0);
+    border-style: inset;
+}</string>
+              </property>
+              <property name="text">
+               <string>Tạo event</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
