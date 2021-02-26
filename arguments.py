@@ -1,5 +1,5 @@
 import argparse
-from win32api import GetSystemMetrics
+import sys
 
 
 class arguments(argparse.Namespace):
@@ -14,8 +14,14 @@ class arguments(argparse.Namespace):
              "tôi muốn vệ sinh"]
     numPlan = len(plans)
     default_res = [1920.0, 1080.0]
-    w = GetSystemMetrics(0)
-    h = GetSystemMetrics(1)
+    if sys.platform == "darwin":
+        from AppKit import NSScreen
+        w = NSScreen.mainScreen().frame().size.width
+        h = NSScreen.mainScreen().frame().size.height
+    else:
+        from win32api import GetSystemMetrics
+        w = GetSystemMetrics(0)
+        h = GetSystemMetrics(1)
     wScale = w / default_res[0]
     hScale = h / default_res[1]
 
