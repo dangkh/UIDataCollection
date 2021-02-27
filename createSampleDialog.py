@@ -22,6 +22,7 @@ class Sample_Dialog(QDialog):
         self.horizontalLayoutWidget = QtWidgets.QWidget()
         self.horizontalLayoutWidget.setGeometry(QtCore.QRect(20, 20, 1261, 601))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
+
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout.setObjectName("horizontalLayout")
@@ -121,38 +122,62 @@ class Sample_Dialog(QDialog):
         self.layoutVisual = QtWidgets.QGridLayout(self.gridLayoutWidget_2)
         self.layoutVisual.setContentsMargins(0, 0, 0, 0)
         self.layoutVisual.setObjectName("layoutVisual")
-        self.hLayoutVisual_RcdBtn = QtWidgets.QHBoxLayout()
-        self.hLayoutVisual_RcdBtn.setObjectName("hLayoutVisual_RcdBtn")
 
-        self.timerLabel = QtWidgets.QLabel(self.gridLayoutWidget_2)
+        self.hLayoutVisual_RcdBtn = QtWidgets.QHBoxLayout()
+        self.hLayoutVisual_RcdBtn.setContentsMargins(0, 0, 0, 0)
+        self.hLayoutVisual_RcdBtn.setObjectName("hLayoutVisual_RcdBtn")
+        self.verticalLayout_Timer = QtWidgets.QVBoxLayout()
+        self.verticalLayout_Timer.setObjectName("verticalLayout_Timer")
+        self.timerLabel = QtWidgets.QLabel()
         self.timerLabel.setObjectName("timerLabel")
-        self.hLayoutVisual_RcdBtn.addWidget(self.timerLabel)
         font = QtGui.QFont()
         font.setBold(True)
         font.setWeight(75)
         self.timerLabel.setFont(font)
-        self.timerLabel.setText("Timer: 0")
-
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.hLayoutVisual_RcdBtn.addItem(spacerItem)
-
-        self.turnOnOffBtn = QtWidgets.QPushButton(self.gridLayoutWidget_2)
+        self.verticalLayout_Timer.addWidget(self.timerLabel, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        self.timerNumberLabel = QtWidgets.QLabel()
+        self.timerNumberLabel.setObjectName("timerNumberLabel")
+        self.timerNumberLabel.setFont(font)
+        self.verticalLayout_Timer.addWidget(self.timerNumberLabel, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        self.hLayoutVisual_RcdBtn.addLayout(self.verticalLayout_Timer)
+        # spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        # self.hLayoutVisual_RcdBtn.addItem(spacerItem)
+        self.verticalLayout_RcdMenu = QtWidgets.QVBoxLayout()
+        self.verticalLayout_RcdMenu.setObjectName("verticalLayout_RcdMenu")
+        self.horizontalLayout_menu = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_menu.setObjectName("horizontalLayout_menu")
+        self.turnOnOffBtn = QtWidgets.QPushButton()
         self.turnOnOffBtn.setObjectName("turnOnOffBtn")
-        # self.turnOnOffBtn.setStyleSheet(u"border-style: outset;\n"
-        #                                 "border-width: 2px;\n"
-        #                                 "border-radius: 10px;\n"
-        #                                 "border-color: beige;\n"
-        #                                 "font: bold 14px;\n"
-        #                                 "padding: 6px;")
-        self.hLayoutVisual_RcdBtn.addWidget(self.turnOnOffBtn)
-
-        self.eventCreateBtn = QtWidgets.QPushButton(self.gridLayoutWidget_2)
-        self.eventCreateBtn.setObjectName("eventCreateBtn")
-        self.hLayoutVisual_RcdBtn.addWidget(self.eventCreateBtn)
-
-        self.rcdBtn = QtWidgets.QPushButton(self.gridLayoutWidget_2)
+        self.horizontalLayout_menu.addWidget(self.turnOnOffBtn)
+        self.rcdBtn = QtWidgets.QPushButton()
         self.rcdBtn.setObjectName("rcdBtn")
-        self.hLayoutVisual_RcdBtn.addWidget(self.rcdBtn)
+        self.horizontalLayout_menu.addWidget(self.rcdBtn)
+        self.verticalLayout_RcdMenu.addLayout(self.horizontalLayout_menu)
+        # spacerItem1 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        # self.verticalLayout_RcdMenu.addItem(spacerItem1)
+        self.horizontalLayout_event = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_event.setObjectName("horizontalLayout_event")
+        self.type1Btn = QtWidgets.QPushButton()
+        self.type1Btn.setObjectName("type1Btn")
+        self.horizontalLayout_event.addWidget(self.type1Btn)
+        self.type2Btn = QtWidgets.QPushButton()
+        self.type2Btn.setObjectName("type2Btn")
+        self.horizontalLayout_event.addWidget(self.type2Btn)
+        self.type3Btn = QtWidgets.QPushButton()
+        self.type3Btn.setObjectName("type3Btn")
+        self.horizontalLayout_event.addWidget(self.type3Btn)
+        self.verticalLayout_RcdMenu.addLayout(self.horizontalLayout_event)
+        self.eventCreateBtn = QtWidgets.QPushButton()
+        self.eventCreateBtn.setObjectName("eventCreateBtn")
+        self.eventCreateBtn.setStyleSheet(u"border-style: outset;\n"
+                                          "border-width: 2px;\n"
+                                          "border-radius: 10px;\n"
+                                          "border-color: beige;\n"
+                                          "font: bold 14px;\n"
+                                          "background-color : lightblue;\n"
+                                          "padding: 6px;")
+        # self.verticalLayout_RcdMenu.addWidget(self.eventCreateBtn)
+        self.hLayoutVisual_RcdBtn.addLayout(self.verticalLayout_RcdMenu)
 
         self.layoutVisual.addLayout(self.hLayoutVisual_RcdBtn, 2, 0, 1, 1)
         self.widSignal = QtWidgets.QWidget(self.gridLayoutWidget_2)
@@ -313,6 +338,7 @@ class Sample_Dialog(QDialog):
         self.visualDatWidget.setLayout(self.layoutVisual)
         self.widSignal.setLayout(self.gLayoutSignal)
         self.setLayout(self.horizontalLayout)
+        # self.eventCreateBtn.clicked.connect(lambda: self.changeStyle(self.eventCreateBtn))
         self.recordingStt = True
 
     def retranslateUi(self):
@@ -330,15 +356,20 @@ class Sample_Dialog(QDialog):
         self.label_13.setText(_translate("Dialog", "Kịch bản"))
         self.fetchInfoBtn.setText(_translate("Dialog", "Lây thông tin cũ"))
         self.resetBtn.setText(_translate("Dialog", "Xóa thông tin"))
-        self.rcdBtn.setText(_translate("Dialog", "Record"))
         self.label_CAM2.setText(_translate("Dialog", "CAM2"))
         self.label_CAM1.setText(_translate("Dialog", "CAM1"))
         self.label_ET.setText(_translate("Dialog", "ET"))
         self.label_EEG.setText(_translate("Dialog", "EEG"))
         self.position.setText(_translate("Dialog", "NONE"))
         self.character.setText(_translate("Dialog", "NONE"))
-        self.turnOnOffBtn.setText(_translate("Dialog", "Tắt"))
-        self.eventCreateBtn.setText(_translate("Dialog", "Mở Event"))
+        self.timerLabel.setText(_translate("Dialog", "Timer"))
+        self.timerNumberLabel.setText(_translate("Dialog", "0s"))
+        self.turnOnOffBtn.setText(_translate("Dialog", "Thoát"))
+        self.rcdBtn.setText(_translate("Dialog", "Record"))
+        self.type1Btn.setText(_translate("Dialog", "Nghĩ"))
+        self.type2Btn.setText(_translate("Dialog", "Nghĩ và Hành động"))
+        self.type3Btn.setText(_translate("Dialog", "Gõ bàn phím"))
+        self.eventCreateBtn.setText(_translate("Dialog", "Tạo event"))
 
     def closeEvent(self, event):
         print("recordingStt: ", self.recordingStt)

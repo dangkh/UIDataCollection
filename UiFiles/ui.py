@@ -9,16 +9,13 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5 import *
-from PyQt5.QtWidgets import *
 
 
-class createSub_Dialog(QDialog):
-    def setupUi(self):
-        self.Dialog = QtWidgets.QDialog()
-        self.setObjectName("Dialog")
-        self.resize(435, 293)
-        self.verticalLayoutWidget = QtWidgets.QWidget()
+class Ui_Dialog(object):
+    def setupUi(self, Dialog):
+        Dialog.setObjectName("Dialog")
+        Dialog.resize(435, 293)
+        self.verticalLayoutWidget = QtWidgets.QWidget(Dialog)
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(20, 20, 381, 251))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.verticalLayoutWidget)
@@ -61,14 +58,12 @@ class createSub_Dialog(QDialog):
         self.saveBtn.setObjectName("saveBtn")
         self.verticalLayout.addWidget(self.saveBtn)
 
-        self.retranslateUi()
-        QtCore.QMetaObject.connectSlotsByName(self.Dialog)
+        self.retranslateUi(Dialog)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-        self.setLayout(self.verticalLayout)
-
-    def retranslateUi(self):
+    def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("Dialog", "Tạo thông tin người bệnh mới"))
+        Dialog.setWindowTitle(_translate("Dialog", "CreateSubject"))
         self.label_4.setText(_translate("Dialog", "Họ tên người bệnh"))
         self.label_5.setText(_translate("Dialog", "Tuổi"))
         self.label_6.setText(_translate("Dialog", "Giới tính"))
@@ -76,29 +71,3 @@ class createSub_Dialog(QDialog):
         self.FemaleEdit.setText(_translate("Dialog", "Nữ"))
         self.label_7.setText(_translate("Dialog", "ID người bệnh"))
         self.saveBtn.setText(_translate("Dialog", "Lưu"))
-
-
-class textSpinBox(QSpinBox):
-    def __init__(self, parent=None):
-        super(textSpinBox, self).__init__(parent)
-        self.set_list_string()
-
-    def set_list_string(self, strings=None):
-        if strings is not None:
-            self.list_text = strings
-        else:
-            self.list_text = ["Khỏe", "Bình thường", "Yếu"]
-        self.setRange(0, len(self.list_text) - 1)
-
-    def textFromValue(self, value):
-        return self.list_text[value]
-
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     # Dialog = QtWidgets.QDialog()
-#     ui = createSub_Dialog()
-#     ui.setupUi()
-#     ui.show()
-#     # Dialog.show()
-#     sys.exit(app.exec_())

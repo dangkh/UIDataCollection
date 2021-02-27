@@ -50,10 +50,10 @@ class detailSam_Dialog(QDialog):
         self.label_2.setText(_translate("Dialog", "Bản ghi"))
 
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    ui = detailSam_Dialog()
-    ui.setupUi()
-    ui.show()
-    sys.exit(app.exec_())
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     ui = detailSam_Dialog()
+#     ui.setupUi()
+#     ui.show()
+#     sys.exit(app.exec_())
