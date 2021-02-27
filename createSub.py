@@ -17,7 +17,7 @@ class createSub_Dialog(QDialog):
     def setupUi(self):
         self.Dialog = QtWidgets.QDialog()
         self.setObjectName("Dialog")
-        self.resize(544, 224)
+        self.resize(435, 293)
         self.verticalLayoutWidget = QtWidgets.QWidget()
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(20, 20, 381, 251))
         self.verticalLayoutWidget.setObjectName("verticalLayoutWidget")
@@ -60,11 +60,13 @@ class createSub_Dialog(QDialog):
         self.saveBtn = QtWidgets.QPushButton(self.verticalLayoutWidget)
         self.saveBtn.setObjectName("saveBtn")
         self.verticalLayout.addWidget(self.saveBtn)
-        self.setLayout(self.verticalLayout)
+
         self.retranslateUi()
         QtCore.QMetaObject.connectSlotsByName(self.Dialog)
 
-    def retranslateUi(self, ):
+        self.setLayout(self.verticalLayout)
+
+    def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("Dialog", "Tạo thông tin người bệnh mới"))
         self.label_4.setText(_translate("Dialog", "Họ tên người bệnh"))
@@ -91,11 +93,12 @@ class textSpinBox(QSpinBox):
     def textFromValue(self, value):
         return self.list_text[value]
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    ui = createSub_Dialog()
-    ui.setupUi()
-    ui.show()
-    sys.exit(app.exec_())
-
+# if __name__ == "__main__":
+#     import sys
+#     app = QtWidgets.QApplication(sys.argv)
+#     # Dialog = QtWidgets.QDialog()
+#     ui = createSub_Dialog()
+#     ui.setupUi()
+#     ui.show()
+#     # Dialog.show()
+#     sys.exit(app.exec_())

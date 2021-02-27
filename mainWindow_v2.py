@@ -28,6 +28,7 @@ import subprocess
 import pyedflib as pyedf
 from arguments import arg
 import pickle
+import time as osTimer
 
 
 class Ui_MainWindow(QMainWindow):
@@ -288,7 +289,7 @@ class Ui_MainWindow(QMainWindow):
     def newSubject(self):
         self.createSubdialog = createSub(self)
         self.createSubdialog.ui.saveBtn.clicked.connect(self.createNewSub)
-        self.createSubdialog.exec_()
+        self.createSubdialog.ui.exec_()
 
     def createNewSub(self):
         name = self.createSubdialog.ui.NameEdit.text()
@@ -332,7 +333,6 @@ class Ui_MainWindow(QMainWindow):
         self.createSamdialog.ui.resetBtn.clicked.connect(self.updateInfoSample)
         self.createSamdialog.ui.rcdBtn.clicked.connect(self.record_saveData)
         self.createSamdialog.ui.turnOnOffBtn.clicked.connect(self.samForceQuit)
-        self.createSamdialog.ui.eventCreateBtn.clicked.connect(self.createEventSample)
         self.startEvent = False
 
         self.signalTimer = QtCore.QTimer()
@@ -370,6 +370,12 @@ class Ui_MainWindow(QMainWindow):
         self.CAMth = VideoRecorder()
         self.CAMth.setLabelImage([self.createSamdialog.ui.CAM1, self.createSamdialog.ui.CAM2])
         self.CAMth.beginRecord()
+
+        self.currentEvent = None
+        self.listEventBtn = [self.createSamdialog.ui.type1Btn, self.createSamdialog.ui.type2Btn, self.createSamdialog.ui.type3Btn]
+        for btn in self.listEventBtn:
+            btn.clicked.connect(self.changeEventVisual(btn))
+            btn.hide()
 
         self.createSamdialog.ui.exec_()
 
@@ -566,16 +572,6 @@ class Ui_MainWindow(QMainWindow):
                 data = json.load(json_file)
             self.createSamdialog.setRecodData(data)
 
-    def createEventSample(self):
-        self.startEvent = not self.startEvent
-        last = time.time()
-        first = self.startTime
-        self.listEvent.append(last - first)
-        if self.startEvent:
-            self.createSamdialog.ui.eventCreateBtn.setText("Dừng Event")
-        else:
-            self.createSamdialog.ui.eventCreateBtn.setText("Mở Event")
-
     def samForceQuit(self):
         timers = [self.update_timer, self.pull_timer, self.signalTimer]
         for t in timers:
@@ -592,7 +588,9 @@ class Ui_MainWindow(QMainWindow):
 
     def createRecord(self):
         self.listEvent = []
-
+        self.listEventMarker = []
+        for btn in self.listEventBtn:
+            btn.show()
         RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
         RecPlanEdit = self.createSamdialog.ui.RecPlanEdit.value()
@@ -632,24 +630,28 @@ class Ui_MainWindow(QMainWindow):
             self.timerRcd.start()
 
             self.createSamdialog.ui.rcdBtn.setText("Save")
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            font.setWeight(75)
+            self.createSamdialog.ui.rcdBtn.setFont(font)
             timers = [self.update_timer, self.pull_timer]
             for t in timers:
                 t.stop()
                 t.deleteLater()
 
             self.recordTime = 0
-            self.startTime = time.time()
+            self.startTime = osTimer.time()
             cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
             outVid = '"' + str(self.newDir) + "/FaceGesture.avi" + '"'
             self.pipe = subprocess.Popen(cmd + outVid)
 
-            # self.createSamdialog.ui.turnOnOffBtn.hide()
+            self.changeStyleRcd()
         else:
             self.showErrorPopup("Please complete fully the form")
 
     def saveRecord(self):
         print("Enter Save")
-
         RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
         RecPlanEdit = self.createSamdialog.ui.RecPlanEdit.value()
@@ -700,16 +702,16 @@ class Ui_MainWindow(QMainWindow):
         f.setSignalHeaders(signalHeader)
         f.writeSamples(EEGsignals, digital=False)
 
-        event = 0
-        if len(self.listEvent) % 2 == 1:
-            self.listEvent.pop()
-        while event < len(self.listEvent):
-            start = self.listEvent[event]
-            stop = self.listEvent[event + 1]
-            event += 2
-            f.writeAnnotation(start, stop - start, "marker_" + str(int(event / 2)))
-        f.close()
+        eventIdx = 0
+        while eventIdx < len(self.listEvent):
+            start = self.listEvent[eventIdx][0]
+            stop = self.listEvent[eventIdx][1]
+            # print(start, stop - start, self.listEventMarker[eventIdx])
+            f.writeAnnotation(start - self.startTime, stop - start, self.listEventMarker[eventIdx])
 
+            eventIdx += 1
+        f.close()
+        print(self.listEventMarker)
         fileName = newDir + '/' + 'eeg.json'
         js = {
             'TaskDesc': arg.plans[RecPlanEdit - 1],
@@ -733,8 +735,9 @@ class Ui_MainWindow(QMainWindow):
         self.EEGRcv.update()
 
     def updateTimerRcd(self):
-        self.recordTime = time.time() - self.startTime
-        self.createSamdialog.ui.timerLabel.setText("Timer: " + str(self.recordTime) + " s")
+        self.recordTime = osTimer.time() - self.startTime
+        time = "{:.2f}".format(self.recordTime)
+        self.createSamdialog.ui.timerNumberLabel.setText("Timer: " + str(time) + " s")
 
     def testEnter(self):
         print("pass")
@@ -783,6 +786,39 @@ class Ui_MainWindow(QMainWindow):
 
         self.createSamdialog.ui.label_EEG.setText("SignalEEG " + str(self.percent) + "%")
 
+    def changeStyleRcd(self):
+        self.createSamdialog.ui.turnOnOffBtn.hide()
+        self.createSamdialog.ui.rcdBtn.setStyleSheet(u"border-style: outset;\n"
+                                                     "border-width: 1px;\n"
+                                                     "border-radius: 10px;\n"
+                                                     "border-color: beige;\n"
+                                                     "background-color: red;\n"
+                                                     "padding: 3px;")
+
+    def changeEventVisual(self, btn):
+        def wrap():
+            if self.currentEvent is None:
+                for b in self.listEventBtn:
+                    b.hide()
+                btn.show()
+                btn.setStyleSheet(u"border-style: outset;\n"
+                                  "border-width: 1px;\n"
+                                  "border-radius: 10px;\n"
+                                  "border-color: beige;\n"
+                                  "background-color: rgb(252, 202, 65);\n"
+                                  "padding: 3px;")
+                self.currentEvent = btn
+                self.currentEventStart = osTimer.time()
+            else:
+                for b in self.listEventBtn:
+                    b.show()
+                    b.setStyleSheet("")
+                self.currentEvent = None
+                tmpTimer = osTimer.time()
+                self.listEvent.append([self.currentEventStart, tmpTimer])
+                self.listEventMarker.append(btn.text())
+        return wrap
+
 
 def readStorageData(link="./DataVIN/"):
     onlydir = []
@@ -800,7 +836,7 @@ class createSub(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.ui = createSub_Dialog()
-        self.ui.setupUi(self)
+        self.ui.setupUi()
 
 
 class createViewSam(QDialog):
