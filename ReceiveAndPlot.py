@@ -60,7 +60,8 @@ class DataInlet(Inlet):
         self.buffer = np.empty(bufsize, dtype=self.dtypes[info.channel_format()])
         empty = np.array([])
         # create one curve object for each channel/line that will handle displaying the data
-        self.curves = [pg.PlotCurveItem(x=empty, y=empty, autoDownsample=True) for _ in range(self.channel_count)]
+        self.curves = [pg.PlotCurveItem(x=empty, y=empty, autoDownsample=True)
+                       for _ in range(self.channel_count-4)]
         for curve in self.curves:
             plt.addItem(curve)
 
@@ -76,7 +77,8 @@ class DataInlet(Inlet):
             this_x = None
             old_offset = 0
             new_offset = 0
-            for ch_ix in range(self.channel_count):
+            for index in range(3, self.channel_count-1):
+                ch_ix = index - 3
                 # we don't pull an entire screen's worth of data, so we have to
                 # trim the old data and append the new data to it
                 old_x, old_y = self.curves[ch_ix].getData()
@@ -92,7 +94,7 @@ class DataInlet(Inlet):
                     # append new timestamps to the trimmed old timestamps
                     this_x = np.hstack((old_x[old_offset:], ts[new_offset:]))
                 # append new data to the trimmed old data
-                this_y = np.hstack((old_y[old_offset:], y[new_offset:, ch_ix] - ch_ix))
+                this_y = np.hstack((old_y[old_offset:], y[new_offset:, index] - index))
                 # replace the old data
                 self.curves[ch_ix].setData(this_x, this_y)
 
@@ -127,6 +129,7 @@ class EEGReceive_Plot(object):
         # Create the pyqtgraph window
         self.pw = pg.PlotWidget(title='EEG Plot')
         self.pw.setYRange(-2000, 2000, padding=0)
+        self.pw.getPlotItem().hideAxis('bottom')
         self.plt = self.pw.getPlotItem()
         self.plt.enableAutoRange(x=False, y=False)
 
@@ -235,9 +238,6 @@ class EEGReceive(object):
 
     def update(self):
         try:
-            # lastTime = 0
-            # if len(self.lTimeStamp) > 0:
-            #     lastTime = self.lTimeStamp[-1]
             samples, timestamps = self.inlet.pull_chunk()
             if len(timestamps) > 0:
                 for idx, _ in enumerate(timestamps):
@@ -249,7 +249,6 @@ class EEGReceive(object):
         except Exception as e:
             # print(e, "Error in inlet EEG Rec: ", self.errorUpdate)
             self.errorUpdate += 1
-        # print("update EEG")
 
     def getSavingData(self):
         return [self.lData, self.lTimeStamp]

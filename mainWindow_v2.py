@@ -11,9 +11,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import os
 from createSub import createSub_Dialog
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-import random
 import json
 
 from createSampleDialog import Sample_Dialog
@@ -27,7 +24,6 @@ import requests
 import subprocess
 import pyedflib as pyedf
 from arguments import arg
-import pickle
 import time as osTimer
 
 
@@ -316,12 +312,12 @@ class Ui_MainWindow(QMainWindow):
                 'age': age,
                 'gender': gender,
             }
-            newlink = './dataVIN/' + str(recordID)
+            newlink = './DataVIN/' + str(recordID)
             os.mkdir(newlink)
             fileName = newlink + '/' + 'info.json'
             with open(fileName, 'w') as outfile:
                 json.dump(js, outfile)
-            self.createSubdialog.close()
+            self.createSubdialog.ui.close()
             self.updateSub(page=-1)
         else:
             self.showErrorPopup("Please complete fully the form")
