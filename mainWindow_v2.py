@@ -321,7 +321,7 @@ class Ui_MainWindow(QMainWindow):
             fileName = newlink + '/' + 'info.json'
             with open(fileName, 'w') as outfile:
                 json.dump(js, outfile)
-            self.createSubdialog.close()
+            self.createSubdialog.ui.close()
             self.updateSub(page=-1)
         else:
             self.showErrorPopup("Please complete fully the form")

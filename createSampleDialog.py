@@ -366,9 +366,9 @@ class Sample_Dialog(QDialog):
         self.timerNumberLabel.setText(_translate("Dialog", "0s"))
         self.turnOnOffBtn.setText(_translate("Dialog", "Thoát"))
         self.rcdBtn.setText(_translate("Dialog", "Record"))
-        self.type1Btn.setText(_translate("Dialog", "Nghĩ"))
-        self.type2Btn.setText(_translate("Dialog", "Nghĩ và Hành động"))
-        self.type3Btn.setText(_translate("Dialog", "Gõ bàn phím"))
+        self.type1Btn.setText(_translate("Dialog", "Thinking"))
+        self.type2Btn.setText(_translate("Dialog", "Thinking and Action"))
+        self.type3Btn.setText(_translate("Dialog", "Typing"))
         self.eventCreateBtn.setText(_translate("Dialog", "Tạo event"))
 
     def closeEvent(self, event):
@@ -409,10 +409,10 @@ class textSpinBox(QSpinBox):
         return self.list_text[value]
 
 
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     ui = Sample_Dialog()
-#     ui.setupUi()
-#     ui.show()
-#     sys.exit(app.exec_())
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    ui = Sample_Dialog()
+    ui.setupUi()
+    ui.show()
+    sys.exit(app.exec_())

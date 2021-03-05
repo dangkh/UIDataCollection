@@ -1,16 +1,10 @@
 import os
-import sys
 import cv2
-import queue
 import threading
-import time
 from pylsl import StreamInfo, StreamOutlet
-from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-import numpy as np
 import qimage2ndarray
-import time
 
 
 class VideoRecorder:
