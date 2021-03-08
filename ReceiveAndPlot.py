@@ -192,9 +192,11 @@ class ETReceive(object):
 
     def update(self):
         try:
+            timestamp = None
             if self.stt:
-                sample, timestamp = self.inlet.pull_sample()
-            else:
+                sample, timestamp = self.inlet.pull_sample(timeout=0.0)
+
+            if timestamp is None:
                 sample = ['(0, 0, 0) : NONE : NONE']
                 timestamp = 0
             # print(sample, timestamp)
