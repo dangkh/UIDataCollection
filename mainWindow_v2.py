@@ -26,6 +26,9 @@ import pyedflib as pyedf
 from arguments import arg
 import time as osTimer
 
+from utils.subject_folder import  SubjectFolder
+from utils.sample_file import  SampleFile
+
 
 class Ui_MainWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -33,6 +36,7 @@ class Ui_MainWindow(QMainWindow):
         super().__init__(parent)
         uic.loadUi('UiFiles/mainWindowRcd.ui', self)
         self.listSub = []
+        self.listSam = []
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -80,12 +84,10 @@ class Ui_MainWindow(QMainWindow):
 
     def updateSub(self, listDir=[], page=0):
         for sub in self.listSub:
-            sub['Btn'].setParent(None)
-            sub['Label'].setParent(None)
+            sub.remove()
 
         self.listSub = []
         self.listDirSub = readStorageData(self.storeDir)
-        # print(self.listDirSub)
         self.numPage = len(self.listDirSub) // self.numItem
         if len(self.listDirSub) % self.numItem == 0:
             self.numPage -= 1
@@ -111,55 +113,15 @@ class Ui_MainWindow(QMainWindow):
 
         for x in range(4):
             for y in range(4):
-                newSubject = QtWidgets.QWidget()
-                newSubject.setObjectName("newSubject" + str(x) + str(y))
-                subInfo = QtWidgets.QVBoxLayout(newSubject)
-                subInfo.setContentsMargins(0, 0, 0, 0)
-                subInfo.setObjectName("subInfo" + str(x) + str(y))
-                subBtn = QtWidgets.QPushButton(newSubject)
-                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-                sizePolicy.setHorizontalStretch(0)
-                sizePolicy.setVerticalStretch(0)
-                sizePolicy.setHeightForWidth(subBtn.sizePolicy().hasHeightForWidth())
-                subBtn.setSizePolicy(sizePolicy)
-                subBtn.setStyleSheet("background-color: rgba(255,255,255,0);border: 0px;")
-                subBtn.setText("")
-                icon = QtGui.QIcon()
-                icon.addPixmap(QtGui.QPixmap("folder-blue-512.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-                subBtn.setIcon(icon)
-                subBtn.setIconSize(QtCore.QSize(50, 50))
-                subBtn.setObjectName("subBtn" + str(x) + str(y))
-                subInfo.addWidget(subBtn)
-                subLabel = QtWidgets.QLabel(newSubject)
-                subLabel.setObjectName("subLabel" + str(x) + str(y))
-                subLabel.setText("")
-                subInfo.addWidget(subLabel, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
-                subInfo.setStretch(0, 4)
-                subInfo.setStretch(1, 1)
-                subDict = {
-                    'subject': newSubject,
-                    'Info': subInfo,
-                    'Btn': subBtn,
-                    'Label': subLabel,
-                    'pos': [x, y],
-                    'dir': ""
-                }
-                self.listSub.append(subDict)
-                self.patientsGridLayout.addWidget(newSubject, x, y)
-                if counter >= len(showDir):
-                    newSubject.setEnabled(False)
+                if counter < len(showDir):
+                    self.listSub.append(SubjectFolder(showDir[counter], True))
                 else:
-                    nameSubject = str(showDir[counter]).split("/")[-1]
-                    lastDir = showDir[counter] + '/info.json'
-                    with open(lastDir) as json_file:
-                        data = json.load(json_file)
-                    nameSubject = nameSubject + " (" + data["name"] + ")"
-                    subLabel.setText(nameSubject)
-                    self.listSub[counter]['dir'] = showDir[counter]
+                    self.listSub.append(SubjectFolder('', False))
+                self.patientsGridLayout.addWidget(self.listSub[-1].subjectWidget, x, y)
                 counter += 1
 
         for x in self.listSub:
-            x['Btn'].clicked.connect(self.updateSamVisual(x))
+            x.button.clicked.connect(self.updateSamVisual(x))
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -281,6 +243,10 @@ class Ui_MainWindow(QMainWindow):
         except Exception as e:
             pass
 
+        # remove old sample widgets
+        for sample in self.listSam:
+            sample.remove()
+
         self.label_2.setText("Danh sách bản ghi: " + nameSubject)
         if listDir == -1:
             self.listDirSam = []
@@ -307,63 +273,19 @@ class Ui_MainWindow(QMainWindow):
         self.listSam = []
         for x in range(4):
             for y in range(4):
-                newSam = QtWidgets.QWidget()
-                newSam.setObjectName("newSample" + str(x) + str(y))
-                samInfo = QtWidgets.QVBoxLayout(newSam)
-                samInfo.setContentsMargins(0, 0, 0, 0)
-                samInfo.setObjectName("samInfo" + str(x) + str(y))
-                samBtn = QtWidgets.QPushButton(newSam)
-                sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-                sizePolicy.setHorizontalStretch(0)
-                sizePolicy.setVerticalStretch(0)
-                sizePolicy.setHeightForWidth(samBtn.sizePolicy().hasHeightForWidth())
-                samBtn.setSizePolicy(sizePolicy)
-                samBtn.setStyleSheet("background-color: rgba(255,255,255,0);border: 0px;")
-                icon1 = QtGui.QIcon()
-                icon1.addPixmap(QtGui.QPixmap("mfiles.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-                icon2 = QtGui.QIcon()
-                icon2.addPixmap(QtGui.QPixmap("file.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-                samBtn.setObjectName("samBtn" + str(x) + str(y))
-                samInfo.addWidget(samBtn)
-                samLabel = QtWidgets.QLabel(newSam)
-                samLabel.setObjectName("samLabel" + str(x) + str(y))
-                samLabel.setText("")
-                samInfo.addWidget(samLabel, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
-                samInfo.setStretch(0, 4)
-                samInfo.setStretch(1, 1)
-                self.gridLayout_sample.addWidget(newSam, x, y)
-                samDict = {
-                    'subject': newSam,
-                    'Info': samInfo,
-                    'Btn': samBtn,
-                    'Label': samLabel,
-                    'pos': [x, y],
-                    'dir': ""
-                }
-                self.listSam.append(samDict)
-                if counter >= len(showDirSam):
-                    newSam.setEnabled(False)
-                    samBtn.setIcon(icon2)
+                if counter < len(showDirSam):
+                    self.listSam.append(SampleFile(showDirSam[counter], True))
                 else:
-                    subjectName = str(showDirSam[counter]).split("/")[-1]
-
-                    lastDir = showDirSam[counter] + '/scenario.json'
-                    with open(lastDir) as json_file:
-                        data = json.load(json_file)
-                    subjectName = subjectName + " (scenario_" + str(data["RecPlanEdit"]) + ")"
-
-                    samLabel.setText(subjectName)
-                    samBtn.setIcon(icon1)
-                    samBtn.setIconSize(QtCore.QSize(50, 50))
-                    self.listSam[counter]["dir"] = showDirSam[counter]
+                    self.listSam.append(SampleFile('', False))
+                self.gridLayout_sample.addWidget(self.listSam[-1].sampleWidget, x, y)
                 counter += 1
 
-        for x in self.listSam:
-            x['Btn'].clicked.connect(self.visualSamdetail(x))
+        for sampleFile in self.listSam:
+            sampleFile.button.clicked.connect(self.visualSamdetail(sampleFile))
 
-    def updateSamVisual(self, arg):
+    def updateSamVisual(self, sub: SubjectFolder):
         def wrap():
-            link = arg['dir']
+            link = sub.dir
             self.currentSub = link
             if os.path.isdir(link):
                 onlydir = [link + "/" + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
@@ -389,10 +311,9 @@ class Ui_MainWindow(QMainWindow):
         path = os.path.realpath(link)
         os.startfile(path)
 
-    def visualSamdetail(self, arg):
-        # TODO
+    def visualSamdetail(self, sampleFile: SampleFile):
         def wrap():
-            link = arg['dir']
+            link = sampleFile.dir
             self.chooseViewSam("Do you want to view Sample detail at ", link)
         return wrap
 
@@ -480,8 +401,6 @@ class Ui_MainWindow(QMainWindow):
     def createRecord(self):
         self.listEvent = []
         self.listEventMarker = []
-        for btn in self.listEventBtn:
-            btn.show()
         RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
         RecPlanEdit = self.createSamdialog.ui.RecPlanEdit.value()
@@ -492,6 +411,8 @@ class Ui_MainWindow(QMainWindow):
             missingValue = True
 
         if not missingValue:
+            for btn in self.listEventBtn:
+                btn.show()
             self.record_save = False
             self.createSamdialog.ui.recordingStt = True
             # create new sample folder
@@ -554,7 +475,7 @@ class Ui_MainWindow(QMainWindow):
         }
         self.record_save = True
         self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
-        timers = [self.ETtimer, self.signalTimer, self.EEGtimer]
+        timers = [self.ETtimer, self.signalTimer, self.EEGtimer, self.timerRcd]
         for t in timers:
             t.stop()
             t.deleteLater()
