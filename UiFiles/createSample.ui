@@ -235,7 +235,6 @@
               <property name="styleSheet">
                <string notr="true">background-color: rgb(178, 202, 226);</string>
               </property>
-              <widget class="QWidget" name="widEEGPage1" native="true"/>
              </widget>
             </item>
             <item>
@@ -326,7 +325,11 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>../redBtn.png</normaloff>../redBtn.png</iconset>
+                <normaloff>../redBtn.png</normaloff>
+                <normalon>../greenbt2.png</normalon>
+                <disabledoff>../greenbt2.png</disabledoff>
+                <disabledon>../redBtn.png</disabledon>
+                <selectedoff>../redBtn.png</selectedoff>../redBtn.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -375,7 +378,11 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>../redBtn.png</normaloff>../redBtn.png</iconset>
+                <normaloff>../redBtn.png</normaloff>
+                <normalon>../greenbt2.png</normalon>
+                <disabledoff>../greenbt2.png</disabledoff>
+                <disabledon>../redBtn.png</disabledon>
+                <selectedoff>../redBtn.png</selectedoff>../redBtn.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -398,7 +405,11 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>../redBtn.png</normaloff>../redBtn.png</iconset>
+                <normaloff>../redBtn.png</normaloff>
+                <normalon>../greenbt2.png</normalon>
+                <disabledoff>../greenbt2.png</disabledoff>
+                <disabledon>../redBtn.png</disabledon>
+                <selectedoff>../redBtn.png</selectedoff>../redBtn.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -434,7 +445,11 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>../redBtn.png</normaloff>../redBtn.png</iconset>
+                <normaloff>../redBtn.png</normaloff>
+                <normalon>../greenbt2.png</normalon>
+                <disabledoff>../greenbt2.png</disabledoff>
+                <disabledon>../redBtn.png</disabledon>
+                <selectedoff>../redBtn.png</selectedoff>../redBtn.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -483,7 +498,7 @@
               </widget>
              </item>
              <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-              <widget class="QLabel" name="label_3">
+              <widget class="QLabel" name="timerNumberLabel">
                <property name="text">
                 <string>0s</string>
                </property>
