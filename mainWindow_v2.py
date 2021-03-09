@@ -30,9 +30,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.listSub = []
         self.listSam = []
 
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(int(1500 * arg.wScale), int(850 * arg.hScale))
+    def setupUi(self):
+        self.setObjectName("MainWindow")
+        self.resize(int(1500 * arg.wScale), int(850 * arg.hScale))
         self.patientsGridLayout = self.findChild(QtWidgets.QGridLayout, 'patientsGridLayout')
         self.createEvent()
 
@@ -55,12 +55,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.updateSam(listDir=-1)
 
-        self.retranslateUi(MainWindow)
+        self.retranslateUi()
 
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(self)
         widget = QtWidgets.QWidget()
         widget.setLayout(self.horizontalLayout)
-        MainWindow.setCentralWidget(widget)
+        self.setCentralWidget(widget)
         self.newSam.clicked.connect(self.newSample)
         self.newSub.clicked.connect(self.newSubject)
         self.prevSub.clicked.connect(self.prevSubAction)
@@ -115,9 +115,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         for x in self.listSub:
             x.button.clicked.connect(self.updateSamVisual(x))
 
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "HMIlab"))
+        self.setWindowTitle(_translate("MainWindow", "HMIlab"))
         self.label.setText(_translate("MainWindow", "Danh sách người bệnh"))
         self.prevSub.setText(_translate("MainWindow", "Previous"))
         self.nextSub.setText(_translate("MainWindow", "Next"))
@@ -208,7 +208,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         # get ET
 
         self.ETtimer = QtCore.QTimer()
-        self.ETtimer.setInterval(0)
+        self.ETtimer.setInterval(int(1000/60))
         self.ETtimer.timeout.connect(self.ET_update)
         self.ETtimer.start()
 
@@ -341,6 +341,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def openFilePath(self):
         dlg = QFileDialog()
         dlg.setFileMode(QFileDialog.Directory)
+        filenames = [None]
         if dlg.exec_():
             filenames = dlg.selectedFiles()
         path = filenames[0]
@@ -694,8 +695,8 @@ class createSam(QDialog):
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
+    # MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    ui.setupUi()
+    ui.show()
     sys.exit(app.exec_())
