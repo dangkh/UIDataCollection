@@ -18,8 +18,8 @@ import pyedflib as pyedf
 from arguments import arg
 import time as osTimer
 
-from utils.subject_folder import  SubjectFolder
-from utils.sample_file import  SampleFile
+from utilsUI.subject_folder import SubjectFolder
+from utilsUI.sample_file import SampleFile
 
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
@@ -161,7 +161,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 'age': age,
                 'gender': gender,
             }
-            newlink = './DataVIN/' + str(recordID)
+            newlink = self.storeDir + str(recordID)
             os.mkdir(newlink)
             fileName = newlink + '/' + 'info.json'
             with open(fileName, 'w') as outfile:
@@ -208,7 +208,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         # get ET
 
         self.ETtimer = QtCore.QTimer()
-        self.ETtimer.setInterval(int(1000/60))
+        self.ETtimer.setInterval(int(1000 / 60))
         self.ETtimer.timeout.connect(self.ET_update)
         self.ETtimer.start()
 
@@ -217,9 +217,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.CAMth.beginRecord()
 
         self.currentEvent = None
-        self.listEventBtn = [self.createSamdialog.ui.ThinkButton, self.createSamdialog.ui.ThinkActButton, self.createSamdialog.ui.TypeButton]
+        self.listEventBtn = [self.createSamdialog.ui.ThinkButton, self.createSamdialog.ui.ThinkActButton,
+                             self.createSamdialog.ui.TypeButton, self.createSamdialog.ui.RestButton]
         for btn in self.listEventBtn:
             btn.clicked.connect(self.changeEventVisual(btn))
+            btn.hide()
 
         self.createSamdialog.ui.exec_()
 
@@ -482,7 +484,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         list_ET = self.ETPlot.getSavingData()
         fileNameET = newDir + '/' + 'ET.csv'
         with open(fileNameET, mode='w', newline='', encoding='utf-8') as ETfile:
-            fieldnames = ['Data', 'TimeStamp']
+            fieldnames = ['TimeStamp', 'Data', 'x', 'y', 'character typing', 'sentence']
             et_writer = csv.writer(ETfile)
             et_writer.writerow(fieldnames)
             for row in list_ET:
@@ -501,7 +503,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             EEG_channels, dimension='mV', sample_rate=rate, physical_min=-5000.0, physical_max=5000.0,
             digital_min=-32768, digital_max=32767, transducer='', prefiler='')
 
+        print(fileNameEEG[2:])
         f = pyedf.EdfWriter(fileNameEEG[2:], 32)
+
         f.setEquipment("Emotiv")
         f.setSignalHeaders(signalHeader)
         f.writeSamples(EEGsignals, digital=False)
@@ -597,28 +601,46 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                                                      "background-color: red;\n"
                                                      "padding: 3px;")
 
+    def closeMarker(self, btn):
+        self.currentEvent = None
+        btn.setStyleSheet("")
+        self.listEvent.append([self.currentEventStart, osTimer.time()])
+        self.listEventMarker.append(btn.text())
+
+    def setMarker(self, btn):
+        btn.setStyleSheet("background-color: yellow")
+        self.currentEvent = btn
+        self.currentEventStart = osTimer.time()
+
     def changeEventVisual(self, btn):
         def wrap():
             if self.currentEvent is None:
-                for b in self.listEventBtn:
-                    b.hide()
-                btn.show()
-                btn.setStyleSheet(u"border-style: outset;\n"
-                                  "border-width: 1px;\n"
-                                  "border-radius: 10px;\n"
-                                  "border-color: beige;\n"
-                                  "background-color: rgb(252, 202, 65);\n"
-                                  "padding: 3px;")
-                self.currentEvent = btn
-                self.currentEventStart = osTimer.time()
+                btn.setEnabled(True)
+                self.setMarker(btn)
+            elif self.currentEvent == btn:
+                self.closeMarker(btn)
+            elif btn.text() == "Resting":
+                self.closeMarker(self.currentEvent)
+                self.setMarker(btn)
             else:
-                for b in self.listEventBtn:
-                    b.show()
-                    b.setStyleSheet("")
-                self.currentEvent = None
-                tmpTimer = osTimer.time()
-                self.listEvent.append([self.currentEventStart, tmpTimer])
-                self.listEventMarker.append(btn.text())
+                print("error")
+
+            # if self.currentEvent is None:
+            #     for b in self.listEventBtn:
+            #         b.setEnabled(False)
+            #     btn.setEnabled(True)
+            #     self.listEventBtn[-1].setEnabled()
+            #     btn.setStyleSheet("background-color: rgb(252, 202, 65)")
+            #     self.currentEvent = btn
+            #     self.currentEventStart = osTimer.time()
+            # else:
+            #     for b in self.listEventBtn:
+            #         b.setEnabled(True)
+            #         b.setStyleSheet("")
+            #     self.currentEvent = None
+            #     tmpTimer = osTimer.time()
+            #     self.listEvent.append([self.currentEventStart, tmpTimer])
+            #     self.listEventMarker.append(btn.text())
         return wrap
 
 
@@ -639,6 +661,7 @@ class createSub(QDialog):
         super().__init__(parent)
         self.ui = createSub_Dialog()
         self.ui.setupUi()
+
 
 class createSam(QDialog):
     def __init__(self, parent=None):

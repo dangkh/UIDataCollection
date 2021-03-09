@@ -61,7 +61,7 @@ class DataInlet(Inlet):
         empty = np.array([])
         # create one curve object for each channel/line that will handle displaying the data
         self.curves = [pg.PlotCurveItem(x=empty, y=empty, autoDownsample=True)
-                       for _ in range(self.channel_count-4)]
+                       for _ in range(self.channel_count - 4)]
         for curve in self.curves:
             plt.addItem(curve)
 
@@ -77,7 +77,7 @@ class DataInlet(Inlet):
             this_x = None
             old_offset = 0
             new_offset = 0
-            for index in range(3, self.channel_count-1):
+            for index in range(3, self.channel_count - 1):
                 ch_ix = index - 3
                 # we don't pull an entire screen's worth of data, so we have to
                 # trim the old data and append the new data to it
@@ -193,11 +193,11 @@ class ETReceive(object):
         try:
             timestamp, sample = None, None
             if self.stt:
-                sample, timestamp = self.inlet.pull_sample(timeout=1.0/30)
+                sample, timestamp = self.inlet.pull_sample(timeout=1000 / 30)
 
             if timestamp is not None:
                 sp = sample[0].split(":")
-                x,y,_ = sp[0][1:-1].split(",")
+                x, y, _ = sp[0][1:-1].split(",")
                 formatted = [timestamp, float(x), float(y), sp[1].strip(), sp[2].strip()]
                 self.lastSample = formatted
                 if self.saving:
