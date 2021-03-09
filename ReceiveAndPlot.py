@@ -185,26 +185,23 @@ class ETReceive(object):
                 self.inlet = pylsl.StreamInlet(stream)
                 self.stt = True
 
-        self.listDataET = [['(0, 0, 0) : NONE : NONE']]
+        self.lastSample = None
         self.lSample = []
-        self.lTimeStamp = []
         self.saving = False
 
     def update(self):
         try:
-            timestamp = None
+            timestamp, sample = None, None
             if self.stt:
-                sample, timestamp = self.inlet.pull_sample(timeout=0.0)
+                sample, timestamp = self.inlet.pull_sample(timeout=1.0/30)
 
-            if timestamp is None:
-                sample = ['(0, 0, 0) : NONE : NONE']
-                timestamp = 0
-            # print(sample, timestamp)
-            # stop
-            self.listDataET.append(sample)
-            if self.saving:
-                self.lSample.append(sample)
-                self.lTimeStamp.append(timestamp)
+            if timestamp is not None:
+                sp = sample[0].split(":")
+                x,y,_ = sp[0][1:-1].split(",")
+                formatted = [timestamp, float(x), float(y), sp[1].strip(), sp[2].strip()]
+                self.lastSample = formatted
+                if self.saving:
+                    self.lSample.append(formatted)
         except Exception as e:
             print(e, "error in inlet ET")
             self.stt = False
@@ -217,7 +214,7 @@ class ETReceive(object):
         self.saving = True
 
     def getSavingData(self):
-        return [self.lSample, self.lTimeStamp]
+        return self.lSample
 
 
 class EEGReceive(object):

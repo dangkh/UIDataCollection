@@ -220,7 +220,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.listEventBtn = [self.createSamdialog.ui.ThinkButton, self.createSamdialog.ui.ThinkActButton, self.createSamdialog.ui.TypeButton]
         for btn in self.listEventBtn:
             btn.clicked.connect(self.changeEventVisual(btn))
-            btn.hide()
 
         self.createSamdialog.ui.exec_()
 
@@ -486,8 +485,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             fieldnames = ['Data', 'TimeStamp']
             et_writer = csv.writer(ETfile)
             et_writer.writerow(fieldnames)
-            for idx in range(len(list_ET[0])):
-                et_writer.writerow([list_ET[0][idx], list_ET[1][idx]])
+            for row in list_ET:
+                et_writer.writerow(row)
 
         fileNameEEG = newDir + '/' + 'EEG.edf'
         listEEG = self.EEGRcv.getSavingData()
@@ -549,13 +548,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def ET_update(self):
         self.ETPlot.update()
-        ETdata = self.ETPlot.listDataET[-1]
-        s1, s2, s3 = ETdata[0].split(":")
-        x, y, _ = s1[1:-1].split(",")
-
-        self.createSamdialog.ui.position.setText(str(x) + " " + str(y))
-        self.createSamdialog.ui.character.setText(str(s2))
-        self.createSamdialog.ui.widScreen.setText(str(s3))
+        ETdata = self.ETPlot.lastSample
+        if ETdata is not None:
+            self.createSamdialog.ui.position.setText(str(ETdata[1]) + " " + str(ETdata[2]))
+            self.createSamdialog.ui.character.setText(ETdata[3])
+            self.createSamdialog.ui.widScreen.setText(ETdata[4])
 
     def changeSignal(self):
         counter = 0
