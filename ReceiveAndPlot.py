@@ -198,7 +198,11 @@ class ETReceive(object):
             if timestamp is not None:
                 sp = sample[0].split(":")
                 x, y, _ = sp[0][1:-1].split(",")
-                formatted = [timestamp, float(x), float(y), sp[1].strip(), sp[2].strip()]
+                if x != 'none':
+                    x, y = float(x), float(y)
+                else:
+                    x, y = -1, -1
+                formatted = [timestamp, x, y, sp[1].strip(), sp[2].strip()]
                 self.lastSample = formatted
                 if self.saving:
                     self.lSample.append(formatted)
