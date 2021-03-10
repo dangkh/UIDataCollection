@@ -13,7 +13,7 @@ import sys
 from PyQt5 import *
 from PyQt5.QtWidgets import *
 import json
-from dialogData import Ui_Dialog
+# from dialogData import Ui_Dialog
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 # from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
