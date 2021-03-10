@@ -2,15 +2,10 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 import os
-from createSub import createSub_Dialog
 import json
-
-from createSampleDialog import SampleDialog
 from ReceiveAndPlot import *
 from multi import *
 import csv
-
-from detailSamDialog import *
 import requests
 
 import subprocess
@@ -20,6 +15,11 @@ import time as osTimer
 
 from utilsUI.subject_folder import SubjectFolder
 from utilsUI.sample_file import SampleFile
+from utility import *
+
+import socket
+HOST = '192.168.1.34'
+PORT = 23233
 
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
@@ -55,7 +55,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.updateSam(listDir=-1)
 
-        QtCore.QMetaObject.connectSlotsByName(self)
+        # QtCore.QMetaObject.connectSlotsByName(self)
         widget = QtWidgets.QWidget()
         widget.setLayout(self.horizontalLayout)
         self.setCentralWidget(widget)
@@ -529,9 +529,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         time = "{:.2f}".format(self.recordTime)
         self.createSamdialog.ui.timerNumberLabel.setText("Timer: " + str(time) + " s")
 
-    def testEnter(self):
-        print("pass")
-
     def ET_update(self):
         self.ETPlot.update()
         ETdata = self.ETPlot.lastSample
@@ -587,16 +584,38 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def closeMarker(self, btn):
         self.currentEvent = None
         btn.setStyleSheet("")
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((HOST, PORT))
+        s.sendall(b'OPEN_RELAXATION')
         self.listEvent.append([self.currentEventStart, osTimer.time()])
         self.listEventMarker.append(btn.text())
 
     def setMarker(self, btn):
         btn.setStyleSheet("background-color: yellow")
+        if btn.text() != "Typing":
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_RELAXATION')
+        else:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_KEYBOARD')
         self.currentEvent = btn
         self.currentEventStart = osTimer.time()
 
+    def changeObjectScreen(self, btn):
+        if btn.text() != "Typing":
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_RELAXATION')
+        else:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_KEYBOARD')
+
     def changeEventVisual(self, btn):
         def wrap():
+            self.changeObjectScreen(btn)
             if self.currentEvent is None:
                 btn.setEnabled(True)
                 self.setMarker(btn)
@@ -637,62 +656,6 @@ def readStorageData(link="./DataVIN/"):
         print("DataVIN folder is created, run again!")
         os.mkdir(link)
     return onlydir
-
-
-class createSub(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.ui = createSub_Dialog()
-        self.ui.setupUi()
-
-
-class createSam(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.ui = SampleDialog()
-        self.ui.setupUi()
-        self.turnOnBtn = False
-        self.ui.rcdBtn.hide()
-        self.ui.scenarioNumber.setMaximum(arg.numPlan)
-        self.ui.scenarioNumber.setMinimum(1)
-        self.ui.scenarioNumber.valueChanged.connect(self.updatePlanView)
-        self.updatePlanView()
-
-    def setInfo(self, info):
-        # set sample info as the info of the patient
-        self.info = info
-        try:
-            jsonDir = info + '/info.json'
-            with open(jsonDir) as json_file:
-                data = json.load(json_file)
-            self.ui.NameEdit.setText(data['name'])
-            self.ui.AgeEdit.setValue(data['age'])
-            if data['gender'] == 'M':
-                self.ui.MaleEdit.setChecked(True)
-            else:
-                self.ui.FemaleEdit.setChecked(True)
-
-            self.ui.NameEdit.setEnabled(False)
-            self.ui.AgeEdit.setEnabled(False)
-            self.ui.MaleEdit.setEnabled(False)
-            self.ui.FemaleEdit.setEnabled(False)
-        except Exception as e:
-            print("cant find json file, subject dont have required infomation")
-            print(e)
-
-    def setRecodData(self, data):
-        self.ui.RecorderEdit.setText(data['RecorderEdit'])
-        self.ui.LocateEdit.setText(data['LocateEdit'])
-        self.ui.scenarioNumber.setValue(data['scenarioNumber'])
-
-    def updatePlanView(self):
-        text = arg.plans[self.ui.scenarioNumber.value() - 1]
-        self.ui.lineEdit.setText(str(text))
-
-    def closeEvent(self, event):
-        # event.accept()
-        self.ui.closeEvent(event)
-        # QApplication.quit()
 
 
 if __name__ == "__main__":

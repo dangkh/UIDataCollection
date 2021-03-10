@@ -23,7 +23,7 @@ class SampleDialog(QtWidgets.QDialog):
         self.createEvent()
 
     def createEvent(self):
-        self.infoWidget.setLayout(self.verticalLayout)
+        # self.infoWidget.setLayout(self.verticalLayout)
         self.visualDatWidget.setLayout(self.layoutVisual)
         # self.widSignal.setLayout(self.gLayoutSignal)
         self.setLayout(self.horizontalLayout)
