@@ -224,6 +224,19 @@
                </property>
               </spacer>
              </item>
+             <item>
+              <widget class="QLabel" name="HMILogo">
+               <property name="text">
+                <string/>
+               </property>
+               <property name="pixmap">
+                <pixmap>../hmi-logo.png</pixmap>
+               </property>
+               <property name="scaledContents">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
             </layout>
            </widget>
           </item>
@@ -253,8 +266,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>569</width>
-            <height>512</height>
+            <width>557</width>
+            <height>434</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="layoutVisual" rowstretch="2,0,0,0">
@@ -370,165 +383,6 @@
              </item>
             </layout>
            </item>
-           <item row="1" column="0">
-            <widget class="QGroupBox" name="widSignal">
-             <property name="styleSheet">
-              <string notr="true"/>
-             </property>
-             <property name="title">
-              <string>Connection Status</string>
-             </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_6">
-              <item>
-               <widget class="QGroupBox" name="groupBox_2">
-                <property name="title">
-                 <string/>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_4">
-                 <item alignment="Qt::AlignHCenter">
-                  <widget class="QLabel" name="label_ET">
-                   <property name="font">
-                    <font>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>ET</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item alignment="Qt::AlignHCenter">
-                  <widget class="QToolButton" name="SignalET">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgba(255,255,255,0);border: 0px;</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset>
-                     <normaloff>../redBtn.png</normaloff>
-                     <normalon>../greenbt2.png</normalon>
-                     <disabledoff>../greenbt2.png</disabledoff>
-                     <disabledon>../redBtn.png</disabledon>
-                     <selectedoff>../redBtn.png</selectedoff>../redBtn.png</iconset>
-                   </property>
-                   <property name="checkable">
-                    <bool>true</bool>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="groupBox_3">
-                <property name="title">
-                 <string/>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_5">
-                 <item alignment="Qt::AlignHCenter">
-                  <widget class="QLabel" name="label_EEG">
-                   <property name="font">
-                    <font>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>EEG</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item alignment="Qt::AlignHCenter">
-                  <widget class="QToolButton" name="SignalEEG">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgba(255,255,255,0);border: 0px;</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset>
-                     <normaloff>../redBtn.png</normaloff>
-                     <normalon>../greenbt2.png</normalon>
-                     <disabledoff>../greenbt2.png</disabledoff>
-                     <disabledon>../redBtn.png</disabledon>
-                     <selectedoff>../redBtn.png</selectedoff>../redBtn.png</iconset>
-                   </property>
-                   <property name="checkable">
-                    <bool>true</bool>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-              <item>
-               <widget class="QGroupBox" name="groupBox_4">
-                <property name="title">
-                 <string/>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_6">
-                 <item alignment="Qt::AlignHCenter">
-                  <widget class="QLabel" name="label_CAM1">
-                   <property name="font">
-                    <font>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>CAM1</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item alignment="Qt::AlignHCenter">
-                  <widget class="QToolButton" name="SignalCAM1">
-                   <property name="enabled">
-                    <bool>false</bool>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">background-color: rgba(255,255,255,0);border: 0px;</string>
-                   </property>
-                   <property name="text">
-                    <string/>
-                   </property>
-                   <property name="icon">
-                    <iconset>
-                     <normaloff>../redBtn.png</normaloff>
-                     <normalon>../greenbt2.png</normalon>
-                     <disabledoff>../greenbt2.png</disabledoff>
-                     <disabledon>../redBtn.png</disabledon>
-                     <selectedoff>../redBtn.png</selectedoff>../redBtn.png</iconset>
-                   </property>
-                   <property name="checkable">
-                    <bool>true</bool>
-                   </property>
-                   <property name="checked">
-                    <bool>true</bool>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
            <item row="2" column="0">
             <widget class="QGroupBox" name="">
              <layout class="QHBoxLayout" name="hLayoutData" stretch="1,0,3">
@@ -611,6 +465,12 @@
                   </item>
                   <item>
                    <widget class="QFrame" name="">
+                    <property name="maximumSize">
+                     <size>
+                      <width>200</width>
+                      <height>16777215</height>
+                     </size>
+                    </property>
                     <layout class="QVBoxLayout" name="vLayoutETch">
                      <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
                       <widget class="QLabel" name="position">
@@ -649,6 +509,156 @@
                  </layout>
                 </item>
                </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QGroupBox" name="widSignal">
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="title">
+              <string>Connection Status</string>
+             </property>
+             <layout class="QHBoxLayout" name="horizontalLayout_6">
+              <item>
+               <widget class="QFrame" name="frame_2">
+                <layout class="QVBoxLayout" name="verticalLayout_4">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_ET">
+                   <property name="font">
+                    <font>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>ET</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QToolButton" name="SignalET">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">background-color: rgba(255,255,255,0);border: 0px;</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>../redBtn.png</normaloff>
+                     <normalon>../greenbt2.png</normalon>
+                     <disabledoff>../greenbt2.png</disabledoff>
+                     <disabledon>../redBtn.png</disabledon>
+                     <selectedoff>../redBtn.png</selectedoff>../redBtn.png</iconset>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="frame_3">
+                <layout class="QVBoxLayout" name="verticalLayout_5">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_EEG">
+                   <property name="font">
+                    <font>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>EEG</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QToolButton" name="SignalEEG">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">background-color: rgba(255,255,255,0);border: 0px;</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>../redBtn.png</normaloff>
+                     <normalon>../greenbt2.png</normalon>
+                     <disabledoff>../greenbt2.png</disabledoff>
+                     <disabledon>../redBtn.png</disabledon>
+                     <selectedoff>../redBtn.png</selectedoff>../redBtn.png</iconset>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QFrame" name="frame_4">
+                <layout class="QVBoxLayout" name="verticalLayout_6">
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QLabel" name="label_CAM1">
+                   <property name="font">
+                    <font>
+                     <weight>75</weight>
+                     <bold>true</bold>
+                    </font>
+                   </property>
+                   <property name="text">
+                    <string>CAM1</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item alignment="Qt::AlignHCenter">
+                  <widget class="QToolButton" name="SignalCAM1">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">background-color: rgba(255,255,255,0);border: 0px;</string>
+                   </property>
+                   <property name="text">
+                    <string/>
+                   </property>
+                   <property name="icon">
+                    <iconset>
+                     <normaloff>../redBtn.png</normaloff>
+                     <normalon>../greenbt2.png</normalon>
+                     <disabledoff>../greenbt2.png</disabledoff>
+                     <disabledon>../redBtn.png</disabledon>
+                     <selectedoff>../redBtn.png</selectedoff>../redBtn.png</iconset>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                   <property name="checked">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
               </item>
              </layout>
             </widget>
