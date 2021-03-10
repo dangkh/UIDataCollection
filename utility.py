@@ -3,6 +3,7 @@ from createSub import createSub_Dialog
 from createSampleDialog import SampleDialog
 from PyQt5.QtWidgets import *
 from arguments import arg
+import json
 
 
 def readFile(data_dir):

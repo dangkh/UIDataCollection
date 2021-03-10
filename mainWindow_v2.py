@@ -17,6 +17,10 @@ from utilsUI.subject_folder import SubjectFolder
 from utilsUI.sample_file import SampleFile
 from utility import *
 
+import socket
+HOST = '192.168.1.34'
+PORT = 23233
+
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -51,7 +55,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.updateSam(listDir=-1)
 
-        QtCore.QMetaObject.connectSlotsByName(self)
+        # QtCore.QMetaObject.connectSlotsByName(self)
         widget = QtWidgets.QWidget()
         widget.setLayout(self.horizontalLayout)
         self.setCentralWidget(widget)
@@ -525,9 +529,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         time = "{:.2f}".format(self.recordTime)
         self.createSamdialog.ui.timerNumberLabel.setText("Timer: " + str(time) + " s")
 
-    def testEnter(self):
-        print("pass")
-
     def ET_update(self):
         self.ETPlot.update()
         ETdata = self.ETPlot.lastSample
@@ -583,16 +584,38 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def closeMarker(self, btn):
         self.currentEvent = None
         btn.setStyleSheet("")
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.connect((HOST, PORT))
+        s.sendall(b'OPEN_RELAXATION')
         self.listEvent.append([self.currentEventStart, osTimer.time()])
         self.listEventMarker.append(btn.text())
 
     def setMarker(self, btn):
         btn.setStyleSheet("background-color: yellow")
+        if btn.text() != "Typing":
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_RELAXATION')
+        else:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_KEYBOARD')
         self.currentEvent = btn
         self.currentEventStart = osTimer.time()
 
+    def changeObjectScreen(self, btn):
+        if btn.text() != "Typing":
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_RELAXATION')
+        else:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_KEYBOARD')
+
     def changeEventVisual(self, btn):
         def wrap():
+            self.changeObjectScreen(btn)
             if self.currentEvent is None:
                 btn.setEnabled(True)
                 self.setMarker(btn)
