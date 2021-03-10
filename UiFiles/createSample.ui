@@ -18,156 +18,193 @@
     <rect>
      <x>20</x>
      <y>20</y>
-     <width>916</width>
-     <height>420</height>
+     <width>925</width>
+     <height>602</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1">
     <item>
      <widget class="QWidget" name="infoWidget" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>600</height>
+       </size>
+      </property>
       <property name="styleSheet">
-       <string notr="true">background-color: rgb(204, 204, 204);</string>
+       <string notr="true"/>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_8">
        <item>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item alignment="Qt::AlignHCenter">
-          <widget class="QLabel" name="label">
-           <property name="font">
-            <font>
-             <pointsize>12</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Thông tin người thu</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QFormLayout" name="formLayout">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_4">
-             <property name="text">
-              <string>Họ tên người bệnh</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="NameEdit"/>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_5">
-             <property name="text">
-              <string>Tuổi</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QSpinBox" name="AgeEdit"/>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_6">
-             <property name="text">
-              <string>Giới tính</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <widget class="QRadioButton" name="MaleEdit">
+        <widget class="QFrame" name="">
+         <property name="maximumSize">
+          <size>
+           <width>300</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QFrame" name="frame_5">
+            <layout class="QVBoxLayout" name="verticalLayout_8">
+             <item alignment="Qt::AlignHCenter">
+              <widget class="QLabel" name="label">
+               <property name="font">
+                <font>
+                 <pointsize>13</pointsize>
+                 <weight>75</weight>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
-                <string>Nam</string>
+                <string>Thông tin người thu</string>
                </property>
               </widget>
              </item>
              <item>
-              <widget class="QRadioButton" name="FemaleEdit">
-               <property name="text">
-                <string>Nữ</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </item>
-         <item alignment="Qt::AlignHCenter">
-          <widget class="QLabel" name="label_8">
-           <property name="font">
-            <font>
-             <pointsize>12</pointsize>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Thông tin kịch bản thu</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QFormLayout" name="formLayout_2">
-           <item row="0" column="0">
-            <widget class="QLabel" name="label_11">
-             <property name="text">
-              <string>Kỹ thuật viên</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="RecorderEdit"/>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_12">
-             <property name="text">
-              <string>Địa điểm</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="LocateEdit"/>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="label_13">
-             <property name="text">
-              <string>Kịch bản</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QSpinBox" name="RecPlanEdit"/>
-           </item>
-           <item row="4" column="1">
-            <layout class="QHBoxLayout" name="horizontalLayout_3">
-             <item>
-              <widget class="QPushButton" name="fetchInfoBtn">
-               <property name="text">
-                <string>Fetch PreInfo</string>
-               </property>
-              </widget>
+              <layout class="QFormLayout" name="formLayout">
+               <item row="0" column="0">
+                <widget class="QLabel" name="label_4">
+                 <property name="text">
+                  <string>Họ tên người bệnh</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="NameEdit"/>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="label_5">
+                 <property name="text">
+                  <string>Tuổi</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QSpinBox" name="AgeEdit"/>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="label_6">
+                 <property name="text">
+                  <string>Giới tính</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <layout class="QHBoxLayout" name="horizontalLayout_2">
+                 <item>
+                  <widget class="QRadioButton" name="MaleEdit">
+                   <property name="text">
+                    <string>Nam</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QRadioButton" name="FemaleEdit">
+                   <property name="text">
+                    <string>Nữ</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
              </item>
              <item>
-              <widget class="QPushButton" name="resetBtn">
-               <property name="text">
-                <string>Reset</string>
+              <widget class="Line" name="line_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
                </property>
               </widget>
              </item>
             </layout>
-           </item>
-           <item row="3" column="1">
-            <widget class="QLineEdit" name="lineEdit">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
+           </widget>
+          </item>
+          <item alignment="Qt::AlignHCenter">
+           <widget class="QLabel" name="label_8">
+            <property name="font">
+             <font>
+              <pointsize>12</pointsize>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Thông tin kịch bản thu</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QFormLayout" name="formLayout_2">
+            <item row="0" column="0">
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>Kỹ thuật viên</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLineEdit" name="RecorderEdit"/>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="label_12">
+              <property name="text">
+               <string>Địa điểm</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLineEdit" name="LocateEdit"/>
+            </item>
+            <item row="2" column="0">
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>Kịch bản</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QSpinBox" name="scenarioNumber"/>
+            </item>
+            <item row="4" column="1">
+             <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <item>
+               <widget class="QPushButton" name="fetchInfoBtn">
+                <property name="text">
+                 <string>Fetch PreInfo</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="resetBtn">
+                <property name="text">
+                 <string>Reset</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="3" column="1">
+             <widget class="QLineEdit" name="lineEdit">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="Line" name="line">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QWidget" name="visualDatWidget" native="true">
@@ -178,7 +215,7 @@
           </size>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color: rgb(255, 255, 255);</string>
+          <string notr="true"/>
          </property>
          <widget class="QWidget" name="gridLayoutWidget_2">
           <property name="geometry">
@@ -186,7 +223,7 @@
             <x>0</x>
             <y>0</y>
             <width>569</width>
-            <height>386</height>
+            <height>512</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="layoutVisual" rowstretch="2,0,0,0">
@@ -235,7 +272,7 @@
               </spacer>
              </item>
              <item>
-              <widget class="QGroupBox" name="groupBox">
+              <widget class="QFrame" name="frame">
                <property name="maximumSize">
                 <size>
                  <width>450</width>
@@ -244,7 +281,7 @@
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_3" stretch="0,0">
                 <item>
-                 <widget class="QGroupBox" name="groupBox">
+                 <widget class="QFrame" name="frame">
                   <layout class="QHBoxLayout" name="horizontalLayout_5">
                    <item>
                     <widget class="QPushButton" name="turnOnOffBtn">
@@ -264,10 +301,7 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QGroupBox" name="groupBox">
-                  <property name="title">
-                   <string/>
-                  </property>
+                 <widget class="QFrame" name="frame">
                   <layout class="QHBoxLayout" name="horizontalLayout_7">
                    <item>
                     <widget class="QPushButton" name="ThinkButton">
@@ -305,100 +339,6 @@
              </item>
             </layout>
            </item>
-           <item row="2" column="0">
-            <layout class="QHBoxLayout" name="hLayoutData" stretch="1,3">
-             <property name="spacing">
-              <number>0</number>
-             </property>
-             <item>
-              <layout class="QVBoxLayout" name="vLayoutDataLeft">
-               <property name="spacing">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="QLabel" name="CAM1">
-                 <property name="styleSheet">
-                  <string notr="true">background-color: rgb(220, 82, 70);</string>
-                 </property>
-                 <property name="text">
-                  <string/>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <layout class="QVBoxLayout" name="vLayoutDataRight">
-               <property name="spacing">
-                <number>0</number>
-               </property>
-               <item>
-                <widget class="QStackedWidget" name="widEEG">
-                 <property name="styleSheet">
-                  <string notr="true">background-color: rgb(178, 202, 226);</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="hLayoutWidET" stretch="2,1">
-                 <property name="spacing">
-                  <number>0</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="widScreen">
-                   <property name="font">
-                    <font>
-                     <pointsize>12</pointsize>
-                     <weight>75</weight>
-                     <bold>true</bold>
-                    </font>
-                   </property>
-                   <property name="text">
-                    <string>TextLabel</string>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <layout class="QVBoxLayout" name="vLayoutETch">
-                   <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                    <widget class="QLabel" name="position">
-                     <property name="font">
-                      <font>
-                       <pointsize>12</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true"/>
-                     </property>
-                     <property name="text">
-                      <string>NONE</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                    <widget class="QLabel" name="character">
-                     <property name="font">
-                      <font>
-                       <pointsize>12</pointsize>
-                       <weight>75</weight>
-                       <bold>true</bold>
-                      </font>
-                     </property>
-                     <property name="text">
-                      <string>NONE</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </item>
-            </layout>
-           </item>
            <item row="1" column="0">
             <widget class="QGroupBox" name="widSignal">
              <property name="styleSheet">
@@ -414,7 +354,7 @@
                  <string/>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_4">
-                 <item>
+                 <item alignment="Qt::AlignHCenter">
                   <widget class="QLabel" name="label_ET">
                    <property name="font">
                     <font>
@@ -463,7 +403,7 @@
                  <string/>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_5">
-                 <item>
+                 <item alignment="Qt::AlignHCenter">
                   <widget class="QLabel" name="label_EEG">
                    <property name="font">
                     <font>
@@ -512,7 +452,7 @@
                  <string/>
                 </property>
                 <layout class="QVBoxLayout" name="verticalLayout_6">
-                 <item>
+                 <item alignment="Qt::AlignHCenter">
                   <widget class="QLabel" name="label_CAM1">
                    <property name="font">
                     <font>
@@ -554,6 +494,117 @@
                  </item>
                 </layout>
                </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QGroupBox" name="">
+             <layout class="QHBoxLayout" name="hLayoutData" stretch="1,0,3">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <item>
+               <layout class="QVBoxLayout" name="vLayoutDataLeft">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QLabel" name="CAM1">
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(220, 82, 70);</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
+               <widget class="Line" name="VerticalLine">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QVBoxLayout" name="vLayoutDataRight">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <item>
+                 <widget class="QStackedWidget" name="widEEG">
+                  <property name="minimumSize">
+                   <size>
+                    <width>0</width>
+                    <height>100</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">background-color: rgb(178, 202, 226);</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="hLayoutWidET" stretch="0,0">
+                  <property name="spacing">
+                   <number>0</number>
+                  </property>
+                  <item>
+                   <widget class="QLabel" name="widScreen">
+                    <property name="font">
+                     <font>
+                      <pointsize>12</pointsize>
+                      <weight>75</weight>
+                      <bold>true</bold>
+                     </font>
+                    </property>
+                    <property name="text">
+                     <string>TextLabel</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QFrame" name="">
+                    <layout class="QVBoxLayout" name="vLayoutETch">
+                     <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+                      <widget class="QLabel" name="position">
+                       <property name="font">
+                        <font>
+                         <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true"/>
+                       </property>
+                       <property name="text">
+                        <string>NONE</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+                      <widget class="QLabel" name="character">
+                       <property name="font">
+                        <font>
+                         <pointsize>12</pointsize>
+                         <weight>75</weight>
+                         <bold>true</bold>
+                        </font>
+                       </property>
+                       <property name="text">
+                        <string>NONE</string>
+                       </property>
+                      </widget>
+                     </item>
+                    </layout>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
               </item>
              </layout>
             </widget>
