@@ -25,7 +25,7 @@ class SampleDialog(QtWidgets.QDialog):
     def createEvent(self):
         self.infoWidget.setLayout(self.verticalLayout)
         self.visualDatWidget.setLayout(self.layoutVisual)
-        self.widSignal.setLayout(self.gLayoutSignal)
+        # self.widSignal.setLayout(self.gLayoutSignal)
         self.setLayout(self.horizontalLayout)
         # self.eventCreateBtn.clicked.connect(lambda: self.changeStyle(self.eventCreateBtn))
         self.recordingStt = True
