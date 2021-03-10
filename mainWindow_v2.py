@@ -208,7 +208,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         # get ET
 
         self.ETtimer = QtCore.QTimer()
-        self.ETtimer.setInterval(int(1000 / 60))
+        self.ETtimer.setInterval(0)
         self.ETtimer.timeout.connect(self.ET_update)
         self.ETtimer.start()
 
