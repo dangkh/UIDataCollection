@@ -145,7 +145,7 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QSpinBox" name="RecPlanEdit"/>
+           <widget class="QSpinBox" name="scenarioNumber"/>
           </item>
           <item row="4" column="1">
            <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -244,13 +244,6 @@
               </property>
               <item>
                <widget class="QLabel" name="widScreen">
-                <property name="font">
-                 <font>
-                  <pointsize>12</pointsize>
-                  <weight>75</weight>
-                  <bold>true</bold>
-                 </font>
-                </property>
                 <property name="text">
                  <string>TextLabel</string>
                 </property>
@@ -325,11 +318,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>../redBtn.png</normaloff>
-                <normalon>../greenbt2.png</normalon>
-                <disabledoff>../greenbt2.png</disabledoff>
-                <disabledon>../redBtn.png</disabledon>
-                <selectedoff>../redBtn.png</selectedoff>../redBtn.png</iconset>
+                <normaloff>../redBtn.png</normaloff>../redBtn.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -378,11 +367,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>../redBtn.png</normaloff>
-                <normalon>../greenbt2.png</normalon>
-                <disabledoff>../greenbt2.png</disabledoff>
-                <disabledon>../redBtn.png</disabledon>
-                <selectedoff>../redBtn.png</selectedoff>../redBtn.png</iconset>
+                <normaloff>../redBtn.png</normaloff>../redBtn.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -405,11 +390,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>../redBtn.png</normaloff>
-                <normalon>../greenbt2.png</normalon>
-                <disabledoff>../greenbt2.png</disabledoff>
-                <disabledon>../redBtn.png</disabledon>
-                <selectedoff>../redBtn.png</selectedoff>../redBtn.png</iconset>
+                <normaloff>../redBtn.png</normaloff>../redBtn.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -445,11 +426,7 @@
               </property>
               <property name="icon">
                <iconset>
-                <normaloff>../redBtn.png</normaloff>
-                <normalon>../greenbt2.png</normalon>
-                <disabledoff>../greenbt2.png</disabledoff>
-                <disabledon>../redBtn.png</disabledon>
-                <selectedoff>../redBtn.png</selectedoff>../redBtn.png</iconset>
+                <normaloff>../redBtn.png</normaloff>../redBtn.png</iconset>
               </property>
               <property name="checkable">
                <bool>true</bool>
