@@ -17,7 +17,7 @@ import json
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 # from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
-from utility import *
+from utilities import *
 from mnelab.mnelab.__main__ import *
 from mainwindow import OtherMainWindow
 from model import Model

@@ -15,7 +15,7 @@ import time as osTimer
 
 from utilsUI.subject_folder import SubjectFolder
 from utilsUI.sample_file import SampleFile
-from utility import *
+from utilities import *
 
 import socket
 HOST = '192.168.1.34'
