@@ -359,7 +359,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             newData = {
                 'RecorderEdit': "",
                 'LocateEdit': "",
-                'RecPlanEdit': 0,
+                'scenarioNumber': 0,
             }
             self.createSamdialog.setRecodData(newData)
         else:
@@ -397,11 +397,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.listEventMarker = []
         RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
-        RecPlanEdit = self.createSamdialog.ui.RecPlanEdit.value()
+        scenarioNumber = self.createSamdialog.ui.scenarioNumber.value()
         missingValue = False
         if RecorderEdit == '' or LocateEdit == '':
             missingValue = True
-        if RecPlanEdit == 0:
+        if scenarioNumber == 0:
             missingValue = True
 
         if not missingValue:
@@ -460,12 +460,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         print("Enter Save")
         RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
-        RecPlanEdit = self.createSamdialog.ui.RecPlanEdit.value()
+        scenarioNumber = self.createSamdialog.ui.scenarioNumber.value()
         newData = {
             'RecorderEdit': RecorderEdit,
             'LocateEdit': LocateEdit,
-            'RecPlanEdit': RecPlanEdit,
-            'PlanDesc': arg.plans[RecPlanEdit - 1]
+            'scenarioNumber': scenarioNumber,
+            'PlanDesc': arg.plans[scenarioNumber - 1]
         }
         self.record_save = True
         self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
@@ -522,7 +522,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         print(self.listEventMarker)
         fileName = newDir + '/' + 'eeg.json'
         js = {
-            'TaskDesc': arg.plans[RecPlanEdit - 1],
+            'TaskDesc': arg.plans[scenarioNumber - 1],
             'SamplingFrequence': rate,
             'EEGchannelNumber': EEGsignals.shape[0],
         }
@@ -670,9 +670,9 @@ class createSam(QDialog):
         self.ui.setupUi()
         self.turnOnBtn = False
         self.ui.rcdBtn.hide()
-        self.ui.RecPlanEdit.setMaximum(arg.numPlan)
-        self.ui.RecPlanEdit.setMinimum(1)
-        self.ui.RecPlanEdit.valueChanged.connect(self.updatePlanView)
+        self.ui.scenarioNumber.setMaximum(arg.numPlan)
+        self.ui.scenarioNumber.setMinimum(1)
+        self.ui.scenarioNumber.valueChanged.connect(self.updatePlanView)
         self.updatePlanView()
 
     def setInfo(self, info):
@@ -700,10 +700,10 @@ class createSam(QDialog):
     def setRecodData(self, data):
         self.ui.RecorderEdit.setText(data['RecorderEdit'])
         self.ui.LocateEdit.setText(data['LocateEdit'])
-        self.ui.RecPlanEdit.setValue(data['RecPlanEdit'])
+        self.ui.scenarioNumber.setValue(data['scenarioNumber'])
 
     def updatePlanView(self):
-        text = arg.plans[self.ui.RecPlanEdit.value() - 1]
+        text = arg.plans[self.ui.scenarioNumber.value() - 1]
         self.ui.lineEdit.setText(str(text))
 
     def closeEvent(self, event):
