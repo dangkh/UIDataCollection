@@ -213,7 +213,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.ETtimer.start()
 
         self.CAMth = VideoRecorder()
-        self.CAMth.setLabelImage([self.createSamdialog.ui.CAM1, self.createSamdialog.ui.CAM2])
+        self.CAMth.setLabelImage([self.createSamdialog.ui.CAM1])
         self.CAMth.beginRecord()
 
         self.currentEvent = None
@@ -568,8 +568,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         if self.CAMth.numberDevices < 1:
             cam1 = False
         l1 = [self.ETPlot.signalStt(), self.EEGPlot.signalStt(), cam1, cam2]
-        l2 = [self.createSamdialog.ui.SignalET, self.createSamdialog.ui.SignalEEG,
-              self.createSamdialog.ui.SignalCAM1, self.createSamdialog.ui.SignalCAM2]
+        l2 = [self.createSamdialog.ui.SignalET,
+              self.createSamdialog.ui.SignalEEG,
+              self.createSamdialog.ui.SignalCAM1]
         # print(l1)
         for x in l1:
             if x:
