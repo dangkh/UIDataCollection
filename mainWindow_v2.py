@@ -55,8 +55,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.updateSam(listDir=-1)
 
-        self.retranslateUi()
-
         QtCore.QMetaObject.connectSlotsByName(self)
         widget = QtWidgets.QWidget()
         widget.setLayout(self.horizontalLayout)
@@ -114,22 +112,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         for x in self.listSub:
             x.button.clicked.connect(self.updateSamVisual(x))
-
-    def retranslateUi(self):
-        _translate = QtCore.QCoreApplication.translate
-        self.setWindowTitle(_translate("MainWindow", "HMIlab"))
-        self.label.setText(_translate("MainWindow", "Danh sách người bệnh"))
-        self.prevSub.setText(_translate("MainWindow", "Previous"))
-        self.nextSub.setText(_translate("MainWindow", "Next"))
-        self.newSub.setText(_translate("MainWindow", "New Patient"))
-        self.label_2.setText(_translate("MainWindow", "Danh sách bản ghi"))
-        self.prevSam.setText(_translate("MainWindow", "Previous"))
-        self.nextSam.setText(_translate("MainWindow", "Next"))
-        self.newSam.setText(_translate("MainWindow", "New Record"))
-        self.menuFile.setTitle(_translate("MainWindow", " File"))
-        self.menuAbout.setTitle(_translate("MainWindow", " About"))
-        self.actionOpenFile.setText(_translate("MainWindow", " OpenFile"))
-        self.actionQuit.setText(_translate("MainWindow", " Quit"))
 
     def newSubject(self):
         self.createSubdialog = createSub(self)
