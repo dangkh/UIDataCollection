@@ -65,7 +65,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.nextSub.clicked.connect(self.nextSubAction)
         self.prevSam.clicked.connect(self.prevSamAction)
         self.nextSam.clicked.connect(self.nextSamAction)
-
         self.actionQuit.setShortcut("Ctrl+Q")
         self.actionQuit.triggered.connect(self.closeEvent)
         self.actionOpenFile.setShortcut("Ctrl+O")
@@ -169,6 +168,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.percentTimer = QtCore.QTimer()
         self.percentTimer.setInterval(1000)
+        self.latestPercentTime = osTimer.time()
         self.percentTimer.timeout.connect(self.changePercent)
         self.percentTimer.start()
 
@@ -204,7 +204,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         for btn in self.listEventBtn:
             btn.clicked.connect(self.changeEventVisual(btn))
             btn.hide()
-
+        self.createSamdialog.ui.calibrate.clicked.connect(lambda: self.controlUserScr(1))
+        self.createSamdialog.ui.relax.clicked.connect(lambda: self.controlUserScr(2))
+        self.createSamdialog.ui.keyboard.clicked.connect(lambda: self.controlUserScr(3))
         self.createSamdialog.ui.exec_()
 
     def updateSam(self, listDir=0, page=0):
@@ -435,6 +437,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.pipe = subprocess.Popen(cmd + outVid)
 
             self.changeStyleRcd()
+            self.createSamdialog.ui.controllerFrame.hide()
         else:
             self.showErrorPopup("Please complete fully the form")
 
@@ -554,7 +557,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         for x in l1:
             if x:
                 counter += 1
-        if counter >= 1:
+        if counter >= 3:
             self.createSamdialog.ui.rcdBtn.show()
         else:
             self.createSamdialog.ui.rcdBtn.hide()
@@ -562,14 +565,21 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             y.setChecked(not x)
 
     def changePercent(self):
-        # status = requests.get("http://192.168.1.199:8080/device_status")
+        status = requests.get("http://192.168.1.34:8080/device_status")
         self.percent = 0
-        # try:
-        #     infoDev = status.json()['dev']
-        #     self.percent = infoDev[-1][-1]
-        # except Exception as e:
-        #     print(e, "error catch percent")
-
+        try:
+            infoDev = status.json()['dev']
+            self.percent = infoDev[-1][-1]
+        except Exception as e:
+            print(e, "error catch percent")
+        if self.percent < 80:
+            self.latestPercentTime = osTimer.time()
+            font = QtGui.QFont()
+            font.setPointSize(8)
+            font.setBold(True)
+            font.setWeight(75)
+            self.createSamdialog.ui.noticePercentLabel.setFont(font)
+            self.createSamdialog.ui.noticePercentLabel.setText("Notice: EEG data percentage is lower than 80%")
         self.createSamdialog.ui.label_EEG.setText("SignalEEG " + str(self.percent) + "%")
 
     def changeStyleRcd(self):
@@ -591,6 +601,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.listEventMarker.append(btn.text())
 
     def setMarker(self, btn):
+        print("enteredddd setMarker")
         btn.setStyleSheet("background-color: yellow")
         if btn.text() != "Typing":
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -617,15 +628,22 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         def wrap():
             self.changeObjectScreen(btn)
             if self.currentEvent is None:
-                btn.setEnabled(True)
+                # btn.setEnabled(True)
                 self.setMarker(btn)
             elif self.currentEvent == btn:
-                self.closeMarker(btn)
-            elif btn.text() == "Resting":
+                pass
+            else:
                 self.closeMarker(self.currentEvent)
                 self.setMarker(btn)
-            else:
-                print("error")
+            #     if btn.text() != "Resting":
+            #         self.closeMarker(btn)
+            #         self.changeEventVisual(self.listEventBtn[-1])
+            #     else:
+            #         pass
+            # elif btn.text() == "Resting":
+                
+            # else:
+            #     print("error")
 
             # if self.currentEvent is None:
             #     for b in self.listEventBtn:
@@ -644,6 +662,23 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             #     self.listEvent.append([self.currentEventStart, tmpTimer])
             #     self.listEventMarker.append(btn.text())
         return wrap
+
+    def controlUserScr(self, x):
+        if(x == 1):
+            # Hieu chinh va luyen tap
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_CALIBRATION')
+        elif(x == 3):
+            # Mo ban phim ao
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_KEYBOARD')
+        elif(x == 2):
+            # Man hinh thu gian
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_RELAXATION')
 
 
 def readStorageData(link="./DataVIN/"):
