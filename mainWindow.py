@@ -448,10 +448,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         LocateEdit = self.createSamdialog.ui.LocateEdit.text()
         scenarioNumber = self.createSamdialog.ui.scenarioNumber.value()
         newData = {
-            'RecorderEdit': RecorderEdit,
-            'LocateEdit': LocateEdit,
-            'scenarioNumber': scenarioNumber,
-            'PlanDesc': arg.plans[scenarioNumber - 1]
+            'Recorder': RecorderEdit,
+            'Location': LocateEdit,
+            'scenarioId': scenarioNumber,
+            'Scenario': arg.plans[scenarioNumber - 1]
         }
         self.record_save = True
         self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
@@ -512,7 +512,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         print(self.listEventMarker)
         fileName = newDir + '/' + 'eeg.json'
         js = {
-            'TaskDesc': arg.plans[scenarioNumber - 1],
+            'Scenario': arg.plans[scenarioNumber - 1],
             'SamplingFrequence': rate,
             'EEGchannelNumber': EEGsignals.shape[0],
         }
