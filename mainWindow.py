@@ -18,7 +18,7 @@ from utilsUI.sample_file import SampleFile
 from utilities import *
 
 import socket
-HOST = '192.168.1.34'
+HOST = '192.168.1.128'
 PORT = 23233
 
 
@@ -31,7 +31,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.listSam = []
 
     def setupUi(self):
-        self.setObjectName("MainWindow")
+        self.setWindowTitle("HMI")
+        self.setObjectName("HMI")
         self.resize(int(1500 * arg.wScale), int(850 * arg.hScale))
         self.patientsGridLayout = self.findChild(QtWidgets.QGridLayout, 'patientsGridLayout')
         self.createEvent()
@@ -460,7 +461,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             t.deleteLater()
         newDir = self.newDir
 
-        self.pipe.terminate()
+        self.pipe.stdin.write(b'q')
+        self.pipe.stdin.flush()
+        poll = self.pipe.poll()
+        if poll is None:
+            self.pipe.terminate()
 
         fileName = newDir + '/' + 'scenario.json'
         with open(fileName, 'w') as outfile:
@@ -565,21 +570,21 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             y.setChecked(not x)
 
     def changePercent(self):
-        status = requests.get("http://192.168.1.34:8080/device_status")
-        self.percent = 0
-        try:
-            infoDev = status.json()['dev']
-            self.percent = infoDev[-1][-1]
-        except Exception as e:
-            print(e, "error catch percent")
-        if self.percent < 80:
-            self.latestPercentTime = osTimer.time()
-            font = QtGui.QFont()
-            font.setPointSize(8)
-            font.setBold(True)
-            font.setWeight(75)
-            self.createSamdialog.ui.noticePercentLabel.setFont(font)
-            self.createSamdialog.ui.noticePercentLabel.setText("Notice: EEG data percentage is lower than 80%")
+        # status = requests.get("http://192.168.1.34:8080/device_status")
+        self.percent = 100
+        # try:
+        #     infoDev = status.json()['dev']
+        #     self.percent = infoDev[-1][-1]
+        # except Exception as e:
+        #     print(e, "error catch percent")
+        # if self.percent < 80:
+        #     self.latestPercentTime = osTimer.time()
+        #     font = QtGui.QFont()
+        #     font.setPointSize(8)
+        #     font.setBold(True)
+        #     font.setWeight(75)
+        #     self.createSamdialog.ui.noticePercentLabel.setFont(font)
+        #     self.createSamdialog.ui.noticePercentLabel.setText("Notice: EEG data percentage is lower than 80%")
         self.createSamdialog.ui.label_EEG.setText("SignalEEG " + str(self.percent) + "%")
 
     def changeStyleRcd(self):

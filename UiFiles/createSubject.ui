@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>435</width>
-    <height>293</height>
+    <width>423</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>CreateSubject</string>
   </property>
-  <widget class="QWidget" name="verticalLayoutWidget">
+  <widget class="QFrame" name="verticalFrame">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -23,6 +23,12 @@
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="leftMargin">
+     <number>10</number>
+    </property>
+    <property name="rightMargin">
+     <number>10</number>
+    </property>
     <item>
      <layout class="QFormLayout" name="formLayout">
       <item row="0" column="0">
