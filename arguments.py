@@ -23,4 +23,7 @@ class arguments(argparse.Namespace):
     wScale = w / default_res[0]
     hScale = h / default_res[1]
 
+    HOST = '192.168.1.128'
+    PORT = 23233
+
 arg = arguments

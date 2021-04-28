@@ -34,7 +34,7 @@ class SampleFile:
             lastDir = path + '/scenario.json'
             with open(lastDir) as json_file:
                 data = json.load(json_file)
-            subjectName = str(path).split("/")[-1] + " (scenario_" + str(data["scenarioNumber"]) + ")"
+            subjectName = str(path).split("/")[-1] + " (scenario_" + str(data["scenarioId"]) + ")"
 
             self.label.setText(subjectName)
             self.button.setIcon(icon1)
