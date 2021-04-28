@@ -18,9 +18,8 @@ from utilsUI.sample_file import SampleFile
 from utilities import *
 
 import socket
-HOST = '192.168.1.128'
-PORT = 23233
-
+HOST = arg.HOST
+PORT = arg.PORT
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -435,7 +434,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.startTime = osTimer.time()
             cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
             outVid = '"' + str(self.newDir) + "/FaceGesture.avi" + '"'
-            self.pipe = subprocess.Popen(cmd + outVid)
+            self.pipe = subprocess.Popen(cmd + outVid, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 
             self.changeStyleRcd()
             self.createSamdialog.ui.controllerFrame.hide()
@@ -570,21 +569,22 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             y.setChecked(not x)
 
     def changePercent(self):
-        # status = requests.get("http://192.168.1.34:8080/device_status")
+        link = "http://" + HOST + ":8080/device_status"
+        status = requests.get(link)
         self.percent = 100
-        # try:
-        #     infoDev = status.json()['dev']
-        #     self.percent = infoDev[-1][-1]
-        # except Exception as e:
-        #     print(e, "error catch percent")
-        # if self.percent < 80:
-        #     self.latestPercentTime = osTimer.time()
-        #     font = QtGui.QFont()
-        #     font.setPointSize(8)
-        #     font.setBold(True)
-        #     font.setWeight(75)
-        #     self.createSamdialog.ui.noticePercentLabel.setFont(font)
-        #     self.createSamdialog.ui.noticePercentLabel.setText("Notice: EEG data percentage is lower than 80%")
+        try:
+            infoDev = status.json()['dev']
+            self.percent = infoDev[-1][-1]
+        except Exception as e:
+            print(e, "error catch percent")
+        if self.percent < 80:
+            self.latestPercentTime = osTimer.time()
+            font = QtGui.QFont()
+            font.setPointSize(8)
+            font.setBold(True)
+            font.setWeight(75)
+            self.createSamdialog.ui.noticePercentLabel.setFont(font)
+            self.createSamdialog.ui.noticePercentLabel.setText("Notice: EEG data percentage is lower than 80%")
         self.createSamdialog.ui.label_EEG.setText("SignalEEG " + str(self.percent) + "%")
 
     def changeStyleRcd(self):
