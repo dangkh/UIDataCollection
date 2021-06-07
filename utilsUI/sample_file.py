@@ -32,9 +32,13 @@ class SampleFile:
 
         if enabled:
             lastDir = path + '/scenario.json'
-            with open(lastDir) as json_file:
-                data = json.load(json_file)
-            subjectName = str(path).split("/")[-1] + " (scenario_" + str(data["scenarioId"]) + ")"
+            try:
+                with open(lastDir) as json_file:
+                    data = json.load(json_file)
+                subjectName = str(path).split("/")[-1] + " (scenario_" + str(data["scenarioId"]) + ")"
+            except Exception as e:
+                subjectName = str(path).split("/")[-1]
+                raise e
 
             self.label.setText(subjectName)
             self.button.setIcon(icon1)
