@@ -39,7 +39,7 @@
         <widget class="QFrame" name="frame">
          <property name="maximumSize">
           <size>
-           <width>400</width>
+           <width>800</width>
            <height>16777215</height>
           </size>
          </property>
@@ -521,8 +521,8 @@
                  <widget class="QLabel" name="CAM1">
                   <property name="maximumSize">
                    <size>
-                    <width>192</width>
-                    <height>108</height>
+                    <width>500</width>
+                    <height>250</height>
                    </size>
                   </property>
                   <property name="styleSheet">

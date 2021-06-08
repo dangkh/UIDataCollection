@@ -19,7 +19,7 @@ class SampleDialog(QtWidgets.QDialog):
 
         # self.retranslateUi()
         # QtCore.QMetaObject.connectSlotsByName(self.Dialog)
-
+        self.resize(int(1500 * arg.wScale), int(850 * arg.hScale))
         self.createEvent()
 
     def createEvent(self):

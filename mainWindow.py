@@ -18,7 +18,7 @@ from utilsUI.sample_file import SampleFile
 from utilities import *
 
 import socket
-HOST = '192.168.91.100'
+HOST = '192.168.91.103'
 PORT = 23233
 
 
@@ -433,7 +433,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
             self.recordTime = 0
             self.startTime = osTimer.time()
-            cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
+            cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 15M "
             outVid = '"' + str(self.newDir) + "/FaceGesture.avi" + '"'
             self.pipe = subprocess.Popen(cmd + outVid, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 
@@ -572,7 +572,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def changePercent(self):
     	# '192.168.91.101'
-        status = requests.get("http://192.168.91.100:8080/device_status")
+        status = requests.get("http://192.168.91.103:8080/device_status")
         # self.percent = 100
         try:
             infoDev = status.json()['dev']

@@ -89,7 +89,8 @@ class VideoRecorder:
         iDID = int(deviceID)
         # print(" capture hihi deviceID: " + str(deviceID))
         frameCounter = 1
-        cap_i = cv2.VideoCapture(int(deviceID), cv2.CAP_DSHOW)
+        cap_i = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        # cap_i = cv2.VideoCapture(int(deviceID), cv2.CAP_DSHOW)
         if not cap_i.isOpened():
             print("capture deviceID: " + str(deviceID) + " is not opended.")
             return
@@ -157,6 +158,7 @@ class VideoRecorder:
             thread.start()
             self.threads.append(thread)
             self.threadID += 1
+            break
 
     def updateSavingDir(self, path):
         # self.record = True
