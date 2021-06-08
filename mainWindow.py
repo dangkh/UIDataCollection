@@ -473,7 +473,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         list_ET = self.ETPlot.getSavingData()
         fileNameET = newDir + '/' + 'ET.csv'
         with open(fileNameET, mode='w', newline='', encoding='utf-8') as ETfile:
-            fieldnames = ['TimeStamp', 'Data', 'x', 'y', 'character typing', 'sentence']
+            fieldnames = ['TimeStamp', 'x', 'y', 'character typing', 'sentence']
             et_writer = csv.writer(ETfile)
             et_writer.writerow(fieldnames)
             for row in list_ET:
@@ -523,6 +523,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         for line in listEEG[1]:
             f.write(str(line) + '\n')
         f.close()
+
+        # check lost frames:
+        # duration of ET = len(list_ET) / frequence = 60
+        # duration of EEG = len(timeStamp) / frequence = 128
+        sET = len(list_ET) / 60
+        sEEG = len(listEEG[1]) / 128
+        if abs(sET - sEEG) >= 2.5: 
+            self.showErrorPopup("Too many EEG frames are missed")
 
         self.createSamdialog.ui.recordingStt = False
         self.createSamdialog.close()
