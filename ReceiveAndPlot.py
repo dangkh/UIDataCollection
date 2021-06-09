@@ -254,11 +254,12 @@ class EEGReceive(object):
             self.errorUpdate += 1
 
     def getSavingData(self):
-        if len(self.lData) > len(self.lTimeStamp):
-            tmp = self.lData[: len(self.lTimeStamp)]
-            return [tmp, self.lTimeStamp]
-
-        return [self.lData, self.lTimeStamp]
+        numPatch = int(len(self.lTimeStamp) / 128)
+        supposedLen = numPatch * 128
+        # if len(self.lData) > len(self.lTimeStamp):
+        outputData = self.lData[: supposedLen]
+        outputTS = self.lTimeStamp[: supposedLen]
+        return [outputData, outputTS]
 
     def getLastRcdSample(self):
         return [self.lData[-1], self.lTimeStamp[-1]]
