@@ -152,7 +152,7 @@ class VideoRecorder:
 
     def beginRecord(self):
         self.cleanRecorder()
-        for tName in range(self.numberDevices):
+        for tName in range(1):
             thread = self.myThread(self.threadID, str(tName), self.capture)
             thread.start()
             self.threads.append(thread)

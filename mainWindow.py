@@ -360,6 +360,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             # print(lastDir)
             with open(lastDir) as json_file:
                 data = json.load(json_file)
+            print(data)
             self.createSamdialog.setRecodData(data)
 
     def samForceQuit(self):

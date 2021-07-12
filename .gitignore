@@ -129,3 +129,5 @@ dmypy.json
 .pyre/
 /DataVIN/
 .DS_Store
+/fb/
+ffmpeg.exe

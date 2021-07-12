@@ -83,9 +83,9 @@ class createSam(QDialog):
             print(e)
 
     def setRecodData(self, data):
-        self.ui.RecorderEdit.setText(data['RecorderEdit'])
-        self.ui.LocateEdit.setText(data['LocateEdit'])
-        self.ui.scenarioNumber.setValue(data['scenarioNumber'])
+        self.ui.RecorderEdit.setText(data['Recorder'])
+        self.ui.LocateEdit.setText(data['Location'])
+        self.ui.scenarioNumber.setValue(data['scenarioId'])
 
     def updatePlanView(self):
         text = arg.plans[self.ui.scenarioNumber.value() - 1]
