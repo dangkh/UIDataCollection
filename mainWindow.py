@@ -543,6 +543,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.recordTime = osTimer.time() - self.startTime
         time = "{:.2f}".format(self.recordTime)
         self.createSamdialog.ui.timerNumberLabel.setText("Timer: " + str(time) + " s")
+        if len(self.listEventMarker) < 1:
+            lastTimeMarker = 0
+        else: lastTimeMarker = self.listEventMarker[-1][1]
+        self.countdown = osTimer.time() - lastTimeMarker
+        self.listEvent.append([self.currentEventStart, osTimer.time()])
+        self.createSamdialog.ui.countDown.setText(str(self.countdown) + " s")
 
     def ET_update(self):
         self.ETPlot.update()
