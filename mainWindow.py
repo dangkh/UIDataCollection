@@ -432,6 +432,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
             self.recordTime = 0
             self.startTime = osTimer.time()
+            self.currentEventStart = osTimer.time()
             cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
             outVid = '"' + str(self.newDir) + "/FaceGesture.avi" + '"'
             self.pipe = subprocess.Popen(cmd + outVid, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
@@ -543,12 +544,11 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.recordTime = osTimer.time() - self.startTime
         time = "{:.2f}".format(self.recordTime)
         self.createSamdialog.ui.timerNumberLabel.setText("Timer: " + str(time) + " s")
-        if len(self.listEventMarker) < 1:
-            lastTimeMarker = 0
-        else: lastTimeMarker = self.listEventMarker[-1][1]
-        self.countdown = osTimer.time() - lastTimeMarker
-        self.listEvent.append([self.currentEventStart, osTimer.time()])
-        self.createSamdialog.ui.countDown.setText(str(self.countdown) + " s")
+        if not self.currentEventStart:
+            lastTimeMarker = self.startTime
+        else: lastTimeMarker = self.currentEventStart
+        self.countdown =  max(-osTimer.time() + lastTimeMarker + 7, 0)
+        self.createSamdialog.ui.countDown.setText(f'{self.countdown:.02f}')
 
     def ET_update(self):
         self.ETPlot.update()
@@ -584,13 +584,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def changePercent(self):
         link = "http://" + HOST + ":8080/device_status"
-        status = requests.get(link)
         self.percent = 100
-        try:
-            infoDev = status.json()['dev']
-            self.percent = infoDev[-1][-1]
-        except Exception as e:
-            print(e, "error catch percent")
+        # try:
+        #     status = requests.get(link)
+        #     infoDev = status.json()['dev']
+        #     self.percent = infoDev[-1][-1]
+        # except Exception as e:
+        #     print(e, "error catch percent")
         if self.percent < 80:
             self.latestPercentTime = osTimer.time()
             font = QtGui.QFont()
