@@ -4,7 +4,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets, uic
 import os
 import json
 from ReceiveAndPlot import *
-from multi import *
+from multi import VideoRecorder
 import csv
 import requests
 
@@ -18,8 +18,6 @@ from utilsUI.sample_file import SampleFile
 from utilities import *
 
 import socket
-HOST = arg.HOST
-PORT = arg.PORT
 
 class Ui_MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -166,16 +164,15 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.signalTimer.timeout.connect(self.changeSignal)
         self.signalTimer.start()
 
-        self.percentTimer = QtCore.QTimer()
-        self.percentTimer.setInterval(1000)
-        self.latestPercentTime = osTimer.time()
-        self.percentTimer.timeout.connect(self.changePercent)
-        self.percentTimer.start()
 
         self.EEGPlot = EEGReceive_Plot("new")
         self.createSamdialog.ui.widEEG.addWidget(self.EEGPlot.pw)
 
         self.ETPlot = ETReceive("new")
+        # set connection
+        self.receiver_connection = (self.EEGPlot.inlet.inlet.info().hostname(), 23233)
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect(self.receiver_connection)
 
         self.update_timer = QtCore.QTimer()
         self.update_timer.setInterval(60)
@@ -420,6 +417,18 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.timerRcd.timeout.connect(self.updateTimerRcd)
             self.timerRcd.start()
 
+
+            self.percentTimer = QtCore.QTimer()
+            self.percentTimer.setInterval(1000)
+            self.latestPercentTime = osTimer.time()
+            self.percentTimer.timeout.connect(self.changePercent)
+            self.percentTimer.start()
+
+            # # set connection
+            # self.receiver_connection = (self.EEGRcv.inlet.info().hostname(), 23233)
+            # self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            # self.socket.connect(self.receiver_connection)
+
             self.createSamdialog.ui.rcdBtn.setText("Save")
             font = QtGui.QFont()
             font.setPointSize(12)
@@ -433,7 +442,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
             self.recordTime = 0
             self.startTime = osTimer.time()
-            cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
+            # cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
+            cmd = "ffmpeg -y -f dshow -i video=\"Integrated Webcam\" "
             outVid = '"' + str(self.newDir) + "/FaceGesture.avi" + '"'
             self.pipe = subprocess.Popen(cmd + outVid, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 
@@ -455,7 +465,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         }
         self.record_save = True
         self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
-        timers = [self.ETtimer, self.signalTimer, self.EEGtimer, self.timerRcd]
+        timers = [self.ETtimer, self.signalTimer, self.EEGtimer, self.timerRcd, self.percentTimer]
         for t in timers:
             t.stop()
             t.deleteLater()
@@ -578,23 +588,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             y.setChecked(not x)
 
     def changePercent(self):
-        link = "http://" + HOST + ":8080/device_status"
-        status = requests.get(link)
-        self.percent = 100
-        try:
-            infoDev = status.json()['dev']
-            self.percent = infoDev[-1][-1]
-        except Exception as e:
-            print(e, "error catch percent")
-        if self.percent < 80:
-            self.latestPercentTime = osTimer.time()
-            font = QtGui.QFont()
-            font.setPointSize(8)
-            font.setBold(True)
-            font.setWeight(75)
-            self.createSamdialog.ui.noticePercentLabel.setFont(font)
-            self.createSamdialog.ui.noticePercentLabel.setText("Notice: EEG data percentage is lower than 80%")
-        self.createSamdialog.ui.label_EEG.setText("SignalEEG " + str(self.percent) + "%")
+        self.percent = self.EEGRcv.getQuality()
+        self.createSamdialog.ui.label_EEG.setText("EEG " + str(self.percent) + "%")
 
     def changeStyleRcd(self):
         self.createSamdialog.ui.turnOnOffBtn.hide()
@@ -608,9 +603,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def closeMarker(self, btn):
         self.currentEvent = None
         btn.setStyleSheet("")
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((HOST, PORT))
-        s.sendall(b'OPEN_RELAXATION')
+        self.socket.sendall(b'OPEN_RELAXATION')
         self.listEvent.append([self.currentEventStart, osTimer.time()])
         self.listEventMarker.append(btn.text())
 
@@ -618,25 +611,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         print("enteredddd setMarker")
         btn.setStyleSheet("background-color: yellow")
         if btn.text() != "Typing":
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((HOST, PORT))
-            s.sendall(b'OPEN_RELAXATION')
+            self.socket.sendall(b'OPEN_RELAXATION')
         else:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((HOST, PORT))
-            s.sendall(b'OPEN_KEYBOARD')
+            self.socket.sendall(b'OPEN_KEYBOARD')
         self.currentEvent = btn
         self.currentEventStart = osTimer.time()
 
     def changeObjectScreen(self, btn):
         if btn.text() != "Typing":
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((HOST, PORT))
-            s.sendall(b'OPEN_RELAXATION')
+            self.socket.sendall(b'OPEN_RELAXATION')
         else:
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((HOST, PORT))
-            s.sendall(b'OPEN_KEYBOARD')
+            self.socket.sendall(b'OPEN_KEYBOARD')
 
     def changeEventVisual(self, btn):
         def wrap():
@@ -680,19 +665,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
     def controlUserScr(self, x):
         if(x == 1):
             # Hieu chinh va luyen tap
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((HOST, PORT))
-            s.sendall(b'OPEN_CALIBRATION')
+            self.socket.sendall(b'OPEN_CALIBRATION')
         elif(x == 3):
             # Mo ban phim ao
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((HOST, PORT))
-            s.sendall(b'OPEN_KEYBOARD')
+            self.socket.sendall(b'OPEN_KEYBOARD')
         elif(x == 2):
             # Man hinh thu gian
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            s.connect((HOST, PORT))
-            s.sendall(b'OPEN_RELAXATION')
+            self.socket.sendall(b'OPEN_RELAXATION')
 
 
 def readStorageData(link="./DataVIN/"):

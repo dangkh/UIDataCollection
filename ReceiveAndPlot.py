@@ -231,7 +231,10 @@ class EEGReceive(object):
         for stream in streams:
             if stream.name() == "EmotivDataStream-EEG":
                 self.inlet = pylsl.StreamInlet(stream)
+            if stream.name() == 'EmotivDataStream-EEG-Quality':
+                self.quality_inlet = pylsl.StreamInlet(stream)
 
+        self.quality = 100
         self.listSaving = []
         self.lData = []
         self.lTimeStamp = []
@@ -252,6 +255,16 @@ class EEGReceive(object):
         except Exception as e:
             # print(e, "Error in inlet EEG Rec: ", self.errorUpdate)
             self.errorUpdate += 1
+
+    def getQuality(self):
+        try:
+            samples, _ = self.quality_inlet.pull_chunk()
+            if len(timestamps) > 0:
+                self.quality = samples[-1][2]
+
+        except Exception as e:
+            print(e, "Error in inlet EEG quality: ")
+        return self.quality
 
     def getSavingData(self):
         numPatch = int(len(self.lTimeStamp) / 128)
