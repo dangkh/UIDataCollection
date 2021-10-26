@@ -258,7 +258,7 @@ class EEGReceive(object):
 
     def getQuality(self):
         try:
-            samples, _ = self.quality_inlet.pull_chunk()
+            samples, timestamps = self.quality_inlet.pull_chunk()
             if len(timestamps) > 0:
                 self.quality = samples[-1][2]
 

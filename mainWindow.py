@@ -397,6 +397,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
             else:
                 print("Error in link Sub")
+			# Dong nay bi loi khi create record
+			# RuntimeError: wrapped C/C++ object of type QTimer has been deleted
             onlydir.sort(key=os.path.getctime)
             newID = len(onlydir) + 1
             newDir = link + "sample" + str(newID)
@@ -442,8 +444,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
             self.recordTime = 0
             self.startTime = osTimer.time()
-            # cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
-            cmd = "ffmpeg -y -f dshow -i video=\"Integrated Webcam\" "
+            cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
+            # cmd = "ffmpeg -y -f dshow -i video=\"Integrated Webcam\" "
             outVid = '"' + str(self.newDir) + "/FaceGesture.avi" + '"'
             self.pipe = subprocess.Popen(cmd + outVid, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
 
@@ -472,8 +474,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         newDir = self.newDir
 
         self.pipe.stdin.write(b'q')
+
+		# Dong nay gay ra loi dau tien
+		# OSError: [Errno 22] Invalid argument
         self.pipe.stdin.flush()
         poll = self.pipe.poll()
+
         if poll is None:
             self.pipe.terminate()
 
@@ -495,19 +501,19 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         channels = self.EEGRcv.getInfo()
         rate = self.EEGRcv.getRate()
-        EEG_channels = channels[3:-1]
+        EEG_channels = channels[3:-2]
         data = np.asarray(listEEG[0])
-        EEGsignals = data[:, 3:-1].T
+        EEGsignals = data[:, 3:-2].T
 
         signalHeader = pyedf.highlevel.make_signal_headers(
             EEG_channels, dimension='mV', sample_rate=rate, physical_min=-5000.0, physical_max=5000.0,
             digital_min=-32768, digital_max=32767, transducer='', prefiler='')
 
-        print(fileNameEEG[2:])
         f = pyedf.EdfWriter(fileNameEEG[2:], 32)
 
         f.setEquipment("Emotiv")
         f.setSignalHeaders(signalHeader)
+        print(EEGsignals)
         f.writeSamples(EEGsignals, digital=False)
 
         eventIdx = 0
