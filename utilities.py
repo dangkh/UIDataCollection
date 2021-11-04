@@ -65,7 +65,7 @@ class createSam(QDialog):
         self.info = info
         try:
             jsonDir = info + '/info.json'
-            with open(jsonDir) as json_file:
+            with open(jsonDir, 'r', encoding='utf8') as json_file:
                 data = json.load(json_file)
             self.ui.NameEdit.setText(data['name'])
             self.ui.AgeEdit.setValue(data['age'])

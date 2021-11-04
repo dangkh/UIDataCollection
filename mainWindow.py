@@ -143,8 +143,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             newlink = self.storeDir + str(recordID)
             os.mkdir(newlink)
             fileName = newlink + '/' + 'info.json'
-            with open(fileName, 'w') as outfile:
-                json.dump(js, outfile)
+            with open(fileName, 'w', encoding='utf8') as outfile:
+                json.dump(js, outfile, ensure_ascii=False)
             self.createSubdialog.ui.close()
             self.updateSub(page=-1)
         else:
@@ -211,7 +211,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         lastDir = self.currentSub + '/info.json'
         try:
-            with open(lastDir) as json_file:
+            with open(lastDir, 'r', encoding='utf8') as json_file:
                 data = json.load(json_file)
             nameSubject = nameSubject + " (" + data["name"] + ")"
         except Exception as e:
@@ -355,7 +355,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
                 return
             lastDir = onlydir[-1] + '/scenario.json'
             # print(lastDir)
-            with open(lastDir) as json_file:
+            with open(lastDir, 'r', encoding='utf8') as json_file:
                 data = json.load(json_file)
             print(data)
             self.createSamdialog.setRecodData(data)
@@ -484,8 +484,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.pipe.terminate()
 
         fileName = newDir + '/' + 'scenario.json'
-        with open(fileName, 'w') as outfile:
-            json.dump(newData, outfile)
+        with open(fileName, 'w', encoding='utf8') as outfile:
+            json.dump(newData, outfile, ensure_ascii=False)
 
         list_ET = self.ETPlot.getSavingData()
         fileNameET = newDir + '/' + 'ET.csv'
@@ -532,8 +532,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             'SamplingFrequence': rate,
             'EEGchannelNumber': EEGsignals.shape[0],
         }
-        with open(fileName, 'w') as outfile:
-            json.dump(js, outfile)
+        with open(fileName, 'w', encoding='utf8') as outfile:
+            json.dump(js, outfile, ensure_ascii=False)
 
         fileName = newDir + '/' + 'EEGTimeStamp.txt'
         f = open(fileName, "w")

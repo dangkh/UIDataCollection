@@ -34,7 +34,7 @@ class SubjectFolder:
         if enabled:
             nameSubject = str(path).split("/")[-1]
             lastDir = path + '/info.json'
-            with open(lastDir) as json_file:
+            with open(lastDir, 'r', encoding='utf8') as json_file:
                 data = json.load(json_file)
             nameSubject = nameSubject + " (" + data["name"] + ")"
             self.label.setText(nameSubject)
