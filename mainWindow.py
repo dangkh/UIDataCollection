@@ -200,7 +200,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.currentEvent = None
         self.listEventBtn = [self.createSamdialog.ui.ThinkButton, self.createSamdialog.ui.ThinkActButton,
-                             self.createSamdialog.ui.TypeButton, self.createSamdialog.ui.RestButton]
+                             self.createSamdialog.ui.TypeButton, self.createSamdialog.ui.RestButton,
+                             self.createSamdialog.ui.TypeButton_spc]
         for btn in self.listEventBtn:
             btn.clicked.connect(self.changeEventVisual(btn))
             btn.hide()
@@ -638,10 +639,14 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((HOST, PORT))
             s.sendall(b'OPEN_RELAXATION')
-        else:
+        elif btn.text() == "Typing":
             s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s.connect((HOST, PORT))
             s.sendall(b'OPEN_KEYBOARD')
+        elif btn.text() == "Typing special":
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_FINDING')
 
     def changeEventVisual(self, btn):
         def wrap():

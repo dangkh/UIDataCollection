@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1110</width>
+    <width>1179</width>
     <height>703</height>
    </rect>
   </property>
@@ -466,6 +466,20 @@
                  <widget class="QFrame" name="frame">
                   <layout class="QHBoxLayout" name="horizontalLayout_7">
                    <item>
+                    <widget class="QPushButton" name="TypeButton_spc">
+                     <property name="text">
+                      <string>Special Typing</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="Line" name="line_4">
+                     <property name="orientation">
+                      <enum>Qt::Vertical</enum>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
                     <widget class="QPushButton" name="ThinkButton">
                      <property name="text">
                       <string>Thinking</string>
@@ -480,7 +494,7 @@
                       </font>
                      </property>
                      <property name="text">
-                      <string>Thinking and Acting</string>
+                      <string>Think_Acting</string>
                      </property>
                     </widget>
                    </item>
