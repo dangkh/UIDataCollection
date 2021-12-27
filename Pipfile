@@ -6,13 +6,14 @@ name = "pypi"
 [packages]
 requests = "*"
 pyedflib = "*"
-pyqt5 = "*"
-pylsl = "*"
+pyqt5 = "5.12.9"
 pyqtgraph = "*"
 opencv-python = "~=4.1.2.30"
 qimage2ndarray = "*"
+pipfile = "*"
+pylsl = {editable = true, git = "https://github.com/chkothe/pylsl/"}
 
 [dev-packages]
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
