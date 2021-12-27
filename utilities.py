@@ -65,7 +65,7 @@ class createSam(QDialog):
         self.info = info
         try:
             jsonDir = info + '/info.json'
-            with open(jsonDir) as json_file:
+            with open(jsonDir, 'r', encoding='utf8') as json_file:
                 data = json.load(json_file)
             self.ui.NameEdit.setText(data['name'])
             self.ui.AgeEdit.setValue(data['age'])
@@ -83,9 +83,9 @@ class createSam(QDialog):
             print(e)
 
     def setRecodData(self, data):
-        self.ui.RecorderEdit.setText(data['RecorderEdit'])
-        self.ui.LocateEdit.setText(data['LocateEdit'])
-        self.ui.scenarioNumber.setValue(data['scenarioNumber'])
+        self.ui.RecorderEdit.setText(data['Recorder'])
+        self.ui.LocateEdit.setText(data['Location'])
+        self.ui.scenarioNumber.setValue(data['scenarioId'])
 
     def updatePlanView(self):
         text = arg.plans[self.ui.scenarioNumber.value() - 1]
