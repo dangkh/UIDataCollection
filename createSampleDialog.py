@@ -9,18 +9,64 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtWidgets import *
-from arguments import arg
-
+from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel
+from arguments import arguments as arg
+from ReceiveAndPlot import ETReceive, EEGReceive, EEGReceive_Plot, StreamNotFound
+from multi import VideoRecorder, CameraNotFound
+from utilities import showErrorPopup
+import socket
+import json
+import os
+import subprocess
+import numpy as np
+import time as osTimer
+import pyedflib as pyedf
 
 class SampleDialog(QtWidgets.QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setupUi()
+        self.rcdBtn.hide()
+        self.scenarioNumber.setMaximum(arg.numPlan)
+        self.scenarioNumber.setMinimum(1)
+        self.scenarioNumber.valueChanged.connect(self.updatePlanView)
+        self.updatePlanView()
+
+
     def setupUi(self):
         uic.loadUi('UiFiles/createSample.ui', self)
-
-        # self.retranslateUi()
-        # QtCore.QMetaObject.connectSlotsByName(self.Dialog)
-
         self.createEvent()
+
+    def updatePlanView(self):
+        text = arg.plans[self.scenarioNumber.value() - 1]
+        self.lineEdit.setText(str(text))
+
+    def setInfo(self, info):
+        # set sample info as the info of the patient
+        self.info = info
+        try:
+            jsonDir = info + '/info.json'
+            with open(jsonDir, 'r', encoding='utf8') as json_file:
+                data = json.load(json_file)
+            self.NameEdit.setText(data['name'])
+            self.AgeEdit.setValue(data['age'])
+            if data['gender'] == 'M':
+                self.MaleEdit.setChecked(True)
+            else:
+                self.FemaleEdit.setChecked(True)
+
+            self.NameEdit.setEnabled(False)
+            self.AgeEdit.setEnabled(False)
+            self.MaleEdit.setEnabled(False)
+            self.FemaleEdit.setEnabled(False)
+        except Exception as e:
+            print("cant find json file, subject dont have required infomation")
+            print(e)
+
+    def setRecodData(self, data):
+        self.RecorderEdit.setText(data['Recorder'])
+        self.LocateEdit.setText(data['Location'])
+        self.scenarioNumber.setValue(data['scenarioId'])
 
     def createEvent(self):
         # self.infoWidget.setLayout(self.verticalLayout)
@@ -28,7 +74,427 @@ class SampleDialog(QtWidgets.QDialog):
         # self.widSignal.setLayout(self.gLayoutSignal)
         self.setLayout(self.horizontalLayout)
         # self.eventCreateBtn.clicked.connect(lambda: self.changeStyle(self.eventCreateBtn))
+
+    def setup_connection(self):
         self.recordingStt = True
+        self.fetchInfoBtn.clicked.connect(lambda: self.updateInfoSample(reuse=True))
+        self.resetBtn.clicked.connect(self.updateInfoSample)
+        self.rcdBtn.clicked.connect(self.record_saveData)
+        # self.turnOnOffBtn.clicked.connect(self.samForceQuit)
+        self.startEvent = False
+
+        # check all connections
+
+        try:
+            self.EEGPlot = EEGReceive_Plot()
+            self.widEEG.addWidget(self.EEGPlot.pw)
+
+            self.ETPlot = ETReceive()
+            self.receiver_connection = (self.EEGPlot.inlet.inlet.info().hostname(), 23233)
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket.connect(self.receiver_connection)
+
+            self.CAMth = VideoRecorder()
+            self.CAMth.setLabelImage([self.CAM1])
+            self.CAMth.beginRecord()
+        except (StreamNotFound, CameraNotFound) as err:
+            dlg = QDialog(self)
+            print(err)
+            dlg.setWindowTitle('Đã có lỗi xảy ra!')
+            dlg.layout = QVBoxLayout()
+            message = QLabel(str(err))
+            dlg.layout.addWidget(message)
+            dlg.setLayout(dlg.layout)
+            dlg.exec()
+            return None
+
+        # setting up timers
+
+        self.signalTimer = QtCore.QTimer()
+        self.signalTimer.setInterval(500)
+        self.signalTimer.timeout.connect(self.changeSignal)
+        self.signalTimer.start()
+
+        self.update_timer = QtCore.QTimer()
+        self.update_timer.setInterval(60)
+        self.update_timer.timeout.connect(self.EEGPlot.scroll)
+        self.update_timer.start()
+
+        # create a timer that will pull and add new data occasionally
+        self.pull_timer = QtCore.QTimer()
+        self.pull_timer.setInterval(500)
+        self.pull_timer.timeout.connect(self.EEGPlot.update)
+        self.pull_timer.start()
+        # get ET
+
+        self.ETtimer = QtCore.QTimer()
+        self.ETtimer.setInterval(0)
+        self.ETtimer.timeout.connect(self.ET_update)
+        self.ETtimer.start()
+
+        self.currentEvent = None
+        self.listEventBtn = [self.ThinkButton, self.ThinkActButton,
+                             self.TypeButton, self.RestButton,
+                             self.TypeButton_spc]
+        for btn in self.listEventBtn:
+            btn.clicked.connect(self.changeEventVisual(btn))
+            btn.hide()
+        self.calibrate.clicked.connect(lambda: self.controlUserScr(1))
+        self.relax.clicked.connect(lambda: self.controlUserScr(2))
+        self.keyboard.clicked.connect(lambda: self.controlUserScr(3))
+        self.exec_()
+
+    def record_saveData(self):
+        if self.record_save:
+            self.createRecord()
+            return
+        self.saveRecord()
+
+    def createRecord(self):
+        self.listEvent = []
+        self.listEventMarker = []
+        RecorderEdit = self.RecorderEdit.text()
+        LocateEdit = self.LocateEdit.text()
+        scenarioNumber = self.scenarioNumber.value()
+        missingValue = False
+        if RecorderEdit == '' or LocateEdit == '':
+            missingValue = True
+        if scenarioNumber == 0:
+            missingValue = True
+
+        if not missingValue:
+            for btn in self.listEventBtn:
+                btn.show()
+            self.record_save = False
+            self.recordingStt = True
+            # create new sample folder
+            link = self.currentSub + '/'
+            if os.path.isdir(link):
+                onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
+            else:
+                print("Error in link Sub")
+            # Dong nay bi loi khi create record
+            # RuntimeError: wrapped C/C++ object of type QTimer has been deleted
+            onlydir.sort(key=os.path.getctime)
+            newID = len(onlydir) + 1
+            newDir = link + "sample" + str(newID)
+            os.mkdir(newDir)
+            self.newDir = newDir
+            self.CAMth.updateSavingDir(newDir + '/')
+            self.CAMth.stopRecord()
+            self.ETPlot.updateSaving()
+
+            self.EEGRcv = EEGReceive("new")
+            self.EEGtimer = QtCore.QTimer()
+            self.EEGtimer.setInterval(10)
+            self.EEGtimer.timeout.connect(self.updateEEGRcv)
+            self.EEGtimer.start()
+
+            self.timerRcd = QtCore.QTimer()
+            self.timerRcd.setInterval(100)
+            self.timerRcd.timeout.connect(self.updateTimerRcd)
+            self.timerRcd.start()
+
+
+            self.percentTimer = QtCore.QTimer()
+            self.percentTimer.setInterval(1000)
+            self.latestPercentTime = osTimer.time()
+            self.percentTimer.timeout.connect(self.changePercent)
+            self.percentTimer.start()
+
+            # set connection
+            # self.receiver_connection = (self.EEGRcv.inlet.info().hostname(), 23233)
+            # self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            # self.socket.connect(self.receiver_connection)
+
+            self.rcdBtn.setText("Save")
+            font = QtGui.QFont()
+            font.setPointSize(12)
+            font.setBold(True)
+            font.setWeight(75)
+            self.rcdBtn.setFont(font)
+            timers = [self.update_timer, self.pull_timer]
+            for t in timers:
+                t.stop()
+                t.deleteLater()
+
+            self.recordTime = 0
+            self.startTime = osTimer.time()
+            cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
+            # cmd = "ffmpeg -y -f dshow -i video=\"Integrated Webcam\" "
+            outVid = '"' + str(self.newDir) + "/FaceGesture.avi" + '"'
+            self.pipe = subprocess.Popen(cmd + outVid, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+
+            self.changeStyleRcd()
+            self.createSamdialog.ui.controllerFrame.hide()
+        else:
+            self.showErrorPopup("Please complete fully the form")
+
+    def saveRecord(self):
+        print("Enter Save")
+        RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
+        LocateEdit = self.createSamdialog.ui.LocateEdit.text()
+        scenarioNumber = self.createSamdialog.ui.scenarioNumber.value()
+        newData = {
+            'Recorder': RecorderEdit,
+            'Location': LocateEdit,
+            'scenarioId': scenarioNumber,
+            'Scenario': arg.plans[scenarioNumber - 1]
+        }
+        self.record_save = True
+        self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
+        timers = [self.ETtimer, self.signalTimer, self.EEGtimer, self.timerRcd, self.percentTimer]
+        for t in timers:
+            t.stop()
+            t.deleteLater()
+        newDir = self.newDir
+
+        self.pipe.stdin.write(b'q')
+
+		# Dong nay gay ra loi dau tien
+		# OSError: [Errno 22] Invalid argument
+        self.pipe.stdin.flush()
+        poll = self.pipe.poll()
+
+        if poll is None:
+            self.pipe.terminate()
+
+        fileName = newDir + '/' + 'scenario.json'
+        with open(fileName, 'w', encoding='utf8') as outfile:
+            json.dump(newData, outfile, ensure_ascii=False)
+
+        list_ET = self.ETPlot.getSavingData()
+        fileNameET = newDir + '/' + 'ET.csv'
+        with open(fileNameET, mode='w', newline='', encoding='utf-8') as ETfile:
+            fieldnames = ['TimeStamp', 'x', 'y', 'character typing', 'sentence']
+            et_writer = csv.writer(ETfile)
+            et_writer.writerow(fieldnames)
+            for row in list_ET:
+                et_writer.writerow(row)
+
+        fileNameEEG = newDir + '/' + 'EEG.edf'
+        listEEG = self.EEGRcv.getSavingData()
+
+        channels = self.EEGRcv.getInfo()
+        rate = self.EEGRcv.getRate()
+        EEG_channels = channels[3:-2]
+        data = np.asarray(listEEG[0])
+        EEGsignals = data[:, 3:-2].T
+
+        signalHeader = pyedf.highlevel.make_signal_headers(
+            EEG_channels, dimension='mV', sample_rate=rate, physical_min=-5000.0, physical_max=5000.0,
+            digital_min=-32768, digital_max=32767, transducer='', prefiler='')
+
+        f = pyedf.EdfWriter(fileNameEEG[2:], 32)
+
+        f.setEquipment("Emotiv")
+        f.setSignalHeaders(signalHeader)
+        print(EEGsignals)
+        f.writeSamples(EEGsignals, digital=False)
+
+        eventIdx = 0
+        while eventIdx < len(self.listEvent):
+            start = self.listEvent[eventIdx][0]
+            stop = self.listEvent[eventIdx][1]
+            # print(start, stop - start, self.listEventMarker[eventIdx])
+            f.writeAnnotation(start - self.startTime, stop - start, self.listEventMarker[eventIdx])
+
+            eventIdx += 1
+        f.close()
+        print(self.listEventMarker)
+        fileName = newDir + '/' + 'eeg.json'
+        js = {
+            'Scenario': arg.plans[scenarioNumber - 1],
+            'SamplingFrequence': rate,
+            'EEGchannelNumber': EEGsignals.shape[0],
+        }
+        with open(fileName, 'w', encoding='utf8') as outfile:
+            json.dump(js, outfile, ensure_ascii=False)
+
+        fileName = newDir + '/' + 'EEGTimeStamp.txt'
+        f = open(fileName, "w")
+        for line in listEEG[1]:
+            f.write(str(line) + '\n')
+        f.close()
+
+        # check lost frames:
+        # duration of ET = len(list_ET) / frequence = 60
+        # duration of EEG = len(timeStamp) / frequence = 128
+        sET = len(list_ET) / 60
+        sEEG = len(listEEG[1]) / 128
+        if abs(sET - sEEG) >= 2.5:
+            showErrorPopup("Too many EEG frames are missed")
+
+        self.recordingStt = False
+        self.close()
+
+    def updateInfoSample(self, reuse=False):
+        if not reuse:
+            newData = {
+                'RecorderEdit': "",
+                'LocateEdit': "",
+                'scenarioNumber': 0,
+            }
+            self.setRecodData(newData)
+        else:
+            # print("ENterrrrrrrrrrrrrrrrrrrr")
+            onlydir = []
+            link = self.currentSub + '/'
+            if os.path.isdir(link):
+                onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + d)]
+            onlydir.sort(key=os.path.getctime)
+            if len(onlydir) == 0:
+                # pop
+                return
+            lastDir = onlydir[-1] + '/scenario.json'
+            # print(lastDir)
+            with open(lastDir, 'r', encoding='utf8') as json_file:
+                data = json.load(json_file)
+            print(data)
+            self.setRecodData(data)
+
+    def teardown(self):
+        timers = [self.update_timer, self.pull_timer, self.signalTimer]
+        for t in timers:
+            t.stop()
+            t.deleteLater()
+        self.CAMth.stopRecord()
+        self.recordingStt = False
+        # self.close()
+
+    def updateEEGRcv(self):
+        self.EEGRcv.update()
+
+    def updateTimerRcd(self):
+        self.recordTime = osTimer.time() - self.startTime
+        time = "{:.2f}".format(self.recordTime)
+        self.createSamdialog.ui.timerNumberLabel.setText("Timer: " + str(time) + " s")
+        if len(self.listEventMarker) < 1:
+            lastTimeMarker = 0
+        else: lastTimeMarker = self.listEventMarker[-1][1]
+        self.countdown = osTimer.time() - lastTimeMarker
+        self.listEvent.append([self.currentEventStart, osTimer.time()])
+        self.createSamdialog.ui.countDown.setText(str(self.countdown) + " s")
+
+    def ET_update(self):
+        self.ETPlot.update()
+        ETdata = self.ETPlot.lastSample
+        if ETdata is not None:
+            self.createSamdialog.ui.position.setText(str(ETdata[1]) + " " + str(ETdata[2]))
+            self.createSamdialog.ui.character.setText(ETdata[3])
+            self.createSamdialog.ui.widScreen.setText(ETdata[4])
+
+    def changeSignal(self):
+        counter = 0
+        cam1 = True
+        cam2 = True
+        # print(self.CAMth.numberDevices)
+        if self.CAMth.numberDevices < 2:
+            cam2 = False
+        if self.CAMth.numberDevices < 1:
+            cam1 = False
+        l1 = [self.ETPlot.signalStt(), self.EEGPlot.signalStt(), cam1, cam2]
+        l2 = [self.createSamdialog.ui.SignalET,
+              self.createSamdialog.ui.SignalEEG,
+              self.createSamdialog.ui.SignalCAM1]
+        # print(l1)
+        for x in l1:
+            if x:
+                counter += 1
+        if counter >= 3:
+            self.createSamdialog.ui.rcdBtn.show()
+        else:
+            self.createSamdialog.ui.rcdBtn.hide()
+        for x, y in zip(l1, l2):
+            y.setChecked(not x)
+
+    def changePercent(self):
+        self.percent = self.EEGRcv.getQuality()
+        self.createSamdialog.ui.label_EEG.setText("EEG " + str(self.percent) + "%")
+
+    def changeStyleRcd(self):
+        self.createSamdialog.ui.turnOnOffBtn.hide()
+        self.createSamdialog.ui.rcdBtn.setStyleSheet(u"border-style: outset;\n"
+                                                     "border-width: 1px;\n"
+                                                     "border-radius: 10px;\n"
+                                                     "border-color: beige;\n"
+                                                     "background-color: red;\n"
+                                                     "padding: 3px;")
+
+    def closeMarker(self, btn):
+        self.currentEvent = None
+        btn.setStyleSheet("")
+        self.socket.sendall(b'OPEN_RELAXATION')
+        self.listEvent.append([self.currentEventStart, osTimer.time()])
+        self.listEventMarker.append(btn.text())
+
+    def setMarker(self, btn):
+        print("enteredddd setMarker")
+        btn.setStyleSheet("background-color: yellow")
+        if btn.text() != "Typing":
+            self.socket.sendall(b'OPEN_RELAXATION')
+        else:
+            self.socket.sendall(b'OPEN_KEYBOARD')
+        self.currentEvent = btn
+        self.currentEventStart = osTimer.time()
+
+    def changeObjectScreen(self, btn):
+        if btn.text() != "Typing":
+            self.socket.sendall(b'OPEN_RELAXATION')
+        elif btn.text() == "Typing":
+            self.socket.sendall(b'OPEN_KEYBOARD')
+        elif btn.text() == "Typing special":
+            self.socket.sendall(b'OPEN_FINDING')
+
+    def changeEventVisual(self, btn):
+        def wrap():
+            self.changeObjectScreen(btn)
+            if self.currentEvent is None:
+                # btn.setEnabled(True)
+                self.setMarker(btn)
+            elif self.currentEvent == btn:
+                pass
+            else:
+                self.closeMarker(self.currentEvent)
+                self.setMarker(btn)
+            #     if btn.text() != "Resting":
+            #         self.closeMarker(btn)
+            #         self.changeEventVisual(self.listEventBtn[-1])
+            #     else:
+            #         pass
+            # elif btn.text() == "Resting":
+
+            # else:
+            #     print("error")
+
+            # if self.currentEvent is None:
+            #     for b in self.listEventBtn:
+            #         b.setEnabled(False)
+            #     btn.setEnabled(True)
+            #     self.listEventBtn[-1].setEnabled()
+            #     btn.setStyleSheet("background-color: rgb(252, 202, 65)")
+            #     self.currentEvent = btn
+            #     self.currentEventStart = osTimer.time()
+            # else:
+            #     for b in self.listEventBtn:
+            #         b.setEnabled(True)
+            #         b.setStyleSheet("")
+            #     self.currentEvent = None
+            #     tmpTimer = osTimer.time()
+            #     self.listEvent.append([self.currentEventStart, tmpTimer])
+            #     self.listEventMarker.append(btn.text())
+        return wrap
+
+    def controlUserScr(self, x):
+        if(x == 1):
+            # Hieu chinh va luyen tap
+            self.socket.sendall(b'OPEN_CALIBRATION')
+        elif(x == 3):
+            # Mo ban phim ao
+            self.socket.sendall(b'OPEN_KEYBOARD')
+        elif(x == 2):
+            # Man hinh thu gian
+            self.socket.sendall(b'OPEN_RELAXATION')
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
@@ -76,31 +542,19 @@ class SampleDialog(QtWidgets.QDialog):
         msg.setText(str(error))
         msg.exec_()
 
-    def forceQuit(self):
-        self.recordingStt = False
-        self.close()
 
+# class textSpinBox(QSpinBox):
+#     def __init__(self, parent=None):
+#         super(textSpinBox, self).__init__(parent)
+#         self.set_list_string()
 
-class textSpinBox(QSpinBox):
-    def __init__(self, parent=None):
-        super(textSpinBox, self).__init__(parent)
-        self.set_list_string()
+#     def set_list_string(self, strings=None):
+#         if strings is not None:
+#             self.list_text = strings
+#         else:
+#             self.list_text = ["Khỏe", "Bình thường", "Yếu"]
+#         self.setRange(0, len(self.list_text) - 1)
 
-    def set_list_string(self, strings=None):
-        if strings is not None:
-            self.list_text = strings
-        else:
-            self.list_text = ["Khỏe", "Bình thường", "Yếu"]
-        self.setRange(0, len(self.list_text) - 1)
+#     def textFromValue(self, value):
+#         return self.list_text[value]
 
-    def textFromValue(self, value):
-        return self.list_text[value]
-
-
-# if __name__ == "__main__":
-#     import sys
-#     app = QtWidgets.QApplication(sys.argv)
-#     ui = Sample_Dialog()
-#     ui.setupUi()
-#     ui.show()
-#     sys.exit(app.exec_())

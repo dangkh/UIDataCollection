@@ -25,5 +25,3 @@ class arguments(argparse.Namespace):
 
     HOST = 'DESKTOP-1L4P9BP'
     PORT = 23233
-
-arg = arguments

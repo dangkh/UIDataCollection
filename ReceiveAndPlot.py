@@ -20,6 +20,8 @@ plot_duration = 5  # how many seconds of data to show
 update_interval = 60  # ms between screen updates
 pull_interval = 500  # ms between each pull operation
 
+class StreamNotFound(Exception):
+    pass
 
 class Inlet:
     """Base class to represent a plottable inlet"""
@@ -113,13 +115,12 @@ class MarkerInlet(Inlet):
                 plt.addItem(pg.InfiniteLine(ts, angle=90, movable=False, label=string[0]))
 
 
-class EEGReceive_Plot(object):
+class EEGReceive_Plot():
     """docstring for EEGReceive_Plot"""
 
-    def __init__(self, arg):
+    def __init__(self):
         super(EEGReceive_Plot, self).__init__()
         print(plot_duration)
-        self.arg = arg
         self.counter = 0
         self.inlets: List[Inlet] = []
         self.stt = False
@@ -139,6 +140,7 @@ class EEGReceive_Plot(object):
             if stream.name() == "EmotivDataStream-EEG":
                 self.stt = True
                 self.inlet = DataInlet(stream, self.plt)
+
         if len(self.inlets) > 0:
             self.stt = True
 
@@ -172,18 +174,20 @@ class EEGReceive_Plot(object):
         self.saving = True
 
 
-class ETReceive(object):
+class ETReceive():
     """docstring for ETReceive"""
 
-    def __init__(self, arg):
+    def __init__(self):
         super(ETReceive, self).__init__()
-        self.arg = arg
         self.stt = False
         streams = pylsl.resolve_stream()
         for stream in streams:
             if stream.name() == "Unity.ExampleStream":
                 self.inlet = pylsl.StreamInlet(stream)
                 self.stt = True
+
+        if not hasattr(self, 'inlet'):
+            raise StreamNotFound('Không kết nối được với chương trình thu.')
 
         self.lastSample = None
         self.lSample = []
@@ -233,6 +237,11 @@ class EEGReceive(object):
                 self.inlet = pylsl.StreamInlet(stream)
             if stream.name() == 'EmotivDataStream-EEG-Quality':
                 self.quality_inlet = pylsl.StreamInlet(stream)
+
+        if not hasattr(self, 'inlet'):
+            raise StreamNotFound('Không tìm thấy dữ liệu điện não.')
+        if not hasattr(self, 'quality_inlet'):
+            raise StreamNotFound('Không tìm thấy thông tin chất lượng dữ liệu điện não.')
 
         self.quality = 100
         self.listSaving = []

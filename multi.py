@@ -12,6 +12,8 @@ import numpy as np
 import qimage2ndarray
 import time
 
+class CameraNotFound(Exception):
+    pass
 
 class VideoRecorder:
     class myThread (threading.Thread):
@@ -80,6 +82,8 @@ class VideoRecorder:
             k += 1
             if k >= 2:
                 break
+        if k == 0:
+            raise CameraNotFound('Không tìm thấy Camera')
 
         # print("total cam: ", k)
         self.numberDevices = k
