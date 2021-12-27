@@ -197,7 +197,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
         self.currentEvent = None
         self.listEventBtn = [self.createSamdialog.ui.ThinkButton, self.createSamdialog.ui.ThinkActButton,
-                             self.createSamdialog.ui.TypeButton, self.createSamdialog.ui.RestButton]
+                             self.createSamdialog.ui.TypeButton, self.createSamdialog.ui.RestButton,
+                             self.createSamdialog.ui.TypeButton_spc]
         for btn in self.listEventBtn:
             btn.clicked.connect(self.changeEventVisual(btn))
             btn.hide()
@@ -560,6 +561,12 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.recordTime = osTimer.time() - self.startTime
         time = "{:.2f}".format(self.recordTime)
         self.createSamdialog.ui.timerNumberLabel.setText("Timer: " + str(time) + " s")
+        if len(self.listEventMarker) < 1:
+            lastTimeMarker = 0
+        else: lastTimeMarker = self.listEventMarker[-1][1]
+        self.countdown = osTimer.time() - lastTimeMarker
+        self.listEvent.append([self.currentEventStart, osTimer.time()])
+        self.createSamdialog.ui.countDown.setText(str(self.countdown) + " s")
 
     def ET_update(self):
         self.ETPlot.update()
@@ -625,9 +632,17 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def changeObjectScreen(self, btn):
         if btn.text() != "Typing":
-            self.socket.sendall(b'OPEN_RELAXATION')
-        else:
-            self.socket.sendall(b'OPEN_KEYBOARD')
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_RELAXATION')
+        elif btn.text() == "Typing":
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_KEYBOARD')
+        elif btn.text() == "Typing special":
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.connect((HOST, PORT))
+            s.sendall(b'OPEN_FINDING')
 
     def changeEventVisual(self, btn):
         def wrap():
