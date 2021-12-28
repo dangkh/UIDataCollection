@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel
+from PyQt5 import uic
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from PyQt5.QtCore import *
 import os
 import json
-from ReceiveAndPlot import ETReceive, EEGReceive, EEGReceive_Plot, StreamNotFound
-from multi import VideoRecorder, CameraNotFound
-import csv
-import requests
-
-import subprocess
 from arguments import arguments as arg
 
 from utilsUI.subject_folder import SubjectFolder
@@ -17,9 +13,8 @@ from utilsUI.sample_file import SampleFile
 from utilities import showErrorPopup, createSub
 from createSampleDialog import SampleDialog
 
-import socket
 
-class Ui_MainWindow(QtWidgets.QMainWindow):
+class Ui_MainWindow(QMainWindow):
     def __init__(self, parent=None):
         """Initializer."""
         super().__init__(parent)
@@ -31,7 +26,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle("HMI")
         self.setObjectName("HMI")
         self.resize(int(1500 * arg.wScale), int(850 * arg.hScale))
-        self.patientsGridLayout = self.findChild(QtWidgets.QGridLayout, 'patientsGridLayout')
+        self.patientsGridLayout = self.findChild(QGridLayout, 'patientsGridLayout')
         self.createEvent()
 
     def createEvent(self):
@@ -40,7 +35,6 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.currentPage = 0
         self.currentSamPage = 0
         self.storeDir = "./DataVIN/"
-        self.record_save = True
         self.counter = 0
         self.percent = 0
         self.newSam.hide()
@@ -54,7 +48,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.updateSam(listDir=-1)
 
         # QtCore.QMetaObject.connectSlotsByName(self)
-        widget = QtWidgets.QWidget()
+        widget = QWidget()
         widget.setLayout(self.horizontalLayout)
         self.setCentralWidget(widget)
         self.newSam.clicked.connect(self.newSample)
@@ -302,7 +296,7 @@ def readStorageData(link="./DataVIN/"):
 
 if __name__ == "__main__":
     import sys
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     # MainWindow = QtWidgets.QMainWindow()
     ui = Ui_MainWindow()
     ui.setupUi()

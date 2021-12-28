@@ -34,6 +34,7 @@ class SampleDialog(QtWidgets.QDialog):
 
     def setupUi(self):
         uic.loadUi('UiFiles/createSample.ui', self)
+        self.record_save = True
         self.rcdBtn.hide()
         self.scenarioNumber.setMaximum(arg.numPlan)
         self.scenarioNumber.setMinimum(1)
@@ -45,11 +46,11 @@ class SampleDialog(QtWidgets.QDialog):
         text = arg.plans[self.scenarioNumber.value() - 1]
         self.lineEdit.setText(str(text))
 
-    def setInfo(self, info):
+    def setInfo(self, subject_path):
         # set sample info as the info of the patient
-        self.info = info
+        self.subject_path = subject_path
         try:
-            jsonDir = info + '/info.json'
+            jsonDir = subject_path + '/info.json'
             with open(jsonDir, 'r', encoding='utf8') as json_file:
                 data = json.load(json_file)
             self.NameEdit.setText(data['name'])
@@ -173,11 +174,6 @@ class SampleDialog(QtWidgets.QDialog):
         RecorderEdit = self.RecorderEdit.text()
         LocateEdit = self.LocateEdit.text()
         scenarioNumber = self.scenarioNumber.value()
-        missingValue = False
-        if RecorderEdit == '' or LocateEdit == '':
-            missingValue = True
-        if scenarioNumber == 0:
-            missingValue = True
 
         if RecorderEdit == '' or LocateEdit == '' or scenarioNumber == 0:
             self.showErrorPopup("Please complete fully the form")
@@ -189,7 +185,7 @@ class SampleDialog(QtWidgets.QDialog):
         self.record_save = False
         self.recordingStt = True
         # create new sample folder
-        link = self.currentSub + '/'
+        link = self.subject_path + '/'
         if os.path.isdir(link):
             onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
         else:
@@ -357,7 +353,7 @@ class SampleDialog(QtWidgets.QDialog):
             self.setRecodData(newData)
         else:
             onlydir = []
-            link = self.currentSub + '/'
+            link = self.subject_path + '/'
             if os.path.isdir(link):
                 onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + d)]
             onlydir.sort(key=os.path.getctime)
@@ -372,15 +368,16 @@ class SampleDialog(QtWidgets.QDialog):
             self.setRecodData(data)
 
     def teardown(self):
-        timers = [self.update_timer, self.pull_timer, self.signal_timer]
-        for t in timers:
-            t.stop()
-            t.deleteLater()
-
         if hasattr(self, 'CAMth'):
             self.CAMth.stopRecord()
         self.recordingStt = False
-        # self.close()
+        timers = [self.update_timer, self.pull_timer, self.signal_timer]
+        for t in timers:
+            try:
+                t.stop()
+                t.deleteLater()
+            except Exception as e:
+                print(e)
 
     def updateEEGRcv(self):
         self.EEGRcv.update()
@@ -389,12 +386,12 @@ class SampleDialog(QtWidgets.QDialog):
         self.recordTime = osTimer.time() - self.startTime
         time = "{:.2f}".format(self.recordTime)
         self.timerNumberLabel.setText("Timer: " + str(time) + " s")
-        if len(self.listEventMarker) < 1:
-            lastTimeMarker = 0
-        else: lastTimeMarker = self.listEventMarker[-1][1]
-        self.countdown = osTimer.time() - lastTimeMarker
-        self.listEvent.append([self.currentEventStart, osTimer.time()])
-        self.countDown.setText(str(self.countdown) + " s")
+        if not hasattr(self, 'currentEventStart'):
+            self.countdown = 0
+        else:
+            self.countdown = osTimer.time() - self.currentEventStart
+        # self.listEvent.append([self.currentEventStart, osTimer.time()])
+        self.countDown.setText(f'{self.countdown:.02f} s')
 
     def ET_update(self):
         self.ETPlot.update()
@@ -405,7 +402,6 @@ class SampleDialog(QtWidgets.QDialog):
             self.widScreen.setText(ETdata[4])
 
     def changeSignal(self):
-        print('Enter changeSignal')
         counter = 0
         cam1 = True
         cam2 = True
@@ -437,11 +433,11 @@ class SampleDialog(QtWidgets.QDialog):
     def changeStyleRcd(self):
         self.turnOnOffBtn.hide()
         self.rcdBtn.setStyleSheet(u"border-style: outset;\n"
-                                "border-width: 1px;\n"
-                                "border-radius: 10px;\n"
-                                "border-color: beige;\n"
-                                "background-color: red;\n"
-                                "padding: 3px;")
+                                    "border-width: 1px;\n"
+                                    "border-radius: 10px;\n"
+                                    "border-color: beige;\n"
+                                    "background-color: red;\n"
+                                    "padding: 3px;")
 
     def closeMarker(self, btn):
         self.currentEvent = None

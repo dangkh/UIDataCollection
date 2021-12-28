@@ -155,7 +155,6 @@ class EEGReceive_Plot():
         try:
             plot_time = self.inlet.curves[0].xData[-1]
         except Exception:
-            print(self.inlet.curves[0])
             plot_time = 0
         # print('range', plot_time - plot_duration + fudge_factor, plot_time - fudge_factor)
         self.pw.setXRange(plot_time - plot_duration + fudge_factor, plot_time + fudge_factor)
