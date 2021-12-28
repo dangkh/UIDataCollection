@@ -152,12 +152,13 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def newSample(self):
         self.createSamdialog = SampleDialog()
+        self.createSamdialog.setupUi()
         self.createSamdialog.setInfo(self.currentSub)
-        self.createSamdialog.createEvent()
-        self.createSamdialog.setup_connection()
         self.createSamdialog.closeEvent = self.recorderCloseEvent
+        self.createSamdialog.setup_connection()
 
     def recorderCloseEvent(self, event):
+        print('Cleanup from Main Window')
         self.createSamdialog.teardown()
         event.accept()
         self.updateSam(page=-1)

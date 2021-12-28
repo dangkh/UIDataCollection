@@ -21,20 +21,21 @@ import subprocess
 import numpy as np
 import time as osTimer
 import pyedflib as pyedf
+import csv
 
 class SampleDialog(QtWidgets.QDialog):
     def __init__(self):
         super().__init__()
-        self.setupUi()
+        # self.setupUi()
+
+
+    def setupUi(self):
+        uic.loadUi('UiFiles/createSample.ui', self)
         self.rcdBtn.hide()
         self.scenarioNumber.setMaximum(arg.numPlan)
         self.scenarioNumber.setMinimum(1)
         self.scenarioNumber.valueChanged.connect(self.updatePlanView)
         self.updatePlanView()
-
-
-    def setupUi(self):
-        uic.loadUi('UiFiles/createSample.ui', self)
         self.createEvent()
 
     def updatePlanView(self):
@@ -90,14 +91,15 @@ class SampleDialog(QtWidgets.QDialog):
             self.widEEG.addWidget(self.EEGPlot.pw)
 
             self.ETPlot = ETReceive()
-            self.receiver_connection = (self.EEGPlot.inlet.inlet.info().hostname(), 23233)
+            # self.receiver_connection = (self.EEGPlot.inlet.inlet.info().hostname(), 23233)
+            self.receiver_connection = ('169.254.224.44', 23233)
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect(self.receiver_connection)
 
-            self.CAMth = VideoRecorder()
-            self.CAMth.setLabelImage([self.CAM1])
-            self.CAMth.beginRecord()
-        except (StreamNotFound, CameraNotFound) as err:
+            # self.CAMth = VideoRecorder()
+            # self.CAMth.setLabelImage([self.CAM1])
+            # self.CAMth.beginRecord()
+        except (StreamNotFound, CameraNotFound, OSError) as err:
             dlg = QDialog(self)
             print(err)
             dlg.setWindowTitle('Đã có lỗi xảy ra!')
@@ -107,30 +109,38 @@ class SampleDialog(QtWidgets.QDialog):
             dlg.setLayout(dlg.layout)
             dlg.exec()
             return None
+        print('Setting up connection ... done!')
 
         # setting up timers
 
-        self.signalTimer = QtCore.QTimer()
-        self.signalTimer.setInterval(500)
-        self.signalTimer.timeout.connect(self.changeSignal)
-        self.signalTimer.start()
+        self.signal_timer = QtCore.QTimer()
+        self.signal_timer.setInterval(500)
+        self.signal_timer.timeout.connect(self.changeSignal)
+        self.signal_timer.start()
+
+        print('Setting up signal_timer done!')
 
         self.update_timer = QtCore.QTimer()
         self.update_timer.setInterval(60)
         self.update_timer.timeout.connect(self.EEGPlot.scroll)
         self.update_timer.start()
 
+        print('Setting up updatet_timer done!')
+
         # create a timer that will pull and add new data occasionally
         self.pull_timer = QtCore.QTimer()
         self.pull_timer.setInterval(500)
         self.pull_timer.timeout.connect(self.EEGPlot.update)
         self.pull_timer.start()
-        # get ET
 
-        self.ETtimer = QtCore.QTimer()
-        self.ETtimer.setInterval(0)
-        self.ETtimer.timeout.connect(self.ET_update)
-        self.ETtimer.start()
+        print('Setting up pull_timer done!')
+
+        self.et_timer = QtCore.QTimer()
+        self.et_timer.setInterval(0)
+        self.et_timer.timeout.connect(self.ET_update)
+        self.et_timer.start()
+
+        print('Setting up et_timer done!')
 
         self.currentEvent = None
         self.listEventBtn = [self.ThinkButton, self.ThinkActButton,
@@ -142,7 +152,11 @@ class SampleDialog(QtWidgets.QDialog):
         self.calibrate.clicked.connect(lambda: self.controlUserScr(1))
         self.relax.clicked.connect(lambda: self.controlUserScr(2))
         self.keyboard.clicked.connect(lambda: self.controlUserScr(3))
+
+        print('Connect button done!')
+
         self.exec_()
+        print('Setting up ... done.')
 
     def record_saveData(self):
         if self.record_save:
@@ -162,79 +176,81 @@ class SampleDialog(QtWidgets.QDialog):
         if scenarioNumber == 0:
             missingValue = True
 
-        if not missingValue:
-            for btn in self.listEventBtn:
-                btn.show()
-            self.record_save = False
-            self.recordingStt = True
-            # create new sample folder
-            link = self.currentSub + '/'
-            if os.path.isdir(link):
-                onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
-            else:
-                print("Error in link Sub")
-            # Dong nay bi loi khi create record
-            # RuntimeError: wrapped C/C++ object of type QTimer has been deleted
-            onlydir.sort(key=os.path.getctime)
-            newID = len(onlydir) + 1
-            newDir = link + "sample" + str(newID)
-            os.mkdir(newDir)
-            self.newDir = newDir
-            self.CAMth.updateSavingDir(newDir + '/')
-            self.CAMth.stopRecord()
-            self.ETPlot.updateSaving()
-
-            self.EEGRcv = EEGReceive("new")
-            self.EEGtimer = QtCore.QTimer()
-            self.EEGtimer.setInterval(10)
-            self.EEGtimer.timeout.connect(self.updateEEGRcv)
-            self.EEGtimer.start()
-
-            self.timerRcd = QtCore.QTimer()
-            self.timerRcd.setInterval(100)
-            self.timerRcd.timeout.connect(self.updateTimerRcd)
-            self.timerRcd.start()
-
-
-            self.percentTimer = QtCore.QTimer()
-            self.percentTimer.setInterval(1000)
-            self.latestPercentTime = osTimer.time()
-            self.percentTimer.timeout.connect(self.changePercent)
-            self.percentTimer.start()
-
-            # set connection
-            # self.receiver_connection = (self.EEGRcv.inlet.info().hostname(), 23233)
-            # self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            # self.socket.connect(self.receiver_connection)
-
-            self.rcdBtn.setText("Save")
-            font = QtGui.QFont()
-            font.setPointSize(12)
-            font.setBold(True)
-            font.setWeight(75)
-            self.rcdBtn.setFont(font)
-            timers = [self.update_timer, self.pull_timer]
-            for t in timers:
-                t.stop()
-                t.deleteLater()
-
-            self.recordTime = 0
-            self.startTime = osTimer.time()
-            cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
-            # cmd = "ffmpeg -y -f dshow -i video=\"Integrated Webcam\" "
-            outVid = '"' + str(self.newDir) + "/FaceGesture.avi" + '"'
-            self.pipe = subprocess.Popen(cmd + outVid, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
-
-            self.changeStyleRcd()
-            self.createSamdialog.ui.controllerFrame.hide()
-        else:
+        if RecorderEdit == '' or LocateEdit == '' or scenarioNumber == 0:
             self.showErrorPopup("Please complete fully the form")
+            return None
+
+
+        for btn in self.listEventBtn:
+            btn.show()
+        self.record_save = False
+        self.recordingStt = True
+        # create new sample folder
+        link = self.currentSub + '/'
+        if os.path.isdir(link):
+            onlydir = [link + d for d in os.listdir(link) if os.path.isdir(link + "/" + d)]
+        else:
+            print("Error in link Sub")
+        # Dong nay bi loi khi create record
+        # RuntimeError: wrapped C/C++ object of type QTimer has been deleted
+        onlydir.sort(key=os.path.getctime)
+        newID = len(onlydir) + 1
+        newDir = link + "sample" + str(newID)
+        os.mkdir(newDir)
+        self.newDir = newDir
+        # self.CAMth.updateSavingDir(newDir + '/')
+        # self.CAMth.stopRecord()
+        self.ETPlot.updateSaving()
+
+        self.EEGRcv = EEGReceive("new")
+        self.EEGtimer = QtCore.QTimer()
+        self.EEGtimer.setInterval(10)
+        self.EEGtimer.timeout.connect(self.updateEEGRcv)
+        self.EEGtimer.start()
+
+        self.timerRcd = QtCore.QTimer()
+        self.timerRcd.setInterval(100)
+        self.timerRcd.timeout.connect(self.updateTimerRcd)
+        self.timerRcd.start()
+
+
+        self.percentTimer = QtCore.QTimer()
+        self.percentTimer.setInterval(1000)
+        self.latestPercentTime = osTimer.time()
+        self.percentTimer.timeout.connect(self.changePercent)
+        self.percentTimer.start()
+
+        # set connection
+        # self.receiver_connection = (self.EEGRcv.inlet.info().hostname(), 23233)
+        # self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # self.socket.connect(self.receiver_connection)
+
+        self.rcdBtn.setText("Save")
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.rcdBtn.setFont(font)
+        timers = [self.update_timer, self.pull_timer]
+        for t in timers:
+            t.stop()
+            t.deleteLater()
+
+        self.recordTime = 0
+        self.startTime = osTimer.time()
+        cmd = "ffmpeg -y -f dshow -rtbufsize 1000M -s 1920x1080 -r 30 -i video=\"Logitech Webcam C930e\" -b:v 5M "
+        # cmd = "ffmpeg -y -f dshow -i video=\"Integrated Webcam\" "
+        outVid = '"' + str(self.newDir) + "/FaceGesture.avi" + '"'
+        self.pipe = subprocess.Popen(cmd + outVid, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+
+        self.changeStyleRcd()
+        self.controllerFrame.hide()
 
     def saveRecord(self):
         print("Enter Save")
-        RecorderEdit = self.createSamdialog.ui.RecorderEdit.text()
-        LocateEdit = self.createSamdialog.ui.LocateEdit.text()
-        scenarioNumber = self.createSamdialog.ui.scenarioNumber.value()
+        RecorderEdit = self.RecorderEdit.text()
+        LocateEdit = self.LocateEdit.text()
+        scenarioNumber = self.scenarioNumber.value()
         newData = {
             'Recorder': RecorderEdit,
             'Location': LocateEdit,
@@ -242,8 +258,8 @@ class SampleDialog(QtWidgets.QDialog):
             'Scenario': arg.plans[scenarioNumber - 1]
         }
         self.record_save = True
-        self.createSamdialog.ui.widEEG.removeWidget(self.EEGPlot.pw)
-        timers = [self.ETtimer, self.signalTimer, self.EEGtimer, self.timerRcd, self.percentTimer]
+        self.widEEG.removeWidget(self.EEGPlot.pw)
+        timers = [self.et_timer, self.signal_timer, self.EEGtimer, self.timerRcd, self.percentTimer]
         for t in timers:
             t.stop()
             t.deleteLater()
@@ -337,7 +353,6 @@ class SampleDialog(QtWidgets.QDialog):
             }
             self.setRecodData(newData)
         else:
-            # print("ENterrrrrrrrrrrrrrrrrrrr")
             onlydir = []
             link = self.currentSub + '/'
             if os.path.isdir(link):
@@ -354,11 +369,13 @@ class SampleDialog(QtWidgets.QDialog):
             self.setRecodData(data)
 
     def teardown(self):
-        timers = [self.update_timer, self.pull_timer, self.signalTimer]
+        timers = [self.update_timer, self.pull_timer, self.signal_timer]
         for t in timers:
             t.stop()
             t.deleteLater()
-        self.CAMth.stopRecord()
+
+        if hasattr(self, 'CAMth'):
+            self.CAMth.stopRecord()
         self.recordingStt = False
         # self.close()
 
@@ -368,23 +385,24 @@ class SampleDialog(QtWidgets.QDialog):
     def updateTimerRcd(self):
         self.recordTime = osTimer.time() - self.startTime
         time = "{:.2f}".format(self.recordTime)
-        self.createSamdialog.ui.timerNumberLabel.setText("Timer: " + str(time) + " s")
+        self.timerNumberLabel.setText("Timer: " + str(time) + " s")
         if len(self.listEventMarker) < 1:
             lastTimeMarker = 0
         else: lastTimeMarker = self.listEventMarker[-1][1]
         self.countdown = osTimer.time() - lastTimeMarker
         self.listEvent.append([self.currentEventStart, osTimer.time()])
-        self.createSamdialog.ui.countDown.setText(str(self.countdown) + " s")
+        self.countDown.setText(str(self.countdown) + " s")
 
     def ET_update(self):
         self.ETPlot.update()
         ETdata = self.ETPlot.lastSample
         if ETdata is not None:
-            self.createSamdialog.ui.position.setText(str(ETdata[1]) + " " + str(ETdata[2]))
-            self.createSamdialog.ui.character.setText(ETdata[3])
-            self.createSamdialog.ui.widScreen.setText(ETdata[4])
+            self.position.setText(str(ETdata[1]) + " " + str(ETdata[2]))
+            self.character.setText(ETdata[3])
+            self.widScreen.setText(ETdata[4])
 
     def changeSignal(self):
+        print('Enter changeSignal')
         counter = 0
         cam1 = True
         cam2 = True
@@ -394,32 +412,33 @@ class SampleDialog(QtWidgets.QDialog):
         if self.CAMth.numberDevices < 1:
             cam1 = False
         l1 = [self.ETPlot.signalStt(), self.EEGPlot.signalStt(), cam1, cam2]
-        l2 = [self.createSamdialog.ui.SignalET,
-              self.createSamdialog.ui.SignalEEG,
-              self.createSamdialog.ui.SignalCAM1]
+        l2 = [self.SignalET,
+              self.SignalEEG,
+              self.SignalCAM1]
         # print(l1)
         for x in l1:
             if x:
                 counter += 1
         if counter >= 3:
-            self.createSamdialog.ui.rcdBtn.show()
+            self.rcdBtn.show()
         else:
-            self.createSamdialog.ui.rcdBtn.hide()
+            self.rcdBtn.hide()
         for x, y in zip(l1, l2):
             y.setChecked(not x)
 
     def changePercent(self):
+        print('Update percent')
         self.percent = self.EEGRcv.getQuality()
-        self.createSamdialog.ui.label_EEG.setText("EEG " + str(self.percent) + "%")
+        self.label_EEG.setText("EEG " + str(self.percent) + "%")
 
     def changeStyleRcd(self):
-        self.createSamdialog.ui.turnOnOffBtn.hide()
-        self.createSamdialog.ui.rcdBtn.setStyleSheet(u"border-style: outset;\n"
-                                                     "border-width: 1px;\n"
-                                                     "border-radius: 10px;\n"
-                                                     "border-color: beige;\n"
-                                                     "background-color: red;\n"
-                                                     "padding: 3px;")
+        self.turnOnOffBtn.hide()
+        self.rcdBtn.setStyleSheet(u"border-style: outset;\n"
+                                "border-width: 1px;\n"
+                                "border-radius: 10px;\n"
+                                "border-color: beige;\n"
+                                "background-color: red;\n"
+                                "padding: 3px;")
 
     def closeMarker(self, btn):
         self.currentEvent = None
@@ -525,15 +544,15 @@ class SampleDialog(QtWidgets.QDialog):
         self.ThinkActButton.setText(_translate("Dialog", "Acting"))
         self.TypeButton.setText(_translate("Dialog", "Typing"))
 
-    def closeEvent(self, event):
-        print("recordingStt: ", self.recordingStt)
-        if not self.recordingStt:
-            print("QUIT")
-            event.accept()
-            self.close()
-        else:
-            self.showErrorPopup("Hãy ấn Tắt nếu muốn đóng cửa sổ này")
-            event.ignore()
+    # def closeEvent(self, event):
+    #     print("recordingStt: ", self.recordingStt)
+    #     if not self.recordingStt:
+    #         print("QUIT")
+    #         event.accept()
+    #         self.close()
+    #     else:
+    #         self.showErrorPopup("Hãy ấn Tắt nếu muốn đóng cửa sổ này")
+    #         event.ignore()
 
         # super(Sample_Dialog, self).quitTimer()
 
