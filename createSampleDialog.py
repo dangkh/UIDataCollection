@@ -28,6 +28,9 @@ class SampleDialog(QtWidgets.QDialog):
         super().__init__()
         # self.setupUi()
 
+    def keyPressEvent(self, event):
+        if not event.key() == QtCore.Qt.Key_Escape:
+            super(SampleDialog, self).keyPressEvent(event)
 
     def setupUi(self):
         uic.loadUi('UiFiles/createSample.ui', self)
@@ -91,14 +94,14 @@ class SampleDialog(QtWidgets.QDialog):
             self.widEEG.addWidget(self.EEGPlot.pw)
 
             self.ETPlot = ETReceive()
-            # self.receiver_connection = (self.EEGPlot.inlet.inlet.info().hostname(), 23233)
-            self.receiver_connection = ('169.254.224.44', 23233)
+            self.receiver_connection = (self.EEGPlot.inlet.inlet.info().hostname(), 23233)
+            # self.receiver_connection = ('169.254.224.44', 23233)
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.socket.connect(self.receiver_connection)
 
-            # self.CAMth = VideoRecorder()
-            # self.CAMth.setLabelImage([self.CAM1])
-            # self.CAMth.beginRecord()
+            self.CAMth = VideoRecorder()
+            self.CAMth.setLabelImage([self.CAM1])
+            self.CAMth.beginRecord()
         except (StreamNotFound, CameraNotFound, OSError) as err:
             dlg = QDialog(self)
             print(err)

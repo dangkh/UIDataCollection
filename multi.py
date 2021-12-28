@@ -72,8 +72,9 @@ class VideoRecorder:
 
     def listCapDev(self):
         k = 0
+        print(platform.system())
         while True:
-            if platform.system() == 'Window':
+            if platform.system() == 'Windows':
                 cap = cv2.VideoCapture(k, cv2.CAP_DSHOW)
             else:
                 cap = cv2.VideoCapture(k)

@@ -14,7 +14,7 @@ from arguments import arguments as arg
 
 from utilsUI.subject_folder import SubjectFolder
 from utilsUI.sample_file import SampleFile
-from utilities import showErrorPopup
+from utilities import showErrorPopup, createSub
 from createSampleDialog import SampleDialog
 
 import socket
@@ -152,9 +152,9 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
     def newSample(self):
         self.createSamdialog = SampleDialog()
+        self.createSamdialog.closeEvent = self.recorderCloseEvent
         self.createSamdialog.setupUi()
         self.createSamdialog.setInfo(self.currentSub)
-        self.createSamdialog.closeEvent = self.recorderCloseEvent
         self.createSamdialog.setup_connection()
 
     def recorderCloseEvent(self, event):
