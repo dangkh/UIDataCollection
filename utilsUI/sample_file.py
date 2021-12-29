@@ -37,7 +37,6 @@ class SampleFile:
                     data = json.load(json_file)
                 subjectName = str(path).split("/")[-1] + " (scenario_" + str(data["scenarioId"]) + ")"
             except Exception as e:
-                subjectName = str(path).split("/")[-1]
                 raise e
 
             self.label.setText(subjectName)

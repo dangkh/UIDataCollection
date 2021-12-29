@@ -20,6 +20,8 @@ plot_duration = 5  # how many seconds of data to show
 update_interval = 60  # ms between screen updates
 pull_interval = 500  # ms between each pull operation
 
+class StreamNotFound(Exception):
+    pass
 
 class Inlet:
     """Base class to represent a plottable inlet"""
@@ -33,8 +35,8 @@ class Inlet:
         # same time domain as the local lsl_clock()
         # (see https://labstreaminglayer.readthedocs.io/projects/liblsl/ref/enums.html#_CPPv414proc_clocksync)
         # and dejitter timestamps
-        self.inlet = pylsl.StreamInlet(info, max_buflen=plot_duration,
-                                       processing_flags=pylsl.proc_clocksync | pylsl.proc_dejitter)
+        self.inlet = pylsl.StreamInlet(info, max_buflen=plot_duration)
+                                       # processing_flags=pylsl.proc_clocksync | pylsl.proc_dejitter)
         # store the name and channel count
         self.name = info.name()
         self.channel_count = info.channel_count()
@@ -65,7 +67,7 @@ class DataInlet(Inlet):
         for curve in self.curves:
             plt.addItem(curve)
 
-    def pull_and_plot(self, plot_time, plt):
+    def pull_and_plot(self, plot_duration, plt):
         # pull the data
         _, ts = self.inlet.pull_chunk(timeout=0.0,
                                       max_samples=self.buffer.shape[0],
@@ -77,6 +79,9 @@ class DataInlet(Inlet):
             this_x = None
             old_offset = 0
             new_offset = 0
+            if not hasattr(self, 'time_diff'):
+                self.time_diff = pylsl.local_clock() - ts[0]
+            plot_time = ts[0] - plot_duration
             for index in range(3, self.channel_count - 1):
                 ch_ix = index - 3
                 # we don't pull an entire screen's worth of data, so we have to
@@ -92,7 +97,7 @@ class DataInlet(Inlet):
                     # can be shown at once
                     new_offset = ts.searchsorted(plot_time)
                     # append new timestamps to the trimmed old timestamps
-                    this_x = np.hstack((old_x[old_offset:], ts[new_offset:]))
+                    this_x = np.hstack((old_x[old_offset:], ts[new_offset:] + self.time_diff)) 
                 # append new data to the trimmed old data
                 this_y = np.hstack((old_y[old_offset:], y[new_offset:, index] - index))
                 # replace the old data
@@ -113,13 +118,12 @@ class MarkerInlet(Inlet):
                 plt.addItem(pg.InfiniteLine(ts, angle=90, movable=False, label=string[0]))
 
 
-class EEGReceive_Plot(object):
+class EEGReceive_Plot():
     """docstring for EEGReceive_Plot"""
 
-    def __init__(self, arg):
+    def __init__(self):
         super(EEGReceive_Plot, self).__init__()
         print(plot_duration)
-        self.arg = arg
         self.counter = 0
         self.inlets: List[Inlet] = []
         self.stt = False
@@ -128,7 +132,7 @@ class EEGReceive_Plot(object):
         streams = pylsl.resolve_streams()
         # Create the pyqtgraph window
         self.pw = pg.PlotWidget(title='EEG Plot')
-        self.pw.setYRange(-2000, 2000, padding=0)
+        self.pw.setYRange(-300, 300, padding=0)
         self.pw.getPlotItem().hideAxis('bottom')
         self.plt = self.pw.getPlotItem()
         self.plt.enableAutoRange(x=False, y=False)
@@ -139,6 +143,7 @@ class EEGReceive_Plot(object):
             if stream.name() == "EmotivDataStream-EEG":
                 self.stt = True
                 self.inlet = DataInlet(stream, self.plt)
+
         if len(self.inlets) > 0:
             self.stt = True
 
@@ -147,8 +152,12 @@ class EEGReceive_Plot(object):
         # We show data only up to a timepoint shortly before the current time
         # so new data doesn't suddenly appear in the middle of the plot
         fudge_factor = pull_interval * .002
-        plot_time = pylsl.local_clock()
-        self.pw.setXRange(plot_time - plot_duration + fudge_factor, plot_time - fudge_factor)
+        try:
+            plot_time = self.inlet.curves[0].xData[-1]
+        except Exception:
+            plot_time = 0
+        # print('range', plot_time - plot_duration + fudge_factor, plot_time - fudge_factor)
+        self.pw.setXRange(plot_time - plot_duration + fudge_factor, plot_time + fudge_factor)
 
     def update(self):
         # print("EEG update")
@@ -160,7 +169,7 @@ class EEGReceive_Plot(object):
             # call pull_and_plot for each inlet.
             # Special handling of inlet types (markers, continuous data) is done in
             # the different inlet classes.
-            self.inlet.pull_and_plot(mintime, self.plt)
+            self.inlet.pull_and_plot(plot_duration, self.plt)
         except Exception as e:
             self.stt = False
             print(e, "error in inlet EEG")
@@ -172,18 +181,20 @@ class EEGReceive_Plot(object):
         self.saving = True
 
 
-class ETReceive(object):
+class ETReceive():
     """docstring for ETReceive"""
 
-    def __init__(self, arg):
+    def __init__(self):
         super(ETReceive, self).__init__()
-        self.arg = arg
         self.stt = False
         streams = pylsl.resolve_stream()
         for stream in streams:
             if stream.name() == "Unity.ExampleStream":
                 self.inlet = pylsl.StreamInlet(stream)
                 self.stt = True
+
+        if not hasattr(self, 'inlet'):
+            raise StreamNotFound('Không kết nối được với chương trình thu.')
 
         self.lastSample = None
         self.lSample = []
@@ -233,6 +244,11 @@ class EEGReceive(object):
                 self.inlet = pylsl.StreamInlet(stream)
             if stream.name() == 'EmotivDataStream-EEG-Quality':
                 self.quality_inlet = pylsl.StreamInlet(stream)
+
+        if not hasattr(self, 'inlet'):
+            raise StreamNotFound('Không tìm thấy dữ liệu điện não.')
+        if not hasattr(self, 'quality_inlet'):
+            raise StreamNotFound('Không tìm thấy thông tin chất lượng dữ liệu điện não.')
 
         self.quality = 100
         self.listSaving = []
