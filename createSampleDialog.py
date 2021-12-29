@@ -197,8 +197,8 @@ class SampleDialog(QtWidgets.QDialog):
         newDir = link + "sample" + str(newID)
         os.mkdir(newDir)
         self.newDir = newDir
-        # self.CAMth.updateSavingDir(newDir + '/')
-        # self.CAMth.stopRecord()
+        self.CAMth.updateSavingDir(newDir + '/')
+        self.CAMth.stopRecord()
         self.ETPlot.updateSaving()
 
         self.EEGRcv = EEGReceive("new")
