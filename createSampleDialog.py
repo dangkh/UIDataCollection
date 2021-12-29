@@ -442,27 +442,22 @@ class SampleDialog(QtWidgets.QDialog):
     def closeMarker(self, btn):
         self.currentEvent = None
         btn.setStyleSheet("")
-        self.socket.sendall(b'OPEN_RELAXATION')
         self.listEvent.append([self.currentEventStart, osTimer.time()])
         self.listEventMarker.append(btn.text())
 
     def setMarker(self, btn):
         print("enteredddd setMarker")
         btn.setStyleSheet("background-color: yellow")
-        if btn.text() != "Typing":
-            self.socket.sendall(b'OPEN_RELAXATION')
-        else:
-            self.socket.sendall(b'OPEN_KEYBOARD')
         self.currentEvent = btn
         self.currentEventStart = osTimer.time()
 
     def changeObjectScreen(self, btn):
-        if btn.text() != "Typing":
-            self.socket.sendall(b'OPEN_RELAXATION')
-        elif btn.text() == "Typing":
+        if btn.text() == "Typing":
             self.socket.sendall(b'OPEN_KEYBOARD')
-        elif btn.text() == "Typing special":
+        elif btn.text() == "Special Typing":
             self.socket.sendall(b'OPEN_FINDING')
+        else:
+            self.socket.sendall(b'OPEN_RELAXATION')
 
     def changeEventVisual(self, btn):
         def wrap():
